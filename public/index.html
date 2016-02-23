@@ -15,19 +15,16 @@
 <meta name="twitter:title" content="Hexo">
 <meta name="twitter:description">
   
-    <link rel="alternate" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
   
-  
-    <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
-  
+  <link href="//fonts.googleapis.com/css?family=Source+Code+Pro" rel="stylesheet" type="text/css">
   <link rel="stylesheet" href="/css/style.css" type="text/css">
   
 
 </head>
-
 <body>
   <div id="container">
     <div id="wrap">
@@ -53,7 +50,7 @@
         
           <a id="nav-rss-link" class="nav-icon" href="/atom.xml" title="RSS Feed"></a>
         
-        <a id="nav-search-btn" class="nav-icon" title="搜尋"></a>
+        <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
         <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
@@ -64,10 +61,10 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-LINQ优点总结(转载)" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-C#-Join" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/02/23/LINQ优点总结(转载)/" class="article-date">
-  <time datetime="2016-02-23T14:26:48.052Z" itemprop="datePublished">2016-02-23</time>
+    <a href="/2016/02/23/C#-Join/" class="article-date">
+  <time datetime="2016-02-23T14:45:23.220Z" itemprop="datePublished">2016-02-23</time>
 </a>
     
   <div class="article-category">
@@ -82,90 +79,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/LINQ优点总结(转载)/">.net LINQ</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##LINQ 优点 总结(转载)<br>原文链接：<a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a></p>
-<p>这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。</p>
-<p>由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。</p>
-<p>（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）</p>
-<p>LINQ的优点：</p>
-<p>LINQ基本有以下七个优点，让我来一一举例说明：</p>
-<p>#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：</p>
-<p>(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：</p>
-<p>语句高亮显示，类型检查，允许使用debugger调试</p>
-<p>(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。</p>
-<p>(3):集成后的语法更加的清晰易懂，可读性较高。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#27604;&#36739;&#65306; &#10;//&#21407;&#26469;&#30340;&#26684;&#24335;&#10;SqlConnection sqlConn = new SqlConnection(connectionString);&#62;&#10;sqlConn.Open();&#10;SqlCommand command = new SqlCommand();&#10;command.Connection = sqlConn;&#10;command.CommandText = &#34;Select * From Customer&#34;;&#10;SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);&#10; &#10;//LINQ&#30340;&#26684;&#24335;&#10;NORTHWNDDataContext dc = new NORTHWNDDataContext();&#10;var query = from c in dc.Customers&#10;            select c;</span><br></pre></td></tr></table></figure>
-<p>#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。</p>
-<p>使用统一化查询语言的好处在于以下几点：</p>
-<p>你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。<br>由于使用了统一的语法，可以使代码维护变的更加简单。<br>以下代码体现了LINQ的统一化：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#25968;&#25454;&#28304;:&#23545;&#35937;&#38598;&#21512;&#10;var query = from c in GetCustomers()&#10;            select c;&#10; &#10;//&#25968;&#25454;&#28304;:SQL&#10;var query1 = from c in dc.Customers&#10;             select c;&#10;//&#25968;&#25454;&#28304;:XML&#10;var query2 = from c in customers.Descendants(&#34;Customer&#34;)&#10;             select c;</span><br></pre></td></tr></table></figure></p>
-<p>#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:</p>
-<p>(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。</p>
-<p>(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。</p>
-<p>以下是些第三方的LINQ provider：</p>
-<p>LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google</p>
-<p>#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。</p>
-<p>Declarative programming(声明式编程)的优点体现在以下2点：</p>
-<p>(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。</p>
-<p>(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。</p>
-<p>举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。</p>
-<p>比较Declarative programming 与 Imperative programming：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#22768;&#26126;&#24335;&#32534;&#31243;&#10;List&#60;List&#60;int&#62;&#62; lists = new List&#60;List&#60;int&#62;&#62; &#123; new List&#60;int&#62; &#123; 1, 2, 3 &#125;, new List&#60;int&#62; &#123; 4, 5 &#125; &#125;;&#10;var query = from list in lists&#10;            from num in list&#10;            where num % 3 == 0&#10;            orderby num descending&#10;            select num;&#10; &#10;//&#21629;&#20196;&#24335;&#32534;&#31243;&#10;List&#60;int&#62; list1 = new List&#60;int&#62;();&#10;list1.Add(1);&#10;list1.Add(2);&#10;list1.Add(3);&#10;List&#60;int&#62; list2 = new List&#60;int&#62;();&#10;list2.Add(4);&#10;list2.Add(5);&#10;List&#60;List&#60;int&#62;&#62; lists1 = new List&#60;List&#60;int&#62;&#62;();&#10;lists1.Add(list1);&#10;lists1.Add(list2);&#10; &#10;List&#60;int&#62; newList = new List&#60;int&#62;();&#10;foreach (var item in lists1)&#10;      foreach (var num in item)&#10;        if (num % 3 == 0)&#10;            newList.Add(num);&#10;newList.Reverse();</span><br></pre></td></tr></table></figure></p>
-<p>#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。</p>
-<p>SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是</p>
-<p>rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。</p>
-<p>这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。</p>
-<p>#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。</p>
-<p>LINQ返回的结果都是基于接口：IEnumerable<t>，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。</t></p>
-<p>优点在于：</p>
-<p>(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。</p>
-<p>(2).便于代码维护。把代码拆分后能使代码变的更易理解。</p>
-<p>以下代码体现了可组成性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#20197;&#19979;&#20195;&#30721;&#20307;&#29616;&#20102;Composable&#10;List&#60;List&#60;int&#62;&#62; lists = new List&#60;List&#60;int&#62;&#62; &#123; new List&#60;int&#62;&#10; &#123; 1, 2, 3 &#125;, new List&#60;int&#62; &#123; 4, 5 &#125; &#125;;&#10; &#10;var query1 = from list in lists&#10;             from num in list&#10;             select num;&#10; &#10;var query2 = from num in query1&#10;             where num % 3 == 0&#10;             select num;&#10; &#10;var query3 = from num in query2&#10;             orderby num descending&#10;             select num;</span><br></pre></td></tr></table></figure></p>
-<p>######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。</p>
-<p>方便用户做数据移植。</p>
-<p>以下代码体现了转换的特性：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">//&#25226;&#20851;&#31995;&#22411;&#25968;&#25454;&#36716;&#25442;&#25104;XML&#22411;&#10;&#9;var query = new XElement(&#34;Orders&#34;,&#10;            from c in dc.Customers&#10;            where c.City == &#34;Paris&#34;&#10;            select new XElement(&#34;Order&#34;,&#10;                new XAttribute(&#34;Address&#34;, c.Address)));</span><br></pre></td></tr></table></figure></p>
-<p>以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。</p>
-<p>//2011/1/28 补充(LINQ TO SQL)</p>
-<p>在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。</p>
-<p><a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a> </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/LINQ优点总结(转载)/" data-id="cikzia36w0000kgun31fm92vz" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-NET-Join" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/02/23/NET-Join/" class="article-date">
-  <time datetime="2016-02-23T14:15:44.428Z" itemprop="datePublished">2016-02-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/NET-Join/">.NET join用法</a>
+      <a class="article-title" href="/2016/02/23/C#-Join/">.NET join用法</a>
     </h1>
   
 
@@ -217,7 +131,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/NET-Join/" data-id="cikzht8r80003xgun0zscrk3d" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/C#-Join/" data-id="cikzixvvv0000z8unsw0ywb0i" class="article-share-link">Share</a>
       
       
     </footer>
@@ -227,48 +141,475 @@
 
 
   
+    <article id="post-C#-LINQ优点总结(转载)" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/02/23/C#-LINQ优点总结(转载)/" class="article-date">
+  <time datetime="2016-02-23T14:45:17.890Z" itemprop="datePublished">2016-02-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
 
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/02/23/C#-LINQ优点总结(转载)/">.net LINQ</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>##LINQ 优点 总结(转载)<br>原文链接：<a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a></p>
+<p>这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。</p>
+<p>由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。</p>
+<p>（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）</p>
+<p>LINQ的优点：</p>
+<p>LINQ基本有以下七个优点，让我来一一举例说明：</p>
+<p>#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：</p>
+<p>(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：</p>
+<p>语句高亮显示，类型检查，允许使用debugger调试</p>
+<p>(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。</p>
+<p>(3):集成后的语法更加的清晰易懂，可读性较高。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">比较： </span><br><span class="line"><span class="comment">//原来的格式</span></span><br><span class="line">SqlConnection sqlConn = <span class="keyword">new</span> SqlConnection(connectionString);&gt;</span><br><span class="line">sqlConn.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">command.Connection = sqlConn;</span><br><span class="line">command.CommandText = <span class="string">"Select * From Customer"</span>;</span><br><span class="line">SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//LINQ的格式</span></span><br><span class="line">NORTHWNDDataContext dc = <span class="keyword">new</span> NORTHWNDDataContext();</span><br><span class="line"><span class="keyword">var</span> query = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure>
+<p>#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。</p>
+<p>使用统一化查询语言的好处在于以下几点：</p>
+<p>你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。<br>由于使用了统一的语法，可以使代码维护变的更加简单。<br>以下代码体现了LINQ的统一化：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据源:对象集合</span></span><br><span class="line"><span class="keyword">var</span> query = <span class="function"><span class="keyword">from</span> c <span class="keyword">in</span> <span class="title">GetCustomers</span>(<span class="params"></span>)</span><br><span class="line">            <span class="keyword">select</span> c</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//数据源:SQL</span></span><br><span class="line"><span class="keyword">var</span> query1 = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">             <span class="keyword">select</span> c;</span><br><span class="line"><span class="comment">//数据源:XML</span></span><br><span class="line"><span class="keyword">var</span> query2 = <span class="keyword">from</span> c <span class="keyword">in</span> customers.Descendants(<span class="string">"Customer"</span>)</span><br><span class="line">             <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure></p>
+<p>#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:</p>
+<p>(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。</p>
+<p>(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。</p>
+<p>以下是些第三方的LINQ provider：</p>
+<p>LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google</p>
+<p>#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。</p>
+<p>Declarative programming(声明式编程)的优点体现在以下2点：</p>
+<p>(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。</p>
+<p>(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。</p>
+<p>举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。</p>
+<p>比较Declarative programming 与 Imperative programming：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"><span class="keyword">var</span> query = from list <span class="keyword">in</span> lists</span><br><span class="line">            from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">            where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">            orderby <span class="built_in">num</span> descending</span><br><span class="line">            select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//命令式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list1.Add(<span class="number">1</span>);</span><br><span class="line">list1.Add(<span class="number">2</span>);</span><br><span class="line">list1.Add(<span class="number">3</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list2 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list2.Add(<span class="number">4</span>);</span><br><span class="line">list2.Add(<span class="number">5</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt;();</span><br><span class="line">lists1.Add(list1);</span><br><span class="line">lists1.Add(list2);</span><br><span class="line"> </span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; newList = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">foreach (<span class="keyword">var</span> item <span class="keyword">in</span> lists1)</span><br><span class="line">      foreach (<span class="keyword">var</span> <span class="built_in">num</span> <span class="keyword">in</span> item)</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span>)</span><br><span class="line">            newList.Add(<span class="built_in">num</span>);</span><br><span class="line">newList.Reverse();</span><br></pre></td></tr></table></figure></p>
+<p>#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。</p>
+<p>SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是</p>
+<p>rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。</p>
+<p>这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。</p>
+<p>#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。</p>
+<p>LINQ返回的结果都是基于接口：IEnumerable<t>，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。</t></p>
+<p>优点在于：</p>
+<p>(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。</p>
+<p>(2).便于代码维护。把代码拆分后能使代码变的更易理解。</p>
+<p>以下代码体现了可组成性：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码体现了Composable</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;</span><br><span class="line"> &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query1 = from list <span class="keyword">in</span> lists</span><br><span class="line">             from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query2 = from <span class="built_in">num</span> <span class="keyword">in</span> query1</span><br><span class="line">             where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query3 = from <span class="built_in">num</span> <span class="keyword">in</span> query2</span><br><span class="line">             orderby <span class="built_in">num</span> descending</span><br><span class="line">             select <span class="built_in">num</span>;</span><br></pre></td></tr></table></figure></p>
+<p>######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。</p>
+<p>方便用户做数据移植。</p>
+<p>以下代码体现了转换的特性：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//把关系型数据转换成XML型</span></span><br><span class="line">	<span class="keyword">var</span> query = <span class="keyword">new</span> XElement(<span class="string">"Orders"</span>,</span><br><span class="line">            <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">where</span> c.City == <span class="string">"Paris"</span></span><br><span class="line">            <span class="function"><span class="keyword">select</span> new <span class="title">XElement</span>(<span class="params"><span class="string">"Order"</span>,</span><br><span class="line">                new XAttribute(<span class="string">"Address"</span>, c.Address</span>)))</span>;</span><br></pre></td></tr></table></figure></p>
+<p>以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。</p>
+<p>//2011/1/28 补充(LINQ TO SQL)</p>
+<p>在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。</p>
+<p><a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a> </p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/02/23/C#-LINQ优点总结(转载)/" data-id="cikzixvx60007z8unyphjvqia" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-C#技巧避免修改绑定变量" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/02/23/C#技巧避免修改绑定变量/" class="article-date">
+  <time datetime="2016-02-23T14:45:12.250Z" itemprop="datePublished">2016-02-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/02/23/C#技巧避免修改绑定变量/">.NET lmabda避免修改绑定变量</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>先看一段代码</p>
+<pre><code>#region test1 闭包
+
+public static void test1()
+{
+    int index = 0;
+    Func&lt;IEnumerable&lt;int&gt;&gt; sequence =()=&gt;GetEnumrableInt(index);
+
+    index = 20;
+    foreach(int n in sequence())
+        Console.WriteLine(n);
+
+    Console.WriteLine(&quot;Done&quot;);
+
+    index = 100;
+    foreach (int n in sequence())
+        Console.WriteLine(n);
+}
+
+
+public static IEnumerable&lt;int&gt; GetEnumrableInt(int index)
+{
+    List&lt;int&gt; l = new List&lt;int&gt;();
+    for(int i=index;i&lt;index+30;i++)
+    {
+        l.Add(i);
+    }
+    return l;
+}
+
+#endregion
+</code></pre><p>上面一坨代码演示了在闭包中使用了外部变量，随即又在外部修改了这些变量的情况，得到的结果是输出了20-50的数，然后又输出了100-130之间的数。这种行为有点诡异，但是确实有存在的意义…(书本这样说的，我到觉得很少会用到。)</p>
+<p>为了将查询表达式转换成可执行代码，C#编译器做了很多工作。一般而言，C#编译器将查询和lambda表达式转换成 “静态委托”、”实例委托” 或 “闭包”。编译器将根据lambda表达式中的代码选择一种实现方式。选择哪种方式依赖于lambda表达式的主体（body）。这看上去似乎是一些语言上的实现细节，但它却会显著地影响到我们的代码。编译器选择何种实现将可能导致diamante行为发生微妙的变化。</p>
+<p>并不是任何的lambda表达式都会生成同样结构的代码。</p>
+<p>对于编译器来说，最简单的一种行为是为以下形式的代码生成委托。  </p>
+<pre><code>//我们的lambda表达式
+public static void test2()
+{
+    int[] someNum = {0,1,2,3,4,5,6,7,8,9,10 };
+
+    IEnumerable&lt;int&gt; ans = from n in someNum
+                           select n * n;
+
+    foreach (int i in ans)
+        Console.WriteLine(i);
+
+}
+</code></pre><p>编译器将使用静态委托来实现n*n的lambda表达式，其为上面代码生成的代码如下：</p>
+<pre><code> //编译器为我们的lambda生成的代码
+#region 等价于 test2()
+private static int HiddenFunc(int n)
+{
+    return n * n;
+}
+
+//静态委托
+private static Func&lt;int, int&gt; HiddenDelegate;
+
+public void test2_1()
+{
+
+    int[] someNum = { 0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10 };
+
+    if(HiddenDelegate==null)
+    {
+        HiddenDelegate = new Func&lt;int, int&gt;(HiddenFunc);
+    }
+    IEnumerable&lt;int&gt; ans = someNum.Select&lt;int, int&gt;(HiddenDelegate);
+
+  foreach(int i in ans)
+      Console.WriteLine(i);
+
+}
+#endregion
+</code></pre><p>这个lambda表达式主体部分并没有访问任何的实例变量或者局部变量。lambda表达式仅仅访问了它的参数。对于这种情况，C#编译器将创建一个静态方法，作为委托的目标。这也是编译器执行的最简单的一种处理方式。若表达式可以通过私有的静态方法实现，那么编译器将生成该私有的静态方法以及相对应的委托定义。对于上面的代码例子中的情况以及仅访问了静态变量的表达式，编译器都会采用这样的方案。</p>
+<p>接下来介绍另一种较为简单的情况：<br>lambda表达式需要访问类型的实例变量，但无需访问外层方法中的局部变量。</p>
+<pre><code>public class ModFilter
+{
+    private readonly int modules;
+
+    public ModFilter(int mod)
+    {
+        modules = mod;
+    }
+
+
+    public IEnumerable&lt;int&gt; FindValues(IEnumerable&lt;int&gt; sequence)
+    {
+
+        return from n in sequence
+               where n % modules == 0 //新添加的表达式
+               select n * n;  //和前面的例子是一样的
+    }
+}
+</code></pre><p>/* </p>
+<p>在这种情况下，编译器将为表达式创建一个实例方法来包装该委托。<br>其基本概念和前一种情况一致，只是这里使用了实例方法，以便读取并修改当前对象的状态。<br>与静态委托的例子一样，这里编译器将把lambda表达式转换成我们熟悉的代码。其中包含委托的定义以及方法调用。<br>如下：</p>
+<p>*/</p>
+<pre><code>public class ModFilter_Other
+{
+    private readonly int modules;
+
+
+    //实例方法
+    private bool WhereClause(int n)
+    {
+        return ((n%this.modules) ==0);
+    }
+
+
+    private static int SelectClause(int n)
+    {
+        return n * n;
+    }
+
+    private static Func&lt;int, int&gt; SelectDelegate;
+
+
+
+
+    public ModFilter_Other(int mod)
+    {
+        modules = mod;
+    }
+
+
+    public IEnumerable&lt;int&gt; FindValues(IEnumerable&lt;int&gt; sequence)
+    {
+        if(SelectDelegate==null)
+        {
+            SelectDelegate = new Func&lt;int, int&gt;(SelectClause);
+        }
+
+        return sequence.Where&lt;int&gt;(
+            new Func&lt;int, bool&gt;(this.WhereClause)).
+            Select&lt;int, int&gt;(SelectClause);
+    }
+}
+</code></pre><p>概括来说便是：lambda表达式中的代码访问了对象实例中的成员变量，那么编译器将生成实例方法来表示lambda表达式中的代码。其实这并没有什么奇特之处——编译器省去了我们的一些代码输入工作，代码也变得整洁很多，本质来说这还是普通的方法调用。</p>
+<p>不过若是lambda表达式中访问到了外部方法中的局部变量或者方法参数，那么编译器将帮你完成很多工作。</p>
+<p>这里会用到闭包。编译器将生成一个私有的嵌套类型，以便为局部变量实现闭包。</p>
+<p>局部变量必须传入到实现了lambda表达式主体部分的委托里。</p>
+<p>此外，所有由该lambda表达式执行的对这些局部变量所作的修改都必须能够在外部访问到。</p>
+<p>当然，代码中内层和外层中共享的可能不止有一个变量，也可能不止一个的查询表达式。</p>
+<p>我们来修改一下该实例方法，让其访问一个局部变量。</p>
+<pre><code>public class ModFilter
+{
+      private readonly int modules;
+
+      public ModFilter(int mod)
+      {
+          modules = mod;
+      }
+
+
+      public IEnumerable&lt;int&gt; FindValues(IEnumerable&lt;int&gt; sequence)
+      {
+          int numValues = 0;
+
+          return from n in sequence
+                 where n % modules == 0 //新添加的表达式
+                 select n * n / ++ numValues; //访问局部变量
+      }
+}
+</code></pre><p>注意，select字句需要访问numValues这个局部变量。编译器为了创建这个闭包，需要使用嵌套类型来实现你所需要的行为。下面展示的是编译器为你生成的代码。</p>
+<pre><code>  public class ModFilter
+ {
+    private sealed class Closure
+    {
+        public ModFilter outer;
+
+        public int numValues;
+
+        public int SelectClause(int n)
+        {
+            return ((n * n) / ++this.numValues);
+        }
+    }
+
+
+
+    private readonly int modules;
+
+
+    //实例方法
+    private bool WhereClause(int n)
+    {
+        return ((n % this.modules) == 0);
+    }
+
+    public ModFilter(int mod)
+    {
+        modules = mod;
+    }
+
+
+    public IEnumerable&lt;int&gt; FindValues(IEnumerable&lt;int&gt; sequence)
+    {
+        Closure c = new Closure();
+        c.outer = this;
+        c.numValues = 0;
+
+        return sequence.Where&lt;int&gt;(
+            new Func&lt;int, bool&gt;(this.WhereClause)).
+            Select&lt;int, int&gt;(c.SelectClause);
+    }
+}
+</code></pre><p>在上面这段代码中，编译器专门创建了一个嵌套类，用来容纳所有将在lambda表达式中访问或修改的变量。实际上，这些局部变量将完全被嵌套类的字段所代替。lambda表达式内部的代码以及表达式外部(但仍在当前方法内)的代码访问的均是同一个字段，lambda表达式中的逻辑也被编译成了内部类的一个方法。</p>
+<p>对于lambda表达式中将要用到的外部方法的参数，编译器也会以对待局部变量的方式实现：编译器将这些参数复制到表示该闭包的嵌套类中。</p>
+<p>回到最开始的那个示例，这是我们应该可以理解这种看似怪异的行为了。变量index在传入闭包后，但在查询开始执行前曾被外部代码修改。也就是说，你修改了闭包的内部状态，然后还期待其能够回到从前的状态开始执行，显然这是不可能实现的。</p>
+<p>考虑到延迟执行中的交互以及编译器实现闭包的方式，修改查询与外部代码之间绑定的变量将可能会引发错误的行为。<br>因此，我们应该尽量避免在方法中修改哪些将要传入到闭包中，并将在闭包中使用的变量。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/02/23/C#技巧避免修改绑定变量/" data-id="cikzixvwq0003z8un0lxxdibo" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+    <article id="post-C#-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/02/23/C#-类字段与类属性/" class="article-date">
+  <time datetime="2016-02-23T14:45:06.849Z" itemprop="datePublished">2016-02-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/02/23/C#-类字段与类属性/">.NET 类字段与类属性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
+<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
+<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
+<pre><code>using System;
+
+public sealed class SomeType
+{                            //  1  
+// Nested class  
+   private class SomeNestedType { }                //  2  
+
+   // Constant, read­only, and static read/write field   
+   private const Int32 c_SomeConstant = 1;            //  3     
+
+   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
+
+   private static Int32 s_SomeReadWriteField = 3;      //  5  
+
+   // Type constructor  
+   static SomeType() { }                                  //  6  
+
+   // Instance constructors  
+   public SomeType(Int32 x) { }                           //  7  
+
+   public SomeType() { }                                  //  8 
+
+   // Instance and static methods  
+   private String InstanceMethod() { return null; }       // 9   
+
+   public static void Main() { }                        // 10 
+
+   // Instance property  
+   public Int32 SomeProp
+   {                                // 11      
+       get { return 0; }                                // 12      
+       set { }                                          // 13  
+   }
+
+   // Instance parameterful property (indexer) 
+   public Int32 this[String s]
+   {                          // 14       
+       get { return 0; }                                // 15        
+       set { }                                          // 16  
+   }
+
+   // Instance event  
+   public event EventHandler SomeEvent;                  // 17  
+}
+</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
+<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://yoursite.com/2016/02/23/C#-类字段与类属性/" data-id="cikzixvx60005z8unrd3hw5bm" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
+  
 </section>
         
           <aside id="sidebar">
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">分類</h3>
+    <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">4</span></li></ul>
     </div>
   </div>
 
-
   
     
-
   
     
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">彙整</h3>
+    <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">4</span></li></ul>
     </div>
   </div>
-
 
   
     
   <div class="widget-wrap">
-    <h3 class="widget-title">最新文章</h3>
+    <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
         
           <li>
-            <a href="/2016/02/23/LINQ优点总结(转载)/">.net LINQ</a>
+            <a href="/2016/02/23/C#-Join/">.NET join用法</a>
           </li>
         
           <li>
-            <a href="/2016/02/23/NET-Join/">.NET join用法</a>
+            <a href="/2016/02/23/C#-LINQ优点总结(转载)/">.net LINQ</a>
+          </li>
+        
+          <li>
+            <a href="/2016/02/23/C#技巧避免修改绑定变量/">.NET lmabda避免修改绑定变量</a>
+          </li>
+        
+          <li>
+            <a href="/2016/02/23/C#-类字段与类属性/">.NET 类字段与类属性</a>
           </li>
         
       </ul>
