@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<feed xmlns="http://www.w3.org/2005/Atom">
+  <title>Hexo</title>
+  
+  <link href="/atom.xml" rel="self"/>
+  
+  <link href="http://yoursite.com/"/>
+  <updated>2016-02-23T14:16:59.733Z</updated>
+  <id>http://yoursite.com/</id>
+  
+  <author>
+    <name>John Doe</name>
+    
+  </author>
+  
+  <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>.net LINQ</title>
+    <link href="http://yoursite.com/2016/02/23/LINQ%E4%BC%98%E7%82%B9%E6%80%BB%E7%BB%93(%E8%BD%AC%E8%BD%BD)/"/>
+    <id>http://yoursite.com/2016/02/23/LINQ优点总结(转载)/</id>
+    <published>2016-02-23T14:26:48.052Z</published>
+    <updated>2016-02-23T14:16:59.733Z</updated>
+    
+    <content type="html">&lt;p&gt;##LINQ 优点 总结(转载)&lt;br&gt;原文链接：&lt;a href=&quot;http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html&lt;/a&gt;&lt;/p&gt;
+&lt;p&gt;这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。&lt;/p&gt;
+&lt;p&gt;由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。&lt;/p&gt;
+&lt;p&gt;（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）&lt;/p&gt;
+&lt;p&gt;LINQ的优点：&lt;/p&gt;
+&lt;p&gt;LINQ基本有以下七个优点，让我来一一举例说明：&lt;/p&gt;
+&lt;p&gt;#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：&lt;/p&gt;
+&lt;p&gt;(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：&lt;/p&gt;
+&lt;p&gt;语句高亮显示，类型检查，允许使用debugger调试&lt;/p&gt;
+&lt;p&gt;(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。&lt;/p&gt;
+&lt;p&gt;(3):集成后的语法更加的清晰易懂，可读性较高。&lt;/p&gt;
+&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;&amp;#27604;&amp;#36739;&amp;#65306; &amp;#10;//&amp;#21407;&amp;#26469;&amp;#30340;&amp;#26684;&amp;#24335;&amp;#10;SqlConnection sqlConn = new SqlConnection(connectionString);&amp;#62;&amp;#10;sqlConn.Open();&amp;#10;SqlCommand command = new SqlCommand();&amp;#10;command.Connection = sqlConn;&amp;#10;command.CommandText = &amp;#34;Select * From Customer&amp;#34;;&amp;#10;SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);&amp;#10; &amp;#10;//LINQ&amp;#30340;&amp;#26684;&amp;#24335;&amp;#10;NORTHWNDDataContext dc = new NORTHWNDDataContext();&amp;#10;var query = from c in dc.Customers&amp;#10;            select c;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;
+&lt;p&gt;#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。&lt;/p&gt;
+&lt;p&gt;使用统一化查询语言的好处在于以下几点：&lt;/p&gt;
+&lt;p&gt;你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。&lt;br&gt;由于使用了统一的语法，可以使代码维护变的更加简单。&lt;br&gt;以下代码体现了LINQ的统一化：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#25968;&amp;#25454;&amp;#28304;:&amp;#23545;&amp;#35937;&amp;#38598;&amp;#21512;&amp;#10;var query = from c in GetCustomers()&amp;#10;            select c;&amp;#10; &amp;#10;//&amp;#25968;&amp;#25454;&amp;#28304;:SQL&amp;#10;var query1 = from c in dc.Customers&amp;#10;             select c;&amp;#10;//&amp;#25968;&amp;#25454;&amp;#28304;:XML&amp;#10;var query2 = from c in customers.Descendants(&amp;#34;Customer&amp;#34;)&amp;#10;             select c;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:&lt;/p&gt;
+&lt;p&gt;(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。&lt;/p&gt;
+&lt;p&gt;(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。&lt;/p&gt;
+&lt;p&gt;以下是些第三方的LINQ provider：&lt;/p&gt;
+&lt;p&gt;LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google&lt;/p&gt;
+&lt;p&gt;#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。&lt;/p&gt;
+&lt;p&gt;Declarative programming(声明式编程)的优点体现在以下2点：&lt;/p&gt;
+&lt;p&gt;(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。&lt;/p&gt;
+&lt;p&gt;(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。&lt;/p&gt;
+&lt;p&gt;举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。&lt;/p&gt;
+&lt;p&gt;比较Declarative programming 与 Imperative programming：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#22768;&amp;#26126;&amp;#24335;&amp;#32534;&amp;#31243;&amp;#10;List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62; lists = new List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62; &amp;#123; new List&amp;#60;int&amp;#62; &amp;#123; 1, 2, 3 &amp;#125;, new List&amp;#60;int&amp;#62; &amp;#123; 4, 5 &amp;#125; &amp;#125;;&amp;#10;var query = from list in lists&amp;#10;            from num in list&amp;#10;            where num % 3 == 0&amp;#10;            orderby num descending&amp;#10;            select num;&amp;#10; &amp;#10;//&amp;#21629;&amp;#20196;&amp;#24335;&amp;#32534;&amp;#31243;&amp;#10;List&amp;#60;int&amp;#62; list1 = new List&amp;#60;int&amp;#62;();&amp;#10;list1.Add(1);&amp;#10;list1.Add(2);&amp;#10;list1.Add(3);&amp;#10;List&amp;#60;int&amp;#62; list2 = new List&amp;#60;int&amp;#62;();&amp;#10;list2.Add(4);&amp;#10;list2.Add(5);&amp;#10;List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62; lists1 = new List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62;();&amp;#10;lists1.Add(list1);&amp;#10;lists1.Add(list2);&amp;#10; &amp;#10;List&amp;#60;int&amp;#62; newList = new List&amp;#60;int&amp;#62;();&amp;#10;foreach (var item in lists1)&amp;#10;      foreach (var num in item)&amp;#10;        if (num % 3 == 0)&amp;#10;            newList.Add(num);&amp;#10;newList.Reverse();&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。&lt;/p&gt;
+&lt;p&gt;SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是&lt;/p&gt;
+&lt;p&gt;rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。&lt;/p&gt;
+&lt;p&gt;这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。&lt;/p&gt;
+&lt;p&gt;#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。&lt;/p&gt;
+&lt;p&gt;LINQ返回的结果都是基于接口：IEnumerable&lt;t&gt;，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。&lt;/t&gt;&lt;/p&gt;
+&lt;p&gt;优点在于：&lt;/p&gt;
+&lt;p&gt;(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。&lt;/p&gt;
+&lt;p&gt;(2).便于代码维护。把代码拆分后能使代码变的更易理解。&lt;/p&gt;
+&lt;p&gt;以下代码体现了可组成性：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#20197;&amp;#19979;&amp;#20195;&amp;#30721;&amp;#20307;&amp;#29616;&amp;#20102;Composable&amp;#10;List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62; lists = new List&amp;#60;List&amp;#60;int&amp;#62;&amp;#62; &amp;#123; new List&amp;#60;int&amp;#62;&amp;#10; &amp;#123; 1, 2, 3 &amp;#125;, new List&amp;#60;int&amp;#62; &amp;#123; 4, 5 &amp;#125; &amp;#125;;&amp;#10; &amp;#10;var query1 = from list in lists&amp;#10;             from num in list&amp;#10;             select num;&amp;#10; &amp;#10;var query2 = from num in query1&amp;#10;             where num % 3 == 0&amp;#10;             select num;&amp;#10; &amp;#10;var query3 = from num in query2&amp;#10;             orderby num descending&amp;#10;             select num;&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。&lt;/p&gt;
+&lt;p&gt;方便用户做数据移植。&lt;/p&gt;
+&lt;p&gt;以下代码体现了转换的特性：&lt;br&gt;&lt;figure class=&quot;highlight plain&quot;&gt;&lt;table&gt;&lt;tr&gt;&lt;td class=&quot;gutter&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;1&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;td class=&quot;code&quot;&gt;&lt;pre&gt;&lt;span class=&quot;line&quot;&gt;//&amp;#25226;&amp;#20851;&amp;#31995;&amp;#22411;&amp;#25968;&amp;#25454;&amp;#36716;&amp;#25442;&amp;#25104;XML&amp;#22411;&amp;#10;&amp;#9;var query = new XElement(&amp;#34;Orders&amp;#34;,&amp;#10;            from c in dc.Customers&amp;#10;            where c.City == &amp;#34;Paris&amp;#34;&amp;#10;            select new XElement(&amp;#34;Order&amp;#34;,&amp;#10;                new XAttribute(&amp;#34;Address&amp;#34;, c.Address)));&lt;/span&gt;&lt;br&gt;&lt;/pre&gt;&lt;/td&gt;&lt;/tr&gt;&lt;/table&gt;&lt;/figure&gt;&lt;/p&gt;
+&lt;p&gt;以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。&lt;/p&gt;
+&lt;p&gt;//2011/1/28 补充(LINQ TO SQL)&lt;/p&gt;
+&lt;p&gt;在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。&lt;/p&gt;
+&lt;p&gt;&lt;a href=&quot;http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html&lt;/a&gt; &lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;##LINQ 优点 总结(转载)&lt;br&gt;原文链接：&lt;a href=&quot;http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html&quot; target=&quot;_blank
+    
+    </summary>
+    
+      <category term=".net" scheme="http://yoursite.com/categories/net/"/>
+    
+    
+  </entry>
+  
+  <entry>
+    <title>.NET join用法</title>
+    <link href="http://yoursite.com/2016/02/23/NET-Join/"/>
+    <id>http://yoursite.com/2016/02/23/NET-Join/</id>
+    <published>2016-02-23T14:15:44.428Z</published>
+    <updated>2016-02-23T14:15:44.428Z</updated>
+    
+    <content type="html">&lt;p&gt;#.NET   Join&lt;br&gt; 连接：内连接、外连接、左连接、右连接。&lt;br&gt;SQL的Join这里就不多说了，&lt;br&gt;今天主要是看一下LINQ的Join用法，以及Enumerable.Join()的用法。&lt;/p&gt;
+&lt;p&gt;Join用于连接数据，首先就是数据之间有联系咯。&lt;/p&gt;
+&lt;p&gt;先说Enumerable.Join()。&lt;br&gt;参数类型如下：&lt;br&gt;            public static IEnumerable&lt;tresult&gt; Join&lt;touter, tinner,=&quot;&quot; tkey,=&quot;&quot; tresult=&quot;&quot;&gt;&lt;br&gt;            (&lt;br&gt;                     this IEnumerable&lt;touter&gt; outer,&lt;br&gt;                    IEnumerable&lt;tinner&gt; inner,&lt;br&gt;                    Func&lt;touter, tkey=&quot;&quot;&gt; outerKeySelector,&lt;br&gt;                    Func&lt;tinner, tkey=&quot;&quot;&gt; innerKeySelector,&lt;br&gt;                    Func&lt;touter, tinner,=&quot;&quot; tresult=&quot;&quot;&gt; resultSelector&lt;br&gt;            )&lt;br&gt;类型参数&lt;br&gt;TOuter&lt;br&gt;第一个序列中的元素的类型。&lt;br&gt;TInner&lt;br&gt;第二个序列中的元素的类型。&lt;br&gt;TKey&lt;br&gt;键选择器函数返回的键的类型。&lt;br&gt;TResult&lt;br&gt;结果元素的类型。&lt;br&gt;参数&lt;br&gt;outer&lt;br&gt;类型：System.Collections.Generic.IEnumerable&lt;touter&gt;&lt;br&gt;要联接的第一个序列。&lt;br&gt;inner&lt;br&gt;类型：System.Collections.Generic.IEnumerable&lt;tinner&gt;&lt;br&gt;要与第一个序列联接的序列。&lt;br&gt;outerKeySelector&lt;br&gt;类型：System.Func&lt;touter, tkey=&quot;&quot;&gt;&lt;br&gt;用于从第一个序列的每个元素提取联接键的函数。&lt;br&gt;innerKeySelector&lt;br&gt;类型：System.Func&lt;tinner, tkey=&quot;&quot;&gt;&lt;br&gt;用于从第二个序列的每个元素提取联接键的函数。&lt;br&gt;resultSelector&lt;br&gt;类型：System.Func&lt;touter, tinner,=&quot;&quot; tresult=&quot;&quot;&gt;&lt;br&gt;用于从两个匹配元素创建结果元素的函数。&lt;br&gt;返回值&lt;br&gt;类型：System.Collections.Generic.IEnumerable&lt;tresult&gt;&lt;br&gt;IEnumerable&amp;lt;T&amp;gt; that has elements of type TResult that are obtained by performing an inner join on two sequences.” xml:space=”preserve”&amp;gt;一个具有 TResult 类型元素的 IEnumerable&lt;t&gt;，这些元素是通过对两个序列执行内部联接得来的。&lt;br&gt;使用说明&lt;br&gt;在 Visual Basic 和 C# 中，可以在 IEnumerable&lt;touter&gt; 类型的任何对象上将此方法作为实例方法来调用。当使用实例方法语法调用此方法时，请省略第一个参数。有关详细信息，请参阅 扩展方法 (Visual Basic) 或 扩展方法（C# 编程指南）。&lt;/touter&gt;&lt;/t&gt;&lt;/tresult&gt;&lt;/touter,&gt;&lt;/tinner,&gt;&lt;/touter,&gt;&lt;/tinner&gt;&lt;/touter&gt;&lt;/touter,&gt;&lt;/tinner,&gt;&lt;/touter,&gt;&lt;/tinner&gt;&lt;/touter&gt;&lt;/touter,&gt;&lt;/tresult&gt;&lt;/p&gt;
+&lt;p&gt;先上一个MSDN的例子。&lt;/p&gt;
+&lt;pre&gt;&lt;code&gt;     public static void JoinEx1()         
+     {
+       Person magnus = new Person { Name = &amp;quot;Hedlund, Magnus&amp;quot; };
+       Pet barley = new Pet { Name = &amp;quot;Barley&amp;quot;, Owner = terry };
+       Person terry = new Person { Name = &amp;quot;Adams, Terry&amp;quot; };
+       Person charlotte = new Person { Name = &amp;quot;Weiss, 
+       Charlotte&amp;quot; };
+       Pet boots = new Pet { Name = &amp;quot;Boots&amp;quot;, Owner = terry };
+       Pet whiskers = new Pet { Name = &amp;quot;Whiskers&amp;quot;, 
+       Owner = charlotte};
+       Pet daisy = new Pet { Name = &amp;quot;Daisy&amp;quot;, Owner = magnus };
+
+    List&amp;lt;Person&amp;gt; people = new List&amp;lt;Person&amp;gt; 
+    { magnus, terry, charlotte };
+    List&amp;lt;Pet&amp;gt; pets = new List&amp;lt;Pet&amp;gt; 
+    { barley, boots, whiskers, daisy };
+
+    // Create a list of Person-Pet pairs where 
+    // each element is an anonymous type that contains a
+    // Pet&amp;apos;s name and the name of the Person that owns the Pet.
+    var query =
+        people.Join(
+                    pets,//需要Join的另一个数据源
+          person =&amp;gt; person,//自己用来比较的key， lambda 表达式
+     pet =&amp;gt; pet.Owner,//另一个数据源用来比较的key， lambda 表达式
+(person, pet) =&amp;gt;new { OwnerName = person.Name, Pet = pet.Name } 
+               //想要取出来的数据，支持匿名对象， lambda 表达式);
+    foreach (var obj in query)
+    {
+      Console.WriteLine( &amp;quot;{0} - {1}&amp;quot;,obj.OwnerName,obj.Pet);
+    }
+}
+&lt;/code&gt;&lt;/pre&gt;&lt;p&gt; LINQ的Join&lt;br&gt;同样是上面的数据，如果换成LINQ的Join，写法如下：&lt;br&gt;            var query = from person in people // 第一个数据源&lt;br&gt;                      join pet in pets            //第二个数据源&lt;br&gt;                      on person equals pet.Owner  //Join条件&lt;br&gt;                      select  new { OwnerName = person.Name, Pet = pet.Name };&lt;br&gt;                      //要到得到的数据。&lt;/p&gt;
+&lt;p&gt;上面两种写法得到的结果都是内链接结果，至于左连接、右连接、外连接….&lt;br&gt;等我下次有心情再更新吧，再不走家里的键盘又要坏了。 &lt;/p&gt;
+&lt;p&gt;一些资料链接：&lt;br&gt;&lt;a href=&quot;https://msdn.microsoft.com/zh-cn/library/bb311040.aspx&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://msdn.microsoft.com/zh-cn/library/bb311040.aspx&lt;/a&gt;&lt;br&gt;&lt;a href=&quot;https://msdn.microsoft.com/zh-cn/library/bb534675%28v=vs.110%29.aspx?f=255&amp;amp;MSPPError=-2147217396&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;https://msdn.microsoft.com/zh-cn/library/bb534675%28v=vs.110%29.aspx?f=255&amp;amp;MSPPError=-2147217396&lt;/a&gt;&lt;br&gt;&lt;a href=&quot;http://www.cnblogs.com/Ivony/archive/2008/08/18/1270555.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/Ivony/archive/2008/08/18/1270555.html&lt;/a&gt;&lt;br&gt;&lt;a href=&quot;http://www.cnblogs.com/Ivony/archive/2008/08/28/1278643.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/Ivony/archive/2008/08/28/1278643.html&lt;/a&gt;&lt;br&gt;&lt;a href=&quot;http://www.cnblogs.com/Ivony/archive/2008/10/14/1309807.html&quot; target=&quot;_blank&quot; rel=&quot;external&quot;&gt;http://www.cnblogs.com/Ivony/archive/2008/10/14/1309807.html&lt;/a&gt; ; &lt;/p&gt;
+&lt;p&gt;LINQ GroupJoin 实现左连接&lt;br&gt;var queryGroup = from person in people // 第一个数据源&lt;br&gt;                                join pet in pets //第二个数据源&lt;br&gt;                                on person equals pet.Owner into ps //加了into,华丽变身GroupJoin&lt;br&gt;                                select new { OwnerName = person.Name, Pet = ps }; //要到得到的数据。 &lt;/p&gt;
+</content>
+    
+    <summary type="html">
+    
+      &lt;p&gt;#.NET   Join&lt;br&gt; 连接：内连接、外连接、左连接、右连接。&lt;br&gt;SQL的Join这里就不多说了，&lt;br&gt;今天主要是看一下LINQ的Join用法，以及Enumerable.Join()的用法。&lt;/p&gt;
+&lt;p&gt;Join用于连接数据，首先就是数据之间有联系咯。&lt;/
+    
+    </summary>
+    
+      <category term=".net" scheme="http://yoursite.com/categories/net/"/>
+    
+    
+  </entry>
+  
+</feed>
