@@ -1,10 +1,10 @@
 ---
 layout: post
-title: .net LINQ
+title: C#LINQ 优点 总结(转载)
 category: .net
 ---
 
-##LINQ 优点 总结(转载)
+
 原文链接：http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html
 
 这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。

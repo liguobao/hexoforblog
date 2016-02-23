@@ -1,6 +1,6 @@
 ---
 layout: post
-title: .NET join用法
+title: .NET-join用法
 category: .net
 ---
 
