@@ -41,7 +41,7 @@ category: CodeSmith
 每次都要把表一个个选一次，麻不麻烦啊。然后就想了，能不能改一下模板呢。于是便开始google相关资料了。找到了几个相关文章，参考这就开始改造了。
 先看看原来的Main.cst里面写了撒。
 
-```C#
+```c#
 
 <%@ CodeTemplate Language="C#" ResponseEncoding="UTF-8" 
 TargetLanguage="Text" Src="" Inherits="" Debug="False" 
@@ -93,7 +93,7 @@ Type="System.String" Optional="False"%>
 ![1](http://a1.qpic.cn/psb?/V13bZOxq1m5DxB/1XlywVcAyPW6y*6sO1QU.gkuidIqPkx.f70JsaijlU0!/b/dIwBAAAAAAAA&bo=MQIcAjECHAIDCSw!&rf=viewer_4)
 
 
-``` C#
+```c#
 
 <%
     Models model = this.Create<Models>();
@@ -141,7 +141,7 @@ DBMad.Models.cst,DBMad.DAL.cst,DBMad.BLL.cst。
 
 整体代码如下：
 
-``` C#
+```c#
 <%@ CodeTemplate Language="C#" ResponseEncoding="UTF-8" 
 TargetLanguage="Text" Src="" Inherits="" Debug="False" 
 Description="Template description here." Output="None"%>
@@ -204,7 +204,7 @@ SE s = new SE();
 
 
 
-``` C#
+```c#
 <% 
 foreach(TableSchema ts in SourceTables) 
 { 
@@ -232,7 +232,7 @@ SE s = new SE();
 打开model的cst文件之后发现，模板并没有做注释这个工作。
 代码如下：
 
-``` C#
+```c#
 <%@ CodeTemplate Language="C#" TargetLanguage="C#" 
 Src="ToolsCodeTemplate.cs" Inherits="ToolsCodeTemplate"%>
 <%@ Property Name="TargetTable" Type="SchemaExplorer.TableSchema" 
@@ -298,11 +298,10 @@ public override string GetFileName()
 
 果然，GetPropertyName(column)在这里。
 
-``` C#
+```c#
 public string GetPropertyName(ColumnSchema column)
 {
-
-    return GetNameFromDBFieldName(column);
+   return GetNameFromDBFieldName(column);
 }
 public string GetNameFromDBFieldName(ColumnSchema column)
 {
@@ -314,7 +313,7 @@ public string GetNameFromDBFieldName(ColumnSchema column)
 
 又查了一下资料，
 
-```C#
+```c#
     public string GetColumnComment(ColumnSchema column)
     {
          return column.Description;

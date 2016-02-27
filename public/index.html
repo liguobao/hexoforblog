@@ -64,7 +64,7 @@
     <article id="post-CodeSmith to MySQL" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/02/27/CodeSmith to MySQL/" class="article-date">
-  <time datetime="2016-02-27T09:54:00.729Z" itemprop="datePublished">2016-02-27</time>
+  <time datetime="2016-02-27T10:09:10.670Z" itemprop="datePublished">2016-02-27</time>
 </a>
     
   <div class="article-category">
@@ -119,7 +119,7 @@
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">&#60;%@ CodeTemplate Language=&#34;C#&#34; TargetLanguage=&#34;C#&#34; &#10;Src=&#34;ToolsCodeTemplate.cs&#34; Inherits=&#34;ToolsCodeTemplate&#34;%&#62;&#10;&#60;%@ Property Name=&#34;TargetTable&#34; Type=&#34;SchemaExplorer.TableSchema&#34; &#10;Category=&#34;Context&#34; Description=&#34;TargetTable that the object is &#10;based on.&#34; %&#62;&#10;&#60;%@ Property Name=&#34;ModelsNamespace&#34; Default=&#34;Model&#34; &#10;Type=&#34;System.String&#34; Category=&#34;Context&#34; Description=&#34;TargetTable &#10;that the object is based on.&#34; %&#62;&#10;&#60;%@ Assembly Name=&#34;SchemaExplorer&#34; %&#62;&#10;&#60;%@ Assembly Name=&#34;System.Data&#34; %&#62;&#10;&#60;%@ Import Namespace=&#34;SchemaExplorer&#34; %&#62;&#10;&#60;%@ Import Namespace=&#34;System.Data&#34; %&#62;&#10;&#60;% PrintHeader(); %&#62;&#10;using System;&#10;using System.Collections.Generic;&#10;using System.Text;&#10;&#10;namespace &#60;%= ModelsNamespace %&#62;&#10;&#123;&#9;&#10;&#9;[Serializable()]&#10;&#9;public class &#60;%= GetModelClassName() %&#62;&#10;&#9;&#123;&#10;&#9;    &#60;% &#10;&#9;&#9;foreach (ColumnSchema column in TargetTable.Columns)&#10;&#9;   &#123;&#10;&#9;&#9;%&#62;&#10;&#9;&#9;&#9;private &#60;%= GetPropertyType(column) %&#62;  _&#60;%= &#10;&#9;&#9;&#9;GetPropertyName(column) %&#62;;&#9;&#9;&#9;&#10;&#9;&#9;&#60;%&#10;&#9;&#9;&#125;&#10;&#9;&#9;%&#62;&#10;&#9;    &#10;&#9;&#9;&#60;% &#10;&#9;&#9;foreach (ColumnSchema column in TargetTable.Columns)&#10;&#9;&#9;&#123;&#10;&#9;&#9;%&#62;&#10;&#9;&#9;&#9;public &#60;%= GetPropertyType(column) %&#62; &#60;%= &#10;&#9;&#9;&#9;GetPropertyName(column) %&#62;&#10;&#9;&#9;&#9;&#123;&#10;&#9;&#9;&#9;&#9; get &#123; return _&#60;%= GetPropertyName(column) %&#62;; &#125;&#10;&#9;             set &#123; _&#60;%= GetPropertyName(column) %&#62; = value; &#125;&#10;&#9;&#9;&#9;&#125;&#10;&#9;&#9;&#60;%&#10;&#9;&#9;&#125;&#10;&#9;&#9;%&#62;&#9;&#10;&#9;&#125;&#10;&#125;&#10;&#60;script runat=&#34;template&#34;&#62;&#10;public string GetModelClassName()&#10;&#123;&#10;&#9;return GetModelClassName(TargetTable);&#10;&#125;&#10;&#10;public override string GetFileName()&#10;&#123;&#10;&#9;return this.GetModelClassName(this.TargetTable) + &#34;.cs&#34;;&#10;&#125;&#10;&#10;&#60;/script&#62;</span><br></pre></td></tr></table></figure>
 <p>获取表中字段名使用的是GetPropertyName(column)，咦，在哪实现了这个东西呢？回去翻一下文件，哦，还有一个ToolsCodeTemplate.cs文一直没管呢。</p>
 <p>果然，GetPropertyName(column)在这里。</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public string GetPropertyName(ColumnSchema column)&#10;&#123;&#10;&#10;    return GetNameFromDBFieldName(column);&#10;&#125;&#10;public string GetNameFromDBFieldName(ColumnSchema column)&#10;&#123;&#10;&#9;return column.Name;&#10;&#125;</span><br></pre></td></tr></table></figure>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public string GetPropertyName(ColumnSchema column)&#10;&#123;&#10;   return GetNameFromDBFieldName(column);&#10;&#125;&#10;public string GetNameFromDBFieldName(ColumnSchema column)&#10;&#123;&#10;&#9;return column.Name;&#10;&#125;</span><br></pre></td></tr></table></figure>
 <p>读取列名就是这么简单，那么我们对应写一个函数读取一下列注释，然后再model里面调用一下不好了。</p>
 <p>又查了一下资料，</p>
 <figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">public string GetColumnComment(ColumnSchema column)&#10;&#123;&#10;     return column.Description;&#10;&#125;</span><br></pre></td></tr></table></figure>
@@ -137,7 +137,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/27/CodeSmith to MySQL/" data-id="cil4xwjrh0000hgundv1qpzhb" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/27/CodeSmith to MySQL/" data-id="cil4yk3iv0000ncun11z8ahxb" class="article-share-link">Share</a>
       
       
     </footer>
@@ -186,7 +186,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/27/CodeSmith连接MySQL报错“找不到请求的 .Net Framework Data Provider。可能没有安装。”解决方法/" data-id="cil2emtb20000kkunvse0tezc" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/27/CodeSmith连接MySQL报错“找不到请求的 .Net Framework Data Provider。可能没有安装。”解决方法/" data-id="cil4yk3l1000kncunljejhk7q" class="article-share-link">Share</a>
       
       
     </footer>
@@ -230,7 +230,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/25/一些有用的网站/" data-id="cil2eu5kp0000d0unsgk4lf4n" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/25/一些有用的网站/" data-id="cil4yk3kh000dncunnn4dsg3a" class="article-share-link">Share</a>
       
       
     </footer>
@@ -310,7 +310,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/Join/" data-id="cikzlm3i500003gunxv8v0x98" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/Join/" data-id="cil4yk3kw000incunm92al2uq" class="article-share-link">Share</a>
       
       
     </footer>
@@ -560,7 +560,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/技巧避免修改绑定变量/" data-id="cikzlm3ja00053gun7i8dj629" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/技巧避免修改绑定变量/" data-id="cil4yk3jy0006ncung7xaga1j" class="article-share-link">Share</a>
       
       
     </footer>
@@ -649,7 +649,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/类字段与类属性/" data-id="cikzlm3j200033gunk9hliizh" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/类字段与类属性/" data-id="cil4yk3js0003ncund0ngvuwh" class="article-share-link">Share</a>
       
       
     </footer>
@@ -705,7 +705,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收(续)/" data-id="cikzlm3jk000a3gunazd08984" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收(续)/" data-id="cil4yk3kb000bncun7e3dvcqx" class="article-share-link">Share</a>
       
       
     </footer>
@@ -805,7 +805,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收/" data-id="cikzlm3je00073gungpwwsycx" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收/" data-id="cil4yk3k30008ncunq5v8dob6" class="article-share-link">Share</a>
       
       
     </footer>
@@ -888,7 +888,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/LINQ优点总结(转载)/" data-id="cikzlm3jn000c3guno1ak5hi8" class="article-share-link">Share</a>
+      <a data-url="http://yoursite.com/2016/02/23/LINQ优点总结(转载)/" data-id="cil4yk3kq000gncunm9c26oys" class="article-share-link">Share</a>
       
       
     </footer>
