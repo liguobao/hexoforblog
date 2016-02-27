@@ -1,7 +1,7 @@
 ---
 layout: post
 title: CodeSmith 连接MySQL数据库报“can't find .net framework data provider”
-category: .net
+category: CodeSmith
 ---
 
 1、下载 mysql-connector-net 安装
