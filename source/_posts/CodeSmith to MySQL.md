@@ -22,10 +22,10 @@ category: CodeSmith
 
 把模板的文件夹扔到codesmith模板文件的路径下，接着打开Codesmith，找到刚扔过去的文件夹，选择Main.cst,右键-execute-选择对应的MySQL库-选中表。
 <br>（注：codesmith连接MySQL有问题的话，
-<br>移步这里解决 [CodeSmith 连接MySQL数据库报“can't find .net framework data provider”](http://codelover.link/2016/02/25/CodeSmith%E8%BF%9E%E6%8E%A5MySQL%E6%8A%A5%E9%94%99%E2%80%9C%E6%89%BE%E4%B8%8D%E5%88%B0%E8%AF%B7%E6%B1%82%E7%9A%84%20.Net%20Framework%20Data%20Provider%E3%80%82%E5%8F%AF%E8%83%BD%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E3%80%82%E2%80%9D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/))
+<br>移步这里解决 [CodeSmith 连接MySQL数据库报“can't find .net framework data provider”](http://codelover.link/2016/02/25/CodeSmith%E8%BF%9E%E6%8E%A5MySQL%E6%8A%A5%E9%94%99%E2%80%9C%E6%89%BE%E4%B8%8D%E5%88%B0%E8%AF%B7%E6%B1%82%E7%9A%84%20.Net%20Framework%20Data%20Provider%E3%80%82%E5%8F%AF%E8%83%BD%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E3%80%82%E2%80%9D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/)
 
 如下图：
-![1](http://a1.qpic.cn/psb?/V13bZOxq1m5DxB/1XlywVcAyPW6y*6sO1QU.gkuidIqPkx.f70JsaijlU0!/b/dIwBAAAAAAAA&bo=MQIcAjECHAIDCSw!&rf=viewer_4)
+![1](http://7xrayk.com1.z0.glb.clouddn.com/20160228-1.png)
 
 
 
@@ -33,7 +33,7 @@ category: CodeSmith
 
 
 生成代码结构如下：
-![2](http://a3.qpic.cn/psb?/V13bZOxq1m5DxB/ikI1fSxAYklZgi1PmtPVTQqpHcZ0KTQHgN7LrPJaKNo!/b/dG4AAAAAAAAA&bo=fgLGAH4CxgADCSw!&rf=viewer_4)
+![2](http://7xrayk.com1.z0.glb.clouddn.com/20160228-2.png)
 
 
 
@@ -88,7 +88,7 @@ Type="System.String" Optional="False"%>
 
 这一段基本就是在声明选项以及引用命名空间，表现出来的便是我们看到的下图：
 
-![1](http://a1.qpic.cn/psb?/V13bZOxq1m5DxB/1XlywVcAyPW6y*6sO1QU.gkuidIqPkx.f70JsaijlU0!/b/dIwBAAAAAAAA&bo=MQIcAjECHAIDCSw!&rf=viewer_4)
+![1](http://7xrayk.com1.z0.glb.clouddn.com/20160228-1.png)
 
 
 ```csharp
@@ -198,7 +198,7 @@ SE s = new SE();
 
 这一句把选项类型修改成可多选的（既 集合）。
 效果如下图：
-![3](http://a2.qpic.cn/psb?/V13bZOxq1m5DxB/CGQI8amVPz7K7Vyb05kp*0ti3mbnPWz4Q5xdUPBQSl0!/b/dHIBAAAAAAAA&bo=MQK0AjECtAIDCSw!&rf=viewer_4)
+![3](http://7xrayk.com1.z0.glb.clouddn.com/20160228-4.png)
 
 
 
