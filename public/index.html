@@ -3,19 +3,19 @@
 <head>
   <meta charset="utf-8">
   
-  <title>Hexo</title>
+  <title>codelover&#39;t blog</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description">
+  <meta name="description" content="一直走在吃软饭路上的软狗">
 <meta property="og:type" content="website">
-<meta property="og:title" content="Hexo">
-<meta property="og:url" content="http://yoursite.com/index.html">
-<meta property="og:site_name" content="Hexo">
-<meta property="og:description">
+<meta property="og:title" content="codelover't blog">
+<meta property="og:url" content="http://codelover.link/index.html">
+<meta property="og:site_name" content="codelover't blog">
+<meta property="og:description" content="一直走在吃软饭路上的软狗">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="Hexo">
-<meta name="twitter:description">
+<meta name="twitter:title" content="codelover't blog">
+<meta name="twitter:description" content="一直走在吃软饭路上的软狗">
   
-    <link rel="alternative" href="/atom.xml" title="Hexo" type="application/atom+xml">
+    <link rel="alternative" href="/atom.xml" title="codelover&#39;t blog" type="application/atom+xml">
   
   
     <link rel="icon" href="/favicon.png">
@@ -33,7 +33,7 @@
   <div id="header-outer" class="outer">
     <div id="header-title" class="inner">
       <h1 id="logo-wrap">
-        <a href="/" id="logo">Hexo</a>
+        <a href="/" id="logo">codelover&#39;t blog</a>
       </h1>
       
     </div>
@@ -53,7 +53,7 @@
         <a id="nav-search-btn" class="nav-icon" title="Search"></a>
       </nav>
       <div id="search-form-wrap">
-        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://yoursite.com"></form>
+        <form action="//google.com/search" method="get" accept-charset="UTF-8" class="search-form"><input type="search" name="q" results="0" class="search-form-input" placeholder="Search"><button type="submit" class="search-form-submit">&#xF002;</button><input type="hidden" name="sitesearch" value="http://codelover.link"></form>
       </div>
     </div>
   </div>
@@ -91,7 +91,7 @@
 <p><br><br>以前在学院实验室用的都是SQL server数据库，老师给的一套codesmith模板用来生成model/DAL/BLL很是方便。<br><br><br>不过后来放弃SQL server 投入MySQL之后，刚开始都是手写SQL，还是很痛苦的。<br><br><br>再后来又去找MySQL codesmith模板,这个对应的资料就不多了。不过最后还是找到了一套不错的，凑合能用。起初也懒，codesmith语法不熟，就没想过去修改一下了。<br><br> 最近又要用到这套东西，于是决定还是去修改一番，更便于使用。</p>
 <p>这个文章就主要讲一下修改过程，顺便说一下codesmith的简单语法。</p>
 <p>先说一下操作步骤：</p>
-<p>把模板的文件夹扔到codesmith模板文件的路径下，接着打开Codesmith，找到刚扔过去的文件夹，选择Main.cst,右键-execute-选择对应的MySQL库-选中表。<br><br>（注：codesmith连接MySQL有问题的话，<br><br>移步这里解决 <a href="http://codelover.link/2016/02/25/CodeSmith%E8%BF%9E%E6%8E%A5MySQL%E6%8A%A5%E9%94%99%E2%80%9C%E6%89%BE%E4%B8%8D%E5%88%B0%E8%AF%B7%E6%B1%82%E7%9A%84%20.Net%20Framework%20Data%20Provider%E3%80%82%E5%8F%AF%E8%83%BD%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E3%80%82%E2%80%9D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/" target="_blank" rel="external">CodeSmith 连接MySQL数据库报“can’t find .net framework data provider”</a></p>
+<p>把模板的文件夹扔到codesmith模板文件的路径下，接着打开Codesmith，找到刚扔过去的文件夹，选择Main.cst,右键-execute-选择对应的MySQL库-选中表。<br><br>（注：codesmith连接MySQL有问题的话，<br><br>移步这里解决 <a href="http://codelover.link/2016/02/25/CodeSmith%E8%BF%9E%E6%8E%A5MySQL%E6%8A%A5%E9%94%99%E2%80%9C%E6%89%BE%E4%B8%8D%E5%88%B0%E8%AF%B7%E6%B1%82%E7%9A%84%20.Net%20Framework%20Data%20Provider%E3%80%82%E5%8F%AF%E8%83%BD%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E3%80%82%E2%80%9D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">CodeSmith 连接MySQL数据库报“can’t find .net framework data provider”</a></p>
 <p>如下图：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-1.png" alt="1"></p>
 <p>然后点击Generate就能顺利生成model/dal/bll了。</p>
 <p>生成代码结构如下：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-2.png" alt="2"></p>
@@ -137,7 +137,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/28/CodeSmith to MySQL/" data-id="cil4z1cd60000scun5vz5zzw9" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/02/28/CodeSmith to MySQL/" data-id="cil6pb6uw0000cgunh8g2o00f" class="article-share-link">Share</a>
       
       
     </footer>
@@ -186,7 +186,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/27/CodeSmith连接MySQL报错“找不到请求的 .Net Framework Data Provider。可能没有安装。”解决方法/" data-id="cil4z1cf8000kscunnmx83wwx" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/02/27/CodeSmith连接MySQL报错“找不到请求的 .Net Framework Data Provider。可能没有安装。”解决方法/" data-id="cil6pb6ws000kcgunpz9ggkj0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -230,7 +230,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/25/一些有用的网站/" data-id="cil4z1cer000dscuniwuozec5" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/02/25/一些有用的网站/" data-id="cil6pb6w9000dcguncxstby1s" class="article-share-link">Share</a>
       
       
     </footer>
@@ -310,7 +310,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/Join/" data-id="cil4z1cf3000iscundwhhqd7o" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/02/23/Join/" data-id="cil6pb6wk000icgunpo1zgfd8" class="article-share-link">Share</a>
       
       
     </footer>
@@ -560,7 +560,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/技巧避免修改绑定变量/" data-id="cil4z1ce70006scunryhg6k99" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/02/23/技巧避免修改绑定变量/" data-id="cil6pb6vw0006cgunvpyq29z0" class="article-share-link">Share</a>
       
       
     </footer>
@@ -570,334 +570,10 @@ public void test2_1()
 
 
   
-    <article id="post-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/02/23/类字段与类属性/" class="article-date">
-  <time datetime="2016-02-23T15:59:48.304Z" itemprop="datePublished">2016-02-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
   
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/类字段与类属性/">.NET 类字段与类属性</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
-<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
-<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
-<pre><code>using System;
-
-public sealed class SomeType
-{                            //  1  
-// Nested class  
-   private class SomeNestedType { }                //  2  
-
-   // Constant, read­only, and static read/write field   
-   private const Int32 c_SomeConstant = 1;            //  3     
-
-   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
-
-   private static Int32 s_SomeReadWriteField = 3;      //  5  
-
-   // Type constructor  
-   static SomeType() { }                                  //  6  
-
-   // Instance constructors  
-   public SomeType(Int32 x) { }                           //  7  
-
-   public SomeType() { }                                  //  8 
-
-   // Instance and static methods  
-   private String InstanceMethod() { return null; }       // 9   
-
-   public static void Main() { }                        // 10 
-
-   // Instance property  
-   public Int32 SomeProp
-   {                                // 11      
-       get { return 0; }                                // 12      
-       set { }                                          // 13  
-   }
-
-   // Instance parameterful property (indexer) 
-   public Int32 this[String s]
-   {                          // 14       
-       get { return 0; }                                // 15        
-       set { }                                          // 16  
-   }
-
-   // Instance event  
-   public event EventHandler SomeEvent;                  // 17  
-}
-</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
-<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/类字段与类属性/" data-id="cil4z1ce10003scunpkcv5gol" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-托管堆和垃圾回收(续)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/02/23/托管堆和垃圾回收(续)/" class="article-date">
-  <time datetime="2016-02-23T15:59:43.819Z" itemprop="datePublished">2016-02-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/托管堆和垃圾回收(续)/">C#.NET托管堆和垃圾回收(续)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##大对象<br> CLR将对象分成大对象和小对象。目前认为85000字节或者更大的对象是大对象。CLR以不同方式对待大小对象。</p>
-<ol>
-<li><p>大对象不是在小对象的地址空间分配的，而是在进程地址空间的其他地方分配。</p>
-</li>
-<li><p>目前版本的GC不“压缩”大对象，因为在内存中移动它们代价过高。但这可能在进程中的大对象之间造成地址空间碎片化，以至于抛出OutMemoryException。CLR将来的版本可能会压缩大对象。</p>
-</li>
-<li>大对象总是第2代，绝不可能是第0代或者第1代。所以只能为需要长时间存活的资源创建大对象。分配短时间存活的大对象会导致第2代被更频繁地回收，损失性能。大对象一般是大字符串（XML/JSON）或者用于I/O操作的字节数组（从文件/网络将字节读入缓冲区以便处理）。</li>
-</ol>
-<p>##垃圾回收模式<br> CLR启动时会选择一个GC模式，进程中之前该模式都不会改变。</p>
-<p> 有两个基本GC模式。</p>
-<p>###工作站<br>该模式针对客户端应用程序优化GC。GC造成的延时很低，应用程序线程挂起时间很短，避免用户感到焦虑。在该模式中,GC假定机器上运行的其他应用程序都不会消耗太多的CPU资源。</p>
-<p>###服务器<br> 该模式针对服务器端应用程序优化GC。被优化的主要是吞吐量和资源利用。GC假定机器上没有运行其他应用程序（无论客户端还是服务器应用程序），并假定机器的所有CPU都可以用来辅助完成GC。该模式造成托管堆被拆分成几个区域，每个CPU一个。开始垃圾回收时，垃圾回收器在每个CPU上运行一个特殊线程；每个线程都和其他线程并发回收它自己的区域。对于工作者线程行为一致的服务器应用程序，并发回收能很好进行。这个功能要求应用程序在多CPU计算机上运行，是线程能真正同时工作，从而得到性能上的提升。</p>
-<p>应用程序默认以“工作站”GC模式运行。寄宿了CLR的服务器应用程序（如ASP.NET ）可请求CLR加载服务器 GC.但如果应用程序在单处理器计算机上运行，CLR总是使用“工作站”GC模式。</p>
-<p>独立应用程序可以创建一个配置文件告诉CLR 使用CLR使用服务器回收器。配置文件要为应用程序添加gcServer元素。下面是一个示例配置文件：</p>
-<p><configuration><br>       <runtime><br>             <gcserver enabled="true"><br>      </gcserver></runtime><br></configuration><br>可以使用GCSettings类的只读Boolean属性IsServerGC得到CLR是否处于“服务器”GC模式。</p>
-<p>除了这两种模式，GC还支持两种子模式：并发(默认)或者非并发。<br>在并发方式中，垃圾回收器有一个额外的后台线程，它能在应用程序运行时并发标记对象。 程序运行时，垃圾回收器运行一个普通优先级的后台线程来查找不可达对象。找到之后，垃圾回收器再次挂起所以线程，判断是否要“压缩”内存。如决定压缩，内存会被压缩，根引用会被修正，应用程序线程恢复运行。这一次垃圾回收花费的时间比平常少，因为不可达对象集合已构造好了。但垃圾回收器也可能决定不压缩内存；事实上，垃圾回收器更倾向不压缩。可用内存多，垃圾回收器便不会压缩堆；这有利于增强性能，但会增大程序的工作集。使用并发垃圾回收器，应用程序消耗的内存通常比使用非并发垃圾回收器多。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收(续)/" data-id="cil4z1cek000bscunllhwoji0" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-托管堆和垃圾回收" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/02/23/托管堆和垃圾回收/" class="article-date">
-  <time datetime="2016-02-23T15:59:40.045Z" itemprop="datePublished">2016-02-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/托管堆和垃圾回收/">C#.NET托管堆和垃圾回收</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>###托管堆基础<br> 简述：每个程序都要使用这样或那样的资源，包括文件、内存缓冲区、屏幕空间、网络连接…..事实上，在面向对象的环境中，每个类型都代表可供程序使用的一种资源。要使用这些资源，必须为代表资源的类型分配内存。</p>
-<p> 以下是访问一个资源所需步骤：</p>
-<ol>
-<li>调用IL指令newobj，为代表资源的类型分配内存。(C# new操作符)</li>
-<li>初始化内存，设置资源的初始状态。（一般指构造函数）</li>
-<li>访问类型的成员来使用资源。（使用成员变量、方法、属性等）</li>
-<li>摧毁资源的状态以进行清除。（Dispose？？？）</li>
-<li>释放内存。（GC） </li>
-</ol>
-<p>###从托管堆分配资源</p>
-<p>CLR要求所有的对象都从托管堆分配。<br>进程初始化，CLR划出一个地址空间区域作为托管堆。CLR还要维护一个指针，姑且叫NextObjPtr，该指针指向下一个对象在堆中的分配位置。刚开始的时候， NextObjPtr 设为地址空间区域的基地址。<br>一个区域被非垃圾对象填满后，CLR会分配更多的区域。</p>
-<p>这一个过程一直重复，直至整个进程地址空间被填满。所以，应用程序内存收进程的虚拟地址空间的限制。</p>
-<p>32位进程最多能分配1.5GB，64位进程最多能分配8T。<br>注：进程内存大小的相关资料</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/windows/hardware/Dn613959(v=vs.85" target="_blank" rel="external">Memory Support and Windows Operating Systems</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/ms189334.aspx" target="_blank" rel="external">进程地址空间</a></p>
-<p><a href="http://blog.csdn.net/yusiguyuan/article/details/12405799" target="_blank" rel="external"> 32位模式下C/C++程序可用最大内存</a></p>
-<p>###C# 的new操作符导致CLR执行以下操作：</p>
-<p>1、计算类型的字段（以及从基类型继承的字段）所需要的字节数。</p>
-<p>2、加上对象的开销所需的字节数。每个对象都有两个开销字段：类型对象指针和同步块索引。对于32位应用程序，这两个字段各需要32位，所以每个对象需要增加8字节。对于64位应用程序，这两个字段各需要64位，所以每个对象要增加16字节。</p>
-<p>3、CLR检查区域中是否有分配对象所需的字节数。如果托管堆有足够的可用空间，就在NetxObjPtr指针指向的地址处放入对象，为对象分配的字节会被清零。接着调用类型的构造器（为this参数传递NextObjPtr），new操作符返回对象引用。就在返回这个对象引用之前，NextObjPtr指针的值会加上这个对象占用的字节数来得到一个新值，即下个对象放入托管堆时的地址。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/i3rlSCPAcnT9pL0El0BptPIBpuvnxHpBw9Nkp*UqIjw!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=LwKNAC8CjQADACU!&amp;su=1199793361&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>###垃圾回收算法</p>
-<p>####CLR使用引用跟踪算法。<br>引用跟踪算法只关心引用类型的变量，因为只有这种变量才能引用堆上面的对象；<br>值类型变量直接包含值类型实例。引用类型变量可在许多场合使用，包括类的静态和实例字段，或者方法的参数和局部变量。这里我们将所有引用类型的变量都称为根。<br>CLR开始GC时，首先暂停所有的线程。(这样可以防止线程在CLR检查期间访问对象并更改其状态。) 然后CLR进入GC标记阶段。在这个阶段，CLR遍历堆中的所有对象，将同步块索引字段中的一位设为0。这表明所有的对象都应删除。然后，CLR检查所有的活动根，查看他们引用了哪些对象。这正是CLR的GC被称作引用跟踪GC的原因。如果一个根包含null，CLR忽略这个根并继续检查下一个根。<br>下图展示一个堆，其中包含几个对象。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/eVBVeXGrNAfoWfyRgl4aC2RRSGgiDpmbrocv4lTSJMA!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=gAIFAYACBQEDACU!&amp;su=1176931729&amp;sce=0-12-12&amp;rf=2-9" alt="图片1"></p>
-<p>应用程序的根直接引用对象A 、C、D 、F。所有的对象都已经被标记。标记对象D时，GC发现这个对象含有一个引用对象H的字段，造成对象H也被标记。标记过程会持续，直至应用程序的所有根所有检查完毕。<br>检查完毕后，堆中的对象要么已标记，要么未标记。已标记的对象不能被垃圾回收，因为至少有一个根在引用它。我们说这种对象是可达的，因为应用程序可以通过引用它的变量抵达它。 未标记的对象是不可达的，因为应用程序中不存在使对象能被再次访问的根。</p>
-<p>CLR知道哪些对象可以幸存，哪些可以被删除后，进入GC的压缩（类似于碎片整理）阶段。在压缩阶段，CLR对堆中已标记的对象进行“乾坤大挪移”，整理所有幸存下来的对象，使他们占用连续的内存。</p>
-<p>这样做的好处在于：</p>
-<p>1、所有幸存对象在内存中紧挨在一起，恢复了引用的“局部性”，减少了应用程序的工作集，从而提升了将来访问这些对象时的性能；</p>
-<p>2、经过整理后，可用空间也是连续的，整个地址空间区段得到了解放，允许其他东西进驻。</p>
-<p>在内存中移动了对象之后有一个问题亟待解决。引用幸存对象的根现在引用的还是对象最初在内存中的位置，而非移动后的位置。被暂停的线程恢复执行时，将访问旧的内存位置，会造成内存损坏。 这显然是不能容忍的，所以作为压缩阶段的一部分，CLR还要从每个根减去所引用对象在内存中偏移的字节数。这样就能保证每个根还是引用和之前一样的对象，只是对象在内存中变换了位置。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/FyP2yk1O6kMsq3.u4e4x3qrAxpwbajgSHOd4QHTJOhE!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=TQI*AU0CPwEDACU!&amp;su=1202148209&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>##代：提升性能 (待续)<br>CLR的GC是基于代的垃圾回收器，它对你的代码做出了以下几点假设：</p>
-<p>1、对象越新，生存周期越短。</p>
-<p>2、对象越老，生存周期越长。</p>
-<p>3、回收堆的一部分 ，速度快于回收整个堆。</p>
-<p>大量研究表明，这些假设对于现今大多数的应用程序都是成立的，它们影响了垃圾回收器的实现方式。这里将解释代的工作原理。</p>
-<p>托管堆在初始化时不包括对象。添加到堆的对象成为第0代对象。简单来说，第0代对象就是那些新构造的对象，垃圾回收器从未检查过它们。如下图，新启动的应用程序，分配了5个对象（从A到E）。过了一会，C和E变得不可达了。</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/77WJus7lssJpEJ2RZREQoNx.5CL31HLdboJbAgCqS0E!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tQIVAbUCFQEDACU!&amp;su=172682065&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>CLR初始化第0代对象选择一个预算容量。如果分配一个新对象造成第0代超预算，就必须启动一次GC。假设对象A到E刚好用完了第0代的空间，那么分配对象F就必须启动GC。GC之后存活的对象现场成为第1代对象。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/GEDzaV4pNFNQUuDwl2EQrv*eD9Sk9OJCzx5SpRRI2fk!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=OAL5ADgC.QADACU!&amp;su=1155276897&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>一次GC之后，第0代就不包含任何对象。和前面一样，新对象会分配到第0代。新分配对象F到对象K都到了第0代。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Op0QokzBTNYCFR6zzm2tpc2V7U70IsIJTeWrd0UAUb0!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=yAJeAcgCXgEDACU!&amp;su=1124261217&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>之后，程序继续运行，B、H、J变得不可达，它们的内存将在某一个时刻回收。</p>
-<p>假设现在新分配对象L会造成第0代超出预算,造成必须启动垃圾回收。</p>
-<p>开始垃圾回收时,垃圾回收器必须决定检查哪些代。前面说过,CLR初始化时会为第0代对象选择预算.事实上,它还必须为第1代选择预算.</p>
-<p>开始一次垃圾回收时,垃圾回收器还会检查第一代占用了多少内存。在本例中,由于第1代占用内存远少于预算,所以垃圾回收器只检查第0代对象。回顾之前基于代的垃圾回收器做出的第一个假设：对象越新，生存期越短。 因此，第0代包含更多的垃圾的可能性更大，能回收更多的内存。由于忽略第1代中的对象，所以加快了垃圾回收速度。</p>
-<p>显然，忽略第1代中的对象能提升垃圾回收器的性能。但对性能有更大提振作用的是现在不必遍历托管堆中的每个对象。如果根或对象引用了老一代的某个对象，垃圾回收器就可以忽略老对象内部的所有引用，能在更短的时间内构造好可达对象图。当然，如果老对象的字段也可能引用新对象。为了确保对老对象的已更新字段进行检查，垃圾回收器利用了JIT编译器内部的一个机制。这个机制在对象的引用字段发生变化时，会设置一个对应的标志位。这样，垃圾回收器就知道自上一次垃圾回收以来，哪些老对象（如果有的话）已被写入。只有字段发生变化的老对象才需要检查是否引用了第0代中的任何新对象。</p>
-<p>基于代的垃圾回收器还假设越老的对象活得越长。也就是说，第1代对象在应用程序中有可能是继续可达的。如果垃圾回收器检查第1代的对象，很有可能找不到多少垃圾，结果是也回收不了多少内存。因此，对第1代进行垃圾回收很可能是浪费时间的。如果第一代真有垃圾，垃圾将留在那里。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Do.yRCBJEnaOfZaUOdxj4II9*pX2BEcX2QmIG6NQPBE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=qAI5AagCOQEDACU!&amp;su=187009937&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，继续往第0代分配对象，同时程序停止对第1代某对象的使用。</p>
-<p>如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/YEqIM16xFsSgXdvEzgrerLnKw7fEItnrSqEzlaYnUfE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=egJPAXoCTwEDACU!&amp;su=1118118497&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>分配对象P导致第0代超预算，开始GC。第1代的所有对象占据内存仍小于预算，垃圾回收器再次决定只回收第0代。忽略第1代中的垃圾对象。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/EcdSNU5AatqRERWtVdlJ7LiIPHHXe8.mklN.0hHDK9U!/o/dJQAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAIxAWgCMQEDACU!&amp;su=1214124305&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，假设第一代的增长导致它的全部对象占用了全部预算。这时候应用程序分配对象P到对象S，使第0代对象达到它的预算总和。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/6dB68RIUYrqMZ4p0VIY3REJZPg.g3ybkZFIazJ3h.CQ!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jwIiAY8CIgEDACU!&amp;su=177976657&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>这时候，应用程序准备分配对象T，由于第一代已满，所以必须开始GC。但这一次垃圾回收器发现第一代占用了太多内存，以至于用完了预算。由于前几次对第0代进行GC时，第1代中可能已经有很多对象变得不可达。所以这次垃圾回收器决定检查第1代和第0代中的所有对象。两代都被垃圾回收后，堆的情况如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/bxdZDsZi2Y6FSDWs7RXNPkkJK8dCzMD.cfnjwNY2Mjs!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tgI2AbYCNgEDACU!&amp;su=197762641&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>托管堆只支持三代：第0代、第1代和第2代。</p>
-<p>CLR初始化时，会为每一代选择预算。</p>
-<p>然而，CLR的垃圾回收是自调节的。</p>
-<p>这意味着垃圾回收器会在执行垃圾回收的过程了解程序的行为。</p>
-<p>例如：假设应用程序构造了许多对象，但每个对象的时间都很短。<br>在这种情况下，对第0代的垃圾回收会回收到大量的内存。事实上，第0代的所有对象都可能被回收。</p>
-<p>如果垃圾回收器发现在回收第0代后存活下来的对象很少，就可能减少第0代的预算。已分配空间的减少意味着垃圾回收将更频繁地发生，但垃圾回收器每次做的事情也减少，这减少了进程的工作集。</p>
-<p>另一方面，如果垃圾回收器回收了第0代，发现还有很多对象存活，没多少内存可以被回收，就会增大第0代的预算。</p>
-<p>同样的启发性算法调整预算适用于了第1代和第2代的预算。</p>
-<p>引自：《CLR VIA C# -21章》</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/f144e03t(v=vs.100" target="_blank" rel="external">自动内存管理</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">垃圾回收的基础</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">代数</a>.aspx#generations )</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/托管堆和垃圾回收/" data-id="cil4z1ced0008scunwlbsdrgk" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
-    <article id="post-LINQ优点总结(转载)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/02/23/LINQ优点总结(转载)/" class="article-date">
-  <time datetime="2016-02-23T15:59:34.760Z" itemprop="datePublished">2016-02-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/02/23/LINQ优点总结(转载)/">C#LINQ 优点 总结(转载)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>原文链接：<a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a></p>
-<p>这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。</p>
-<p>由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。</p>
-<p>（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）</p>
-<p>LINQ的优点：</p>
-<p>LINQ基本有以下七个优点，让我来一一举例说明：</p>
-<p>#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：</p>
-<p>(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：</p>
-<p>语句高亮显示，类型检查，允许使用debugger调试</p>
-<p>(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。</p>
-<p>(3):集成后的语法更加的清晰易懂，可读性较高。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">比较： </span><br><span class="line"><span class="comment">//原来的格式</span></span><br><span class="line">SqlConnection sqlConn = <span class="keyword">new</span> SqlConnection(connectionString);&gt;</span><br><span class="line">sqlConn.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">command.Connection = sqlConn;</span><br><span class="line">command.CommandText = <span class="string">"Select * From Customer"</span>;</span><br><span class="line">SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//LINQ的格式</span></span><br><span class="line">NORTHWNDDataContext dc = <span class="keyword">new</span> NORTHWNDDataContext();</span><br><span class="line"><span class="keyword">var</span> query = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure>
-<p>#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。</p>
-<p>使用统一化查询语言的好处在于以下几点：</p>
-<p>你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。<br>由于使用了统一的语法，可以使代码维护变的更加简单。<br>以下代码体现了LINQ的统一化：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据源:对象集合</span></span><br><span class="line"><span class="keyword">var</span> query = <span class="function"><span class="keyword">from</span> c <span class="keyword">in</span> <span class="title">GetCustomers</span>(<span class="params"></span>)</span><br><span class="line">            <span class="keyword">select</span> c</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//数据源:SQL</span></span><br><span class="line"><span class="keyword">var</span> query1 = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">             <span class="keyword">select</span> c;</span><br><span class="line"><span class="comment">//数据源:XML</span></span><br><span class="line"><span class="keyword">var</span> query2 = <span class="keyword">from</span> c <span class="keyword">in</span> customers.Descendants(<span class="string">"Customer"</span>)</span><br><span class="line">             <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure></p>
-<p>#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:</p>
-<p>(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。</p>
-<p>(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。</p>
-<p>以下是些第三方的LINQ provider：</p>
-<p>LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google</p>
-<p>#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。</p>
-<p>Declarative programming(声明式编程)的优点体现在以下2点：</p>
-<p>(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。</p>
-<p>(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。</p>
-<p>举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。</p>
-<p>比较Declarative programming 与 Imperative programming：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"><span class="keyword">var</span> query = from list <span class="keyword">in</span> lists</span><br><span class="line">            from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">            where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">            orderby <span class="built_in">num</span> descending</span><br><span class="line">            select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//命令式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list1.Add(<span class="number">1</span>);</span><br><span class="line">list1.Add(<span class="number">2</span>);</span><br><span class="line">list1.Add(<span class="number">3</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list2 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list2.Add(<span class="number">4</span>);</span><br><span class="line">list2.Add(<span class="number">5</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt;();</span><br><span class="line">lists1.Add(list1);</span><br><span class="line">lists1.Add(list2);</span><br><span class="line"> </span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; newList = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">foreach (<span class="keyword">var</span> item <span class="keyword">in</span> lists1)</span><br><span class="line">      foreach (<span class="keyword">var</span> <span class="built_in">num</span> <span class="keyword">in</span> item)</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span>)</span><br><span class="line">            newList.Add(<span class="built_in">num</span>);</span><br><span class="line">newList.Reverse();</span><br></pre></td></tr></table></figure></p>
-<p>#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。</p>
-<p>SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是</p>
-<p>rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。</p>
-<p>这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。</p>
-<p>#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。</p>
-<p>LINQ返回的结果都是基于接口：IEnumerable<t>，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。</t></p>
-<p>优点在于：</p>
-<p>(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。</p>
-<p>(2).便于代码维护。把代码拆分后能使代码变的更易理解。</p>
-<p>以下代码体现了可组成性：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码体现了Composable</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;</span><br><span class="line"> &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query1 = from list <span class="keyword">in</span> lists</span><br><span class="line">             from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query2 = from <span class="built_in">num</span> <span class="keyword">in</span> query1</span><br><span class="line">             where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query3 = from <span class="built_in">num</span> <span class="keyword">in</span> query2</span><br><span class="line">             orderby <span class="built_in">num</span> descending</span><br><span class="line">             select <span class="built_in">num</span>;</span><br></pre></td></tr></table></figure></p>
-<p>######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。</p>
-<p>方便用户做数据移植。</p>
-<p>以下代码体现了转换的特性：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//把关系型数据转换成XML型</span></span><br><span class="line">	<span class="keyword">var</span> query = <span class="keyword">new</span> XElement(<span class="string">"Orders"</span>,</span><br><span class="line">            <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">where</span> c.City == <span class="string">"Paris"</span></span><br><span class="line">            <span class="function"><span class="keyword">select</span> new <span class="title">XElement</span>(<span class="params"><span class="string">"Order"</span>,</span><br><span class="line">                new XAttribute(<span class="string">"Address"</span>, c.Address</span>)))</span>;</span><br></pre></td></tr></table></figure></p>
-<p>以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。</p>
-<p>//2011/1/28 补充(LINQ TO SQL)</p>
-<p>在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。</p>
-<p><a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a> </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://yoursite.com/2016/02/23/LINQ优点总结(转载)/" data-id="cil4z1cex000gscunsna68480" class="article-share-link">Share</a>
-      
-      
-    </footer>
-  </div>
-  
-</article>
-
-
-  
+    <nav id="page-nav">
+      <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/">Next &raquo;</a>
+    </nav>
   
 </section>
         
@@ -920,7 +596,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">February 2016</a><span class="archive-list-count">9</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a><span class="archive-list-count">9</span></li></ul>
     </div>
   </div>
 
@@ -963,7 +639,7 @@ public sealed class SomeType
   
   <div class="outer">
     <div id="footer-info" class="inner">
-      &copy; 2016 John Doe<br>
+      &copy; 2016 李国宝<br>
       Powered by <a href="http://hexo.io/" target="_blank">Hexo</a>
     </div>
   </div>
