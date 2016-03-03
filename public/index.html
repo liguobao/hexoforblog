@@ -61,6 +61,61 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-Bytes -To-String" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/03/03/Bytes -To-String/" class="article-date">
+  <time datetime="2016-03-03T15:19:50.488Z" itemprop="datePublished">2016-03-03</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/03/03/Bytes -To-String/">bytes to string</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>有时候我们会遇到需要把数据加密之后再网络上传输的需求，这样的话一般使用AES256之类的算法，经过运算之后得到一个byte数组，接着转换成string，就扔出去了。对方拿到之后，用密钥解密之后便得到了对应的数据。</p>
+<p>在C#里面，Byte数组转String字符串我们一般用Convert.ToBase64()完成。</p>
+<p>代码如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">BytesToString</span>(<span class="params"><span class="keyword">byte</span>[] buff</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> Convert.ToBase64String(buff);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">byte</span>[] StringToBytes(<span class="keyword">string</span> input)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> Encoding.UTF8.GetBytes(input);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p> 一般来说这样也没撒问题了，不过，如果这个数据是通过URL的方式给出去的，这时候就要考虑一下特殊字符编码问题了。+、空格、%之类的特殊字符可能会导致切断URL传参的数据，导致得到的数据不一致。这样的话，解密也做不下去了。</p>
+<p> 相关资料：<br> <br>1、<a href="http://www.ruanyifeng.com/blog/2010/02/url_encoding.html" target="_blank" rel="external">关于URL编码</a><br> <br>2、<a href="http://blog.csdn.net/luo_deng/article/details/12186535" target="_blank" rel="external">URL编码—-url参数中有+、空格、=、%、&amp;、#等特殊符号的问题解决</a></p>
+<p> 不过也好在，C#提供了一个HttpUtility.UrlEncode(input)和HttpUtility.UrlEncode(input)这两个函数，让我们直接把上面的特殊字符转换成URL可识别的转义字符。<br> 数据出去之后先Encode一下，回来之后Decode一下，好像问题都解决了吧。</p>
+<p>然而我们都忘了一件事情，URL到了浏览器之后，自然会对URL里面的东西Decode一次。<br>我实现的时候，在后台验证的时候又Decode一次,这就出问题了。</p>
+<p>问题在哪呢？一个encode的字符被decode两次，内容已经被改掉了…<br>这就导致解密的时候直接挂了….</p>
+<p>这样看来，<br>Convert.ToBase64String()这个不够靠谱，出来的数据可能会有特殊字符的问题。<br>怎么解决呢？那天晚上和老大/CTO都在看这个bug。一下子都没撒好办法….</p>
+<p>后来CTO想了一下，说byte不就是最大不久255么？直接转16进制字符就是嘛。<br>于是有了下面的代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> byte数组转string</span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="bytes"&gt;</span><span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;returns&gt;</span><span class="xmlDocTag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">BytesToString</span>(<span class="params"><span class="keyword">byte</span>[] bytes</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (bytes == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">string</span>.Empty;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">string</span>.Join(<span class="keyword">string</span>.Empty, </span><br><span class="line">   bytes.Select(b =&gt; <span class="keyword">string</span>.Format(<span class="string">"&#123;0:x2&#125;"</span>, b)).ToArray());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> string转byte数组</span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="str"&gt;</span><span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;returns&gt;</span><span class="xmlDocTag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] StringToBytes(<span class="keyword">string</span> str)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(str))</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[str.Length / <span class="number">2</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.Length; i += <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bytes[i / <span class="number">2</span>] = Convert.ToByte(<span class="string">"0x"</span> + str[i] + str[i + <span class="number">1</span>], <span class="number">16</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> bytes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>问题解决。</p>
+<p>关于base64的实现，下面这个链接是相关资料，有兴趣自己看啦。</p>
+<p><a href="http://www.hejingzong.cn/blog/ViewBlog_36.aspx" target="_blank" rel="external">C#/ASP.NET Base64编码原理及实现</a></p>
+<p><a href="http://www.cnblogs.com/tuyile006/archive/2008/01/17/1043178.html" target="_blank" rel="external">C＃实现Base64编码与解码</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/03/03/Bytes -To-String/" data-id="cilceyhlh0000ssun973b3x1r" class="article-share-link">Share</a>
+      
+      
+    </footer>
+  </div>
+  
+</article>
+
+
+  
     <article id="post-CodeSmith to MySQL" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/02/28/CodeSmith to MySQL/" class="article-date">
@@ -907,7 +962,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">4</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">5</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -920,7 +975,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a><span class="archive-list-count">9</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/02/">二月 2016</a><span class="archive-list-count">9</span></li></ul>
     </div>
   </div>
 
@@ -930,6 +985,10 @@ public sealed class SomeType
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/03/03/Bytes -To-String/">bytes to string</a>
+          </li>
         
           <li>
             <a href="/2016/02/28/CodeSmith to MySQL/">CodeSmith for MySQL template</a>
@@ -945,10 +1004,6 @@ public sealed class SomeType
         
           <li>
             <a href="/2016/02/23/Join/">.NET-join用法</a>
-          </li>
-        
-          <li>
-            <a href="/2016/02/23/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
           </li>
         
       </ul>
