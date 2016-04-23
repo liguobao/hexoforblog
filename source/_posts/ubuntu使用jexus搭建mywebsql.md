@@ -5,7 +5,6 @@ category: ubuntu
 ---
 
 
-
 之前在阿里云上装了一个ubuntu，后来也没怎么用力，就挂这一个mysql数据库。最近在家里用MySQL Workbench 连接阿里云上面的MySQL的时候，连着过了一会就中断了。后来看了一圈回来才发现，目测是家里电信宽带的锅，不断给我动态分配IP地址....后来群里面的小伙伴说，搭个websql了事啦。听起来不错的想法，于是昨天就试了一下。
 
 之前在ubuntu上装过apache，后来为了跑asp.net，把apache停了，换成了jexus。

@@ -4,7 +4,6 @@ title: Jexus支持HTTPS协议
 category: jexus
 ---
 
-
 众所周知，在HTTPS页面请求HTTP资料的时候，现代浏览器会拦截，提示用户是否继续，或者直接拦截，提示都不出来。
 
 
@@ -89,18 +88,6 @@ UseHttps=true
 
 
 撒花，下次再见。
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
