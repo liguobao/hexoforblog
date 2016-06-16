@@ -61,6 +61,75 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-C#避免在函数或者操作中抛出异常" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/06/16/C#避免在函数或者操作中抛出异常/" class="article-date">
+  <time datetime="2016-06-16T14:10:43.918Z" itemprop="datePublished">2016-06-16</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/06/16/C#避免在函数或者操作中抛出异常/">C#避免在函数或者操作中抛出异常</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <h2 id="1、引言"><a href="#1、引言" class="headerlink" title="1、引言"></a>1、引言</h2><p>如某个场景下，你的函数或操作需要操作一个序列的对象，且在处理的过程中抛出了异常。这时如果没有一些状态记录之类的数据，我们不了解已经处理了多少的数据，也不知道应该采用怎么样的策略回滚，因此根本无法返回到之前的状态。<br>我们看一下下面的一个代码：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> allEmp = FindAllEmployees();</span><br><span class="line">allEmp.ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
+<p>这样的代码看起来没什么问题。可是某一天，这个程序运行时抛出了异常。抛出异常的位置可能未知，导致部分员工得到了加薪，另外的一些员工却没有。结果是除了人工检查数据，我们已经没有办法重新找回丢失的状态。</p>
+<p>这样的代码修改元素的方式导致发生了上面的问题。这段代码并没有遵循“强异常安全保证”规则。换而言之，在运行时遇到错误，我们无法得知具体发生了什么，没有发生什么。</p>
+<h3 id="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"><a href="#原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。" class="headerlink" title="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"></a>原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。</h3><p>我们有几种方法都可以实现这样的需求，但是每种方法都有各自的优势和风险。</p>
+<h2 id="2、在函数-操作中抛出异常"><a href="#2、在函数-操作中抛出异常" class="headerlink" title="2、在函数/操作中抛出异常"></a>2、在函数/操作中抛出异常</h2><p>显而易见的，不是所有的方法都会遇到这样的问题（异常导致状态丢失）。很多时候我们只是检查了一下序列中的元素，访问之后并不会修改其中的元素。这类的行为我们其实并不需要太过于小心。现在我们回到最开始的地方，对于上面的场景（为每位员工加薪百分之五），如果我们想遵循“强异常安全保证”原则，那应该如何修改这个方法呢？</p>
+<h4 id="第一种异常：获取数据的时候异常"><a href="#第一种异常：获取数据的时候异常" class="headerlink" title="第一种异常：获取数据的时候异常"></a>第一种异常：获取数据的时候异常</h4><p>在上面的例子中，即使FindAllEmployees()函数抛出异常，导致我们无法正确让员工加薪。虽然这样的情况并不是导致我们的数据产生问题，但是该加薪的大家没有得到加薪，这是一个多么沮丧的事情呢。</p>
+<h4 id="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。"><a href="#解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。" class="headerlink" title="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。"></a>解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。</h4><p>很多时候，我们在开始修改数据之前，先校验数据的合法性以及剔除错误数据（如果允许剔除的话）并不是非常困难。我们是可以采取这样的方法来实现我们的目的。不过在这里的话，我们就必须严格处理操作方法，使得它能满足所有情况下的需求。</p>
+<h4 id="第二种异常：lambda表达式中操作数据异常"><a href="#第二种异常：lambda表达式中操作数据异常" class="headerlink" title="第二种异常：lambda表达式中操作数据异常"></a>第二种异常：lambda表达式中操作数据异常</h4><p>同样是上面的例子，如果我们在执行加薪操作的时候，提升了那些已经离职的员工薪资导致了异常，使得程序中断，状态丢失。这样的情况，我们在执行加薪操作前先过滤掉已离职的员工便是一种正确的做法。</p>
+<h4 id="解决方法：操作数据前通过校验过滤后再执行操作"><a href="#解决方法：操作数据前通过校验过滤后再执行操作" class="headerlink" title="解决方法：操作数据前通过校验过滤后再执行操作"></a>解决方法：操作数据前通过校验过滤后再执行操作</h4><p>如：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allEmp.Where(emp=&gt;emp.Active).ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
+<h4 id="第三种异常：执行操作的时候抛出异常"><a href="#第三种异常：执行操作的时候抛出异常" class="headerlink" title="第三种异常：执行操作的时候抛出异常"></a>第三种异常：执行操作的时候抛出异常</h4><p>有时候，我们根本无法保证处理方法的时候会不会抛出异常。这个时候就必须采取一些代价更加昂贵的处理方法了。</p>
+<h4 id="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"><a href="#解决方法：创建副本尝试执行操作，副本无误后执行真正操作" class="headerlink" title="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"></a>解决方法：创建副本尝试执行操作，副本无误后执行真正操作</h4><p>我们在编写这类代码的时候，应该考虑抛出异常之后的处理方案。这就意味着，我们的操作应该先在原数据副本上执行，随后仅在操作成功之后再将其替换原有的数据。<br>如:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> updatas = (<span class="keyword">from</span> e <span class="keyword">in</span> allEmp </span><br><span class="line">              <span class="keyword">select</span> <span class="keyword">new</span> Emp</span><br><span class="line">              &#123;</span><br><span class="line">                  EmpID=e.EmpID,</span><br><span class="line">                  .....</span><br><span class="line">                  MonthlySalary =e.MonthlySalary *=<span class="number">1.05</span>M</span><br><span class="line">              &#125;).ToList();</span><br><span class="line"></span><br><span class="line">allEmp = updatas;</span><br></pre></td></tr></table></figure>
+<p>但是这样的修改也引发了其他的问题：代码量增加了，同时生成副本也消耗了大量的资源。这样的做法也有一个好处，我们在操作副本数据时遇到异常之后，有充分的”空间”来处理这些数据。</p>
+<p>实际中，这意味着我们让查询表达式返回了新序列，而不是去修改原先序列中的元素。这样的话，我们在尝试完成所有的操作的同时，即使失败了，也不会影响到我们程序的原有状态。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/06/16/C#避免在函数或者操作中抛出异常/" data-id="cipidu3k3000w9kttywt7qx84" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
     <article id="post-mono-webreques-https-exception" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/04/23/mono-webreques-https-exception/" class="article-date">
@@ -118,7 +187,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="cind7camg00004kttqwgp9gsw" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="cipidu3jn000i9ktt7vosqs1i" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -212,7 +281,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="cin8w0dhx0000cgttvlz8px1i" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="cipidu3jw000o9ktttf621dko" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -316,7 +385,111 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="cilgg02as000fs0unrihbkxfe" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="cipidu3jl000f9ktta09f23y4" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/20/类字段与类属性/" class="article-date">
+  <time datetime="2016-04-20T13:19:01.005Z" itemprop="datePublished">2016-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
+<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
+<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
+<pre><code>using System;
+
+public sealed class SomeType
+{                            //  1  
+// Nested class  
+   private class SomeNestedType { }                //  2  
+
+   // Constant, read­only, and static read/write field   
+   private const Int32 c_SomeConstant = 1;            //  3     
+
+   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
+
+   private static Int32 s_SomeReadWriteField = 3;      //  5  
+
+   // Type constructor  
+   static SomeType() { }                                  //  6  
+
+   // Instance constructors  
+   public SomeType(Int32 x) { }                           //  7  
+
+   public SomeType() { }                                  //  8 
+
+   // Instance and static methods  
+   private String InstanceMethod() { return null; }       // 9   
+
+   public static void Main() { }                        // 10 
+
+   // Instance property  
+   public Int32 SomeProp
+   {                                // 11      
+       get { return 0; }                                // 12      
+       set { }                                          // 13  
+   }
+
+   // Instance parameterful property (indexer) 
+   public Int32 this[String s]
+   {                          // 14       
+       get { return 0; }                                // 15        
+       set { }                                          // 16  
+   }
+
+   // Instance event  
+   public event EventHandler SomeEvent;                  // 17  
+}
+</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
+<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="cipidu3ja00039kttojlmondx" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -581,7 +754,252 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/技巧避免修改绑定变量/" data-id="cilgg02a50005s0un5hxyvhiv" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/技巧避免修改绑定变量/" data-id="cipidu3jd00059kttg81qcp37" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-托管堆和垃圾回收" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/20/托管堆和垃圾回收/" class="article-date">
+  <time datetime="2016-04-20T13:19:00.998Z" itemprop="datePublished">2016-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/20/托管堆和垃圾回收/">C#.NET托管堆和垃圾回收</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>###托管堆基础<br> 简述：每个程序都要使用这样或那样的资源，包括文件、内存缓冲区、屏幕空间、网络连接…..事实上，在面向对象的环境中，每个类型都代表可供程序使用的一种资源。要使用这些资源，必须为代表资源的类型分配内存。</p>
+<p> 以下是访问一个资源所需步骤：</p>
+<ol>
+<li>调用IL指令newobj，为代表资源的类型分配内存。(C# new操作符)</li>
+<li>初始化内存，设置资源的初始状态。（一般指构造函数）</li>
+<li>访问类型的成员来使用资源。（使用成员变量、方法、属性等）</li>
+<li>摧毁资源的状态以进行清除。（Dispose？？？）</li>
+<li>释放内存。（GC） </li>
+</ol>
+<p>###从托管堆分配资源</p>
+<p>CLR要求所有的对象都从托管堆分配。<br>进程初始化，CLR划出一个地址空间区域作为托管堆。CLR还要维护一个指针，姑且叫NextObjPtr，该指针指向下一个对象在堆中的分配位置。刚开始的时候， NextObjPtr 设为地址空间区域的基地址。<br>一个区域被非垃圾对象填满后，CLR会分配更多的区域。</p>
+<p>这一个过程一直重复，直至整个进程地址空间被填满。所以，应用程序内存收进程的虚拟地址空间的限制。</p>
+<p>32位进程最多能分配1.5GB，64位进程最多能分配8T。<br>注：进程内存大小的相关资料</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/windows/hardware/Dn613959(v=vs.85" target="_blank" rel="external">Memory Support and Windows Operating Systems</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/ms189334.aspx" target="_blank" rel="external">进程地址空间</a></p>
+<p><a href="http://blog.csdn.net/yusiguyuan/article/details/12405799" target="_blank" rel="external"> 32位模式下C/C++程序可用最大内存</a></p>
+<p>###C# 的new操作符导致CLR执行以下操作：</p>
+<p>1、计算类型的字段（以及从基类型继承的字段）所需要的字节数。</p>
+<p>2、加上对象的开销所需的字节数。每个对象都有两个开销字段：类型对象指针和同步块索引。对于32位应用程序，这两个字段各需要32位，所以每个对象需要增加8字节。对于64位应用程序，这两个字段各需要64位，所以每个对象要增加16字节。</p>
+<p>3、CLR检查区域中是否有分配对象所需的字节数。如果托管堆有足够的可用空间，就在NetxObjPtr指针指向的地址处放入对象，为对象分配的字节会被清零。接着调用类型的构造器（为this参数传递NextObjPtr），new操作符返回对象引用。就在返回这个对象引用之前，NextObjPtr指针的值会加上这个对象占用的字节数来得到一个新值，即下个对象放入托管堆时的地址。如下图：</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/i3rlSCPAcnT9pL0El0BptPIBpuvnxHpBw9Nkp*UqIjw!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=LwKNAC8CjQADACU!&amp;su=1199793361&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>###垃圾回收算法</p>
+<p>####CLR使用引用跟踪算法。<br>引用跟踪算法只关心引用类型的变量，因为只有这种变量才能引用堆上面的对象；<br>值类型变量直接包含值类型实例。引用类型变量可在许多场合使用，包括类的静态和实例字段，或者方法的参数和局部变量。这里我们将所有引用类型的变量都称为根。<br>CLR开始GC时，首先暂停所有的线程。(这样可以防止线程在CLR检查期间访问对象并更改其状态。) 然后CLR进入GC标记阶段。在这个阶段，CLR遍历堆中的所有对象，将同步块索引字段中的一位设为0。这表明所有的对象都应删除。然后，CLR检查所有的活动根，查看他们引用了哪些对象。这正是CLR的GC被称作引用跟踪GC的原因。如果一个根包含null，CLR忽略这个根并继续检查下一个根。<br>下图展示一个堆，其中包含几个对象。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/eVBVeXGrNAfoWfyRgl4aC2RRSGgiDpmbrocv4lTSJMA!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=gAIFAYACBQEDACU!&amp;su=1176931729&amp;sce=0-12-12&amp;rf=2-9" alt="图片1"></p>
+<p>应用程序的根直接引用对象A 、C、D 、F。所有的对象都已经被标记。标记对象D时，GC发现这个对象含有一个引用对象H的字段，造成对象H也被标记。标记过程会持续，直至应用程序的所有根所有检查完毕。<br>检查完毕后，堆中的对象要么已标记，要么未标记。已标记的对象不能被垃圾回收，因为至少有一个根在引用它。我们说这种对象是可达的，因为应用程序可以通过引用它的变量抵达它。 未标记的对象是不可达的，因为应用程序中不存在使对象能被再次访问的根。</p>
+<p>CLR知道哪些对象可以幸存，哪些可以被删除后，进入GC的压缩（类似于碎片整理）阶段。在压缩阶段，CLR对堆中已标记的对象进行“乾坤大挪移”，整理所有幸存下来的对象，使他们占用连续的内存。</p>
+<p>这样做的好处在于：</p>
+<p>1、所有幸存对象在内存中紧挨在一起，恢复了引用的“局部性”，减少了应用程序的工作集，从而提升了将来访问这些对象时的性能；</p>
+<p>2、经过整理后，可用空间也是连续的，整个地址空间区段得到了解放，允许其他东西进驻。</p>
+<p>在内存中移动了对象之后有一个问题亟待解决。引用幸存对象的根现在引用的还是对象最初在内存中的位置，而非移动后的位置。被暂停的线程恢复执行时，将访问旧的内存位置，会造成内存损坏。 这显然是不能容忍的，所以作为压缩阶段的一部分，CLR还要从每个根减去所引用对象在内存中偏移的字节数。这样就能保证每个根还是引用和之前一样的对象，只是对象在内存中变换了位置。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/FyP2yk1O6kMsq3.u4e4x3qrAxpwbajgSHOd4QHTJOhE!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=TQI*AU0CPwEDACU!&amp;su=1202148209&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>##代：提升性能 (待续)<br>CLR的GC是基于代的垃圾回收器，它对你的代码做出了以下几点假设：</p>
+<p>1、对象越新，生存周期越短。</p>
+<p>2、对象越老，生存周期越长。</p>
+<p>3、回收堆的一部分 ，速度快于回收整个堆。</p>
+<p>大量研究表明，这些假设对于现今大多数的应用程序都是成立的，它们影响了垃圾回收器的实现方式。这里将解释代的工作原理。</p>
+<p>托管堆在初始化时不包括对象。添加到堆的对象成为第0代对象。简单来说，第0代对象就是那些新构造的对象，垃圾回收器从未检查过它们。如下图，新启动的应用程序，分配了5个对象（从A到E）。过了一会，C和E变得不可达了。</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/77WJus7lssJpEJ2RZREQoNx.5CL31HLdboJbAgCqS0E!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tQIVAbUCFQEDACU!&amp;su=172682065&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>CLR初始化第0代对象选择一个预算容量。如果分配一个新对象造成第0代超预算，就必须启动一次GC。假设对象A到E刚好用完了第0代的空间，那么分配对象F就必须启动GC。GC之后存活的对象现场成为第1代对象。如下图：</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/GEDzaV4pNFNQUuDwl2EQrv*eD9Sk9OJCzx5SpRRI2fk!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=OAL5ADgC.QADACU!&amp;su=1155276897&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>一次GC之后，第0代就不包含任何对象。和前面一样，新对象会分配到第0代。新分配对象F到对象K都到了第0代。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Op0QokzBTNYCFR6zzm2tpc2V7U70IsIJTeWrd0UAUb0!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=yAJeAcgCXgEDACU!&amp;su=1124261217&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>之后，程序继续运行，B、H、J变得不可达，它们的内存将在某一个时刻回收。</p>
+<p>假设现在新分配对象L会造成第0代超出预算,造成必须启动垃圾回收。</p>
+<p>开始垃圾回收时,垃圾回收器必须决定检查哪些代。前面说过,CLR初始化时会为第0代对象选择预算.事实上,它还必须为第1代选择预算.</p>
+<p>开始一次垃圾回收时,垃圾回收器还会检查第一代占用了多少内存。在本例中,由于第1代占用内存远少于预算,所以垃圾回收器只检查第0代对象。回顾之前基于代的垃圾回收器做出的第一个假设：对象越新，生存期越短。 因此，第0代包含更多的垃圾的可能性更大，能回收更多的内存。由于忽略第1代中的对象，所以加快了垃圾回收速度。</p>
+<p>显然，忽略第1代中的对象能提升垃圾回收器的性能。但对性能有更大提振作用的是现在不必遍历托管堆中的每个对象。如果根或对象引用了老一代的某个对象，垃圾回收器就可以忽略老对象内部的所有引用，能在更短的时间内构造好可达对象图。当然，如果老对象的字段也可能引用新对象。为了确保对老对象的已更新字段进行检查，垃圾回收器利用了JIT编译器内部的一个机制。这个机制在对象的引用字段发生变化时，会设置一个对应的标志位。这样，垃圾回收器就知道自上一次垃圾回收以来，哪些老对象（如果有的话）已被写入。只有字段发生变化的老对象才需要检查是否引用了第0代中的任何新对象。</p>
+<p>基于代的垃圾回收器还假设越老的对象活得越长。也就是说，第1代对象在应用程序中有可能是继续可达的。如果垃圾回收器检查第1代的对象，很有可能找不到多少垃圾，结果是也回收不了多少内存。因此，对第1代进行垃圾回收很可能是浪费时间的。如果第一代真有垃圾，垃圾将留在那里。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Do.yRCBJEnaOfZaUOdxj4II9*pX2BEcX2QmIG6NQPBE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=qAI5AagCOQEDACU!&amp;su=187009937&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>程序继续运行，继续往第0代分配对象，同时程序停止对第1代某对象的使用。</p>
+<p>如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/YEqIM16xFsSgXdvEzgrerLnKw7fEItnrSqEzlaYnUfE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=egJPAXoCTwEDACU!&amp;su=1118118497&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>分配对象P导致第0代超预算，开始GC。第1代的所有对象占据内存仍小于预算，垃圾回收器再次决定只回收第0代。忽略第1代中的垃圾对象。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/EcdSNU5AatqRERWtVdlJ7LiIPHHXe8.mklN.0hHDK9U!/o/dJQAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAIxAWgCMQEDACU!&amp;su=1214124305&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>程序继续运行，假设第一代的增长导致它的全部对象占用了全部预算。这时候应用程序分配对象P到对象S，使第0代对象达到它的预算总和。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/6dB68RIUYrqMZ4p0VIY3REJZPg.g3ybkZFIazJ3h.CQ!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jwIiAY8CIgEDACU!&amp;su=177976657&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>这时候，应用程序准备分配对象T，由于第一代已满，所以必须开始GC。但这一次垃圾回收器发现第一代占用了太多内存，以至于用完了预算。由于前几次对第0代进行GC时，第1代中可能已经有很多对象变得不可达。所以这次垃圾回收器决定检查第1代和第0代中的所有对象。两代都被垃圾回收后，堆的情况如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/bxdZDsZi2Y6FSDWs7RXNPkkJK8dCzMD.cfnjwNY2Mjs!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tgI2AbYCNgEDACU!&amp;su=197762641&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>托管堆只支持三代：第0代、第1代和第2代。</p>
+<p>CLR初始化时，会为每一代选择预算。</p>
+<p>然而，CLR的垃圾回收是自调节的。</p>
+<p>这意味着垃圾回收器会在执行垃圾回收的过程了解程序的行为。</p>
+<p>例如：假设应用程序构造了许多对象，但每个对象的时间都很短。<br>在这种情况下，对第0代的垃圾回收会回收到大量的内存。事实上，第0代的所有对象都可能被回收。</p>
+<p>如果垃圾回收器发现在回收第0代后存活下来的对象很少，就可能减少第0代的预算。已分配空间的减少意味着垃圾回收将更频繁地发生，但垃圾回收器每次做的事情也减少，这减少了进程的工作集。</p>
+<p>另一方面，如果垃圾回收器回收了第0代，发现还有很多对象存活，没多少内存可以被回收，就会增大第0代的预算。</p>
+<p>同样的启发性算法调整预算适用于了第1代和第2代的预算。</p>
+<p>引自：《CLR VIA C# -21章》</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/f144e03t(v=vs.100" target="_blank" rel="external">自动内存管理</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">垃圾回收的基础</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">代数</a>.aspx#generations )</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="cipidu3jf00079kttkcaoozxg" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-托管堆和垃圾回收(续)" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/20/托管堆和垃圾回收(续)/" class="article-date">
+  <time datetime="2016-04-20T13:19:00.995Z" itemprop="datePublished">2016-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/20/托管堆和垃圾回收(续)/">C#.NET托管堆和垃圾回收(续)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>##大对象<br> CLR将对象分成大对象和小对象。目前认为85000字节或者更大的对象是大对象。CLR以不同方式对待大小对象。</p>
+<ol>
+<li><p>大对象不是在小对象的地址空间分配的，而是在进程地址空间的其他地方分配。</p>
+</li>
+<li><p>目前版本的GC不“压缩”大对象，因为在内存中移动它们代价过高。但这可能在进程中的大对象之间造成地址空间碎片化，以至于抛出OutMemoryException。CLR将来的版本可能会压缩大对象。</p>
+</li>
+<li>大对象总是第2代，绝不可能是第0代或者第1代。所以只能为需要长时间存活的资源创建大对象。分配短时间存活的大对象会导致第2代被更频繁地回收，损失性能。大对象一般是大字符串（XML/JSON）或者用于I/O操作的字节数组（从文件/网络将字节读入缓冲区以便处理）。</li>
+</ol>
+<p>##垃圾回收模式<br> CLR启动时会选择一个GC模式，进程中之前该模式都不会改变。</p>
+<p> 有两个基本GC模式。</p>
+<p>###工作站<br>该模式针对客户端应用程序优化GC。GC造成的延时很低，应用程序线程挂起时间很短，避免用户感到焦虑。在该模式中,GC假定机器上运行的其他应用程序都不会消耗太多的CPU资源。</p>
+<p>###服务器<br> 该模式针对服务器端应用程序优化GC。被优化的主要是吞吐量和资源利用。GC假定机器上没有运行其他应用程序（无论客户端还是服务器应用程序），并假定机器的所有CPU都可以用来辅助完成GC。该模式造成托管堆被拆分成几个区域，每个CPU一个。开始垃圾回收时，垃圾回收器在每个CPU上运行一个特殊线程；每个线程都和其他线程并发回收它自己的区域。对于工作者线程行为一致的服务器应用程序，并发回收能很好进行。这个功能要求应用程序在多CPU计算机上运行，是线程能真正同时工作，从而得到性能上的提升。</p>
+<p>应用程序默认以“工作站”GC模式运行。寄宿了CLR的服务器应用程序（如ASP.NET ）可请求CLR加载服务器 GC.但如果应用程序在单处理器计算机上运行，CLR总是使用“工作站”GC模式。</p>
+<p>独立应用程序可以创建一个配置文件告诉CLR 使用CLR使用服务器回收器。配置文件要为应用程序添加gcServer元素。下面是一个示例配置文件：</p>
+<p><configuration><br>       <runtime><br>             <gcserver enabled="true"><br>      </gcserver></runtime><br></configuration><br>可以使用GCSettings类的只读Boolean属性IsServerGC得到CLR是否处于“服务器”GC模式。</p>
+<p>除了这两种模式，GC还支持两种子模式：并发(默认)或者非并发。<br>在并发方式中，垃圾回收器有一个额外的后台线程，它能在应用程序运行时并发标记对象。 程序运行时，垃圾回收器运行一个普通优先级的后台线程来查找不可达对象。找到之后，垃圾回收器再次挂起所以线程，判断是否要“压缩”内存。如决定压缩，内存会被压缩，根引用会被修正，应用程序线程恢复运行。这一次垃圾回收花费的时间比平常少，因为不可达对象集合已构造好了。但垃圾回收器也可能决定不压缩内存；事实上，垃圾回收器更倾向不压缩。可用内存多，垃圾回收器便不会压缩堆；这有利于增强性能，但会增大程序的工作集。使用并发垃圾回收器，应用程序消耗的内存通常比使用非并发垃圾回收器多。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="cipidu3jh000a9ktt2omfecb2" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-一些有用的网站" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/20/一些有用的网站/" class="article-date">
+  <time datetime="2016-04-20T13:19:00.991Z" itemprop="datePublished">2016-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nothing/">nothing</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/20/一些有用的网站/">一些有用的网站</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">Markdown 语法说明 (简体中文版)</a></p>
+<p><a href="http://wowubuntu.com/markdown/basic.html" target="_blank" rel="external">Markdown: Basics （快速入门）</a></p>
+<p><a href="http://wsgzao.github.io/post/hexo-guide/" target="_blank" rel="external">使用GitHub和Hexo搭建免费静态Blog(本博客案例)</a></p>
+<p><a href="https://www.mxgw.info/t/filename-too-long-in-git.html" target="_blank" rel="external">win下面的git客户端提示FIlename too long解决方法</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/20/一些有用的网站/" data-id="cipidu3ji000c9ktt6l3tj1um" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -679,417 +1097,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/LINQ优点总结(转载)/" data-id="cilgg02az000is0unnor0dd3v" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-Join" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/Join/" class="article-date">
-  <time datetime="2016-04-20T13:19:00.980Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/Join/">.NET-join用法</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#.NET   Join<br> 连接：内连接、外连接、左连接、右连接。<br>SQL的Join这里就不多说了，<br>今天主要是看一下LINQ的Join用法，以及Enumerable.Join()的用法。</p>
-<p>Join用于连接数据，首先就是数据之间有联系咯。</p>
-<p>先说Enumerable.Join()。<br>参数类型如下：<br>            public static IEnumerable<tresult> Join<touter, tinner,="" tkey,="" tresult=""><br>            (<br>                     this IEnumerable<touter> outer,<br>                    IEnumerable<tinner> inner,<br>                    Func<touter, tkey=""> outerKeySelector,<br>                    Func<tinner, tkey=""> innerKeySelector,<br>                    Func<touter, tinner,="" tresult=""> resultSelector<br>            )<br>类型参数<br>TOuter<br>第一个序列中的元素的类型。<br>TInner<br>第二个序列中的元素的类型。<br>TKey<br>键选择器函数返回的键的类型。<br>TResult<br>结果元素的类型。<br>参数<br>outer<br>类型：System.Collections.Generic.IEnumerable<touter><br>要联接的第一个序列。<br>inner<br>类型：System.Collections.Generic.IEnumerable<tinner><br>要与第一个序列联接的序列。<br>outerKeySelector<br>类型：System.Func<touter, tkey=""><br>用于从第一个序列的每个元素提取联接键的函数。<br>innerKeySelector<br>类型：System.Func<tinner, tkey=""><br>用于从第二个序列的每个元素提取联接键的函数。<br>resultSelector<br>类型：System.Func<touter, tinner,="" tresult=""><br>用于从两个匹配元素创建结果元素的函数。<br>返回值<br>类型：System.Collections.Generic.IEnumerable<tresult><br>IEnumerable&lt;T&gt; that has elements of type TResult that are obtained by performing an inner join on two sequences.” xml:space=”preserve”&gt;一个具有 TResult 类型元素的 IEnumerable<t>，这些元素是通过对两个序列执行内部联接得来的。<br>使用说明<br>在 Visual Basic 和 C# 中，可以在 IEnumerable<touter> 类型的任何对象上将此方法作为实例方法来调用。当使用实例方法语法调用此方法时，请省略第一个参数。有关详细信息，请参阅 扩展方法 (Visual Basic) 或 扩展方法（C# 编程指南）。</touter></t></tresult></touter,></tinner,></touter,></tinner></touter></touter,></tinner,></touter,></tinner></touter></touter,></tresult></p>
-<p>先上一个MSDN的例子。</p>
-<pre><code>     public static void JoinEx1()         
-     {
-       Person magnus = new Person { Name = &quot;Hedlund, Magnus&quot; };
-       Pet barley = new Pet { Name = &quot;Barley&quot;, Owner = terry };
-       Person terry = new Person { Name = &quot;Adams, Terry&quot; };
-       Person charlotte = new Person { Name = &quot;Weiss, 
-       Charlotte&quot; };
-       Pet boots = new Pet { Name = &quot;Boots&quot;, Owner = terry };
-       Pet whiskers = new Pet { Name = &quot;Whiskers&quot;, 
-       Owner = charlotte};
-       Pet daisy = new Pet { Name = &quot;Daisy&quot;, Owner = magnus };
-
-    List&lt;Person&gt; people = new List&lt;Person&gt; 
-    { magnus, terry, charlotte };
-    List&lt;Pet&gt; pets = new List&lt;Pet&gt; 
-    { barley, boots, whiskers, daisy };
-
-    // Create a list of Person-Pet pairs where 
-    // each element is an anonymous type that contains a
-    // Pet&apos;s name and the name of the Person that owns the Pet.
-    var query =
-        people.Join(
-                    pets,//需要Join的另一个数据源
-          person =&gt; person,//自己用来比较的key， lambda 表达式
-     pet =&gt; pet.Owner,//另一个数据源用来比较的key， lambda 表达式
-(person, pet) =&gt;new { OwnerName = person.Name, Pet = pet.Name } 
-               //想要取出来的数据，支持匿名对象， lambda 表达式);
-    foreach (var obj in query)
-    {
-      Console.WriteLine( &quot;{0} - {1}&quot;,obj.OwnerName,obj.Pet);
-    }
-}
-</code></pre><p> LINQ的Join<br>同样是上面的数据，如果换成LINQ的Join，写法如下：<br>            var query = from person in people // 第一个数据源<br>                      join pet in pets            //第二个数据源<br>                      on person equals pet.Owner  //Join条件<br>                      select  new { OwnerName = person.Name, Pet = pet.Name };<br>                      //要到得到的数据。</p>
-<p>上面两种写法得到的结果都是内链接结果，至于左连接、右连接、外连接….<br>等我下次有心情再更新吧，再不走家里的键盘又要坏了。 </p>
-<p>一些资料链接：<br><a href="https://msdn.microsoft.com/zh-cn/library/bb311040.aspx" target="_blank" rel="external">https://msdn.microsoft.com/zh-cn/library/bb311040.aspx</a><br><a href="https://msdn.microsoft.com/zh-cn/library/bb534675%28v=vs.110%29.aspx?f=255&amp;MSPPError=-2147217396" target="_blank" rel="external">https://msdn.microsoft.com/zh-cn/library/bb534675%28v=vs.110%29.aspx?f=255&amp;MSPPError=-2147217396</a><br><a href="http://www.cnblogs.com/Ivony/archive/2008/08/18/1270555.html" target="_blank" rel="external">http://www.cnblogs.com/Ivony/archive/2008/08/18/1270555.html</a><br><a href="http://www.cnblogs.com/Ivony/archive/2008/08/28/1278643.html" target="_blank" rel="external">http://www.cnblogs.com/Ivony/archive/2008/08/28/1278643.html</a><br><a href="http://www.cnblogs.com/Ivony/archive/2008/10/14/1309807.html" target="_blank" rel="external">http://www.cnblogs.com/Ivony/archive/2008/10/14/1309807.html</a> ; </p>
-<p>LINQ GroupJoin 实现左连接<br>var queryGroup = from person in people // 第一个数据源<br>                                join pet in pets //第二个数据源<br>                                on person equals pet.Owner into ps //加了into,华丽变身GroupJoin<br>                                select new { OwnerName = person.Name, Pet = ps }; //要到得到的数据。 </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/Join/" data-id="cilgg02b6000ks0unsen30995" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-Bytes -To-String" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/03/Bytes -To-String/" class="article-date">
-  <time datetime="2016-03-03T15:19:50.488Z" itemprop="datePublished">2016-03-03</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/03/Bytes -To-String/">bytes to string</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>有时候我们会遇到需要把数据加密之后再网络上传输的需求，这样的话一般使用AES256之类的算法，经过运算之后得到一个byte数组，接着转换成string，就扔出去了。对方拿到之后，用密钥解密之后便得到了对应的数据。</p>
-<p>在C#里面，Byte数组转String字符串我们一般用Convert.ToBase64()完成。</p>
-<p>代码如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">BytesToString</span>(<span class="params"><span class="keyword">byte</span>[] buff</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">   <span class="keyword">return</span> Convert.ToBase64String(buff);</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">byte</span>[] StringToBytes(<span class="keyword">string</span> input)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> Encoding.UTF8.GetBytes(input);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p> 一般来说这样也没撒问题了，不过，如果这个数据是通过URL的方式给出去的，这时候就要考虑一下特殊字符编码问题了。+、空格、%之类的特殊字符可能会导致切断URL传参的数据，导致得到的数据不一致。这样的话，解密也做不下去了。</p>
-<p> 相关资料：<br> <br>1、<a href="http://www.ruanyifeng.com/blog/2010/02/url_encoding.html" target="_blank" rel="external">关于URL编码</a><br> <br>2、<a href="http://blog.csdn.net/luo_deng/article/details/12186535" target="_blank" rel="external">URL编码—-url参数中有+、空格、=、%、&amp;、#等特殊符号的问题解决</a></p>
-<p> 不过也好在，C#提供了一个HttpUtility.UrlEncode(input)和HttpUtility.UrlEncode(input)这两个函数，让我们直接把上面的特殊字符转换成URL可识别的转义字符。<br> 数据出去之后先Encode一下，回来之后Decode一下，好像问题都解决了吧。</p>
-<p>然而我们都忘了一件事情，URL到了浏览器之后，自然会对URL里面的东西Decode一次。<br>我实现的时候，在后台验证的时候又Decode一次,这就出问题了。</p>
-<p>问题在哪呢？一个encode的字符被decode两次，内容已经被改掉了…<br>这就导致解密的时候直接挂了….</p>
-<p>这样看来，<br>Convert.ToBase64String()这个不够靠谱，出来的数据可能会有特殊字符的问题。<br>怎么解决呢？那天晚上和老大/CTO都在看这个bug。一下子都没撒好办法….</p>
-<p>后来CTO想了一下，说byte不就是最大不久255么？直接转16进制字符就是嘛。<br>于是有了下面的代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> byte数组转string</span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="bytes"&gt;</span><span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;returns&gt;</span><span class="xmlDocTag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">BytesToString</span>(<span class="params"><span class="keyword">byte</span>[] bytes</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">if</span> (bytes == <span class="keyword">null</span>)</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">string</span>.Empty;</span><br><span class="line">   <span class="keyword">return</span> <span class="keyword">string</span>.Join(<span class="keyword">string</span>.Empty, </span><br><span class="line">   bytes.Select(b =&gt; <span class="keyword">string</span>.Format(<span class="string">"&#123;0:x2&#125;"</span>, b)).ToArray());</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> string转byte数组</span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="str"&gt;</span><span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;returns&gt;</span><span class="xmlDocTag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">byte</span>[] StringToBytes(<span class="keyword">string</span> str)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(str))</span><br><span class="line">        <span class="keyword">return</span> <span class="keyword">null</span>;</span><br><span class="line">    <span class="keyword">byte</span>[] bytes = <span class="keyword">new</span> <span class="keyword">byte</span>[str.Length / <span class="number">2</span>];</span><br><span class="line">    <span class="keyword">for</span> (<span class="keyword">int</span> i = <span class="number">0</span>; i &lt; str.Length; i += <span class="number">2</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        bytes[i / <span class="number">2</span>] = Convert.ToByte(<span class="string">"0x"</span> + str[i] + str[i + <span class="number">1</span>], <span class="number">16</span>);</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="keyword">return</span> bytes;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>问题解决。</p>
-<p>关于base64的实现，下面这个链接是相关资料，有兴趣自己看啦。</p>
-<p><a href="http://www.hejingzong.cn/blog/ViewBlog_36.aspx" target="_blank" rel="external">C#/ASP.NET Base64编码原理及实现</a></p>
-<p><a href="http://www.cnblogs.com/tuyile006/archive/2008/01/17/1043178.html" target="_blank" rel="external">C＃实现Base64编码与解码</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/03/03/Bytes -To-String/" data-id="cilgg02920000s0unai9yhlhw" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-托管堆和垃圾回收" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/01/托管堆和垃圾回收/" class="article-date">
-  <time datetime="2016-03-01T12:49:34.588Z" itemprop="datePublished">2016-03-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/01/托管堆和垃圾回收/">C#.NET托管堆和垃圾回收</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>###托管堆基础<br> 简述：每个程序都要使用这样或那样的资源，包括文件、内存缓冲区、屏幕空间、网络连接…..事实上，在面向对象的环境中，每个类型都代表可供程序使用的一种资源。要使用这些资源，必须为代表资源的类型分配内存。</p>
-<p> 以下是访问一个资源所需步骤：</p>
-<ol>
-<li>调用IL指令newobj，为代表资源的类型分配内存。(C# new操作符)</li>
-<li>初始化内存，设置资源的初始状态。（一般指构造函数）</li>
-<li>访问类型的成员来使用资源。（使用成员变量、方法、属性等）</li>
-<li>摧毁资源的状态以进行清除。（Dispose？？？）</li>
-<li>释放内存。（GC） </li>
-</ol>
-<p>###从托管堆分配资源</p>
-<p>CLR要求所有的对象都从托管堆分配。<br>进程初始化，CLR划出一个地址空间区域作为托管堆。CLR还要维护一个指针，姑且叫NextObjPtr，该指针指向下一个对象在堆中的分配位置。刚开始的时候， NextObjPtr 设为地址空间区域的基地址。<br>一个区域被非垃圾对象填满后，CLR会分配更多的区域。</p>
-<p>这一个过程一直重复，直至整个进程地址空间被填满。所以，应用程序内存收进程的虚拟地址空间的限制。</p>
-<p>32位进程最多能分配1.5GB，64位进程最多能分配8T。<br>注：进程内存大小的相关资料</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/windows/hardware/Dn613959(v=vs.85" target="_blank" rel="external">Memory Support and Windows Operating Systems</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/ms189334.aspx" target="_blank" rel="external">进程地址空间</a></p>
-<p><a href="http://blog.csdn.net/yusiguyuan/article/details/12405799" target="_blank" rel="external"> 32位模式下C/C++程序可用最大内存</a></p>
-<p>###C# 的new操作符导致CLR执行以下操作：</p>
-<p>1、计算类型的字段（以及从基类型继承的字段）所需要的字节数。</p>
-<p>2、加上对象的开销所需的字节数。每个对象都有两个开销字段：类型对象指针和同步块索引。对于32位应用程序，这两个字段各需要32位，所以每个对象需要增加8字节。对于64位应用程序，这两个字段各需要64位，所以每个对象要增加16字节。</p>
-<p>3、CLR检查区域中是否有分配对象所需的字节数。如果托管堆有足够的可用空间，就在NetxObjPtr指针指向的地址处放入对象，为对象分配的字节会被清零。接着调用类型的构造器（为this参数传递NextObjPtr），new操作符返回对象引用。就在返回这个对象引用之前，NextObjPtr指针的值会加上这个对象占用的字节数来得到一个新值，即下个对象放入托管堆时的地址。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/i3rlSCPAcnT9pL0El0BptPIBpuvnxHpBw9Nkp*UqIjw!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=LwKNAC8CjQADACU!&amp;su=1199793361&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>###垃圾回收算法</p>
-<p>####CLR使用引用跟踪算法。<br>引用跟踪算法只关心引用类型的变量，因为只有这种变量才能引用堆上面的对象；<br>值类型变量直接包含值类型实例。引用类型变量可在许多场合使用，包括类的静态和实例字段，或者方法的参数和局部变量。这里我们将所有引用类型的变量都称为根。<br>CLR开始GC时，首先暂停所有的线程。(这样可以防止线程在CLR检查期间访问对象并更改其状态。) 然后CLR进入GC标记阶段。在这个阶段，CLR遍历堆中的所有对象，将同步块索引字段中的一位设为0。这表明所有的对象都应删除。然后，CLR检查所有的活动根，查看他们引用了哪些对象。这正是CLR的GC被称作引用跟踪GC的原因。如果一个根包含null，CLR忽略这个根并继续检查下一个根。<br>下图展示一个堆，其中包含几个对象。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/eVBVeXGrNAfoWfyRgl4aC2RRSGgiDpmbrocv4lTSJMA!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=gAIFAYACBQEDACU!&amp;su=1176931729&amp;sce=0-12-12&amp;rf=2-9" alt="图片1"></p>
-<p>应用程序的根直接引用对象A 、C、D 、F。所有的对象都已经被标记。标记对象D时，GC发现这个对象含有一个引用对象H的字段，造成对象H也被标记。标记过程会持续，直至应用程序的所有根所有检查完毕。<br>检查完毕后，堆中的对象要么已标记，要么未标记。已标记的对象不能被垃圾回收，因为至少有一个根在引用它。我们说这种对象是可达的，因为应用程序可以通过引用它的变量抵达它。 未标记的对象是不可达的，因为应用程序中不存在使对象能被再次访问的根。</p>
-<p>CLR知道哪些对象可以幸存，哪些可以被删除后，进入GC的压缩（类似于碎片整理）阶段。在压缩阶段，CLR对堆中已标记的对象进行“乾坤大挪移”，整理所有幸存下来的对象，使他们占用连续的内存。</p>
-<p>这样做的好处在于：</p>
-<p>1、所有幸存对象在内存中紧挨在一起，恢复了引用的“局部性”，减少了应用程序的工作集，从而提升了将来访问这些对象时的性能；</p>
-<p>2、经过整理后，可用空间也是连续的，整个地址空间区段得到了解放，允许其他东西进驻。</p>
-<p>在内存中移动了对象之后有一个问题亟待解决。引用幸存对象的根现在引用的还是对象最初在内存中的位置，而非移动后的位置。被暂停的线程恢复执行时，将访问旧的内存位置，会造成内存损坏。 这显然是不能容忍的，所以作为压缩阶段的一部分，CLR还要从每个根减去所引用对象在内存中偏移的字节数。这样就能保证每个根还是引用和之前一样的对象，只是对象在内存中变换了位置。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/FyP2yk1O6kMsq3.u4e4x3qrAxpwbajgSHOd4QHTJOhE!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=TQI*AU0CPwEDACU!&amp;su=1202148209&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>##代：提升性能 (待续)<br>CLR的GC是基于代的垃圾回收器，它对你的代码做出了以下几点假设：</p>
-<p>1、对象越新，生存周期越短。</p>
-<p>2、对象越老，生存周期越长。</p>
-<p>3、回收堆的一部分 ，速度快于回收整个堆。</p>
-<p>大量研究表明，这些假设对于现今大多数的应用程序都是成立的，它们影响了垃圾回收器的实现方式。这里将解释代的工作原理。</p>
-<p>托管堆在初始化时不包括对象。添加到堆的对象成为第0代对象。简单来说，第0代对象就是那些新构造的对象，垃圾回收器从未检查过它们。如下图，新启动的应用程序，分配了5个对象（从A到E）。过了一会，C和E变得不可达了。</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/77WJus7lssJpEJ2RZREQoNx.5CL31HLdboJbAgCqS0E!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tQIVAbUCFQEDACU!&amp;su=172682065&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>CLR初始化第0代对象选择一个预算容量。如果分配一个新对象造成第0代超预算，就必须启动一次GC。假设对象A到E刚好用完了第0代的空间，那么分配对象F就必须启动GC。GC之后存活的对象现场成为第1代对象。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/GEDzaV4pNFNQUuDwl2EQrv*eD9Sk9OJCzx5SpRRI2fk!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=OAL5ADgC.QADACU!&amp;su=1155276897&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>一次GC之后，第0代就不包含任何对象。和前面一样，新对象会分配到第0代。新分配对象F到对象K都到了第0代。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Op0QokzBTNYCFR6zzm2tpc2V7U70IsIJTeWrd0UAUb0!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=yAJeAcgCXgEDACU!&amp;su=1124261217&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>之后，程序继续运行，B、H、J变得不可达，它们的内存将在某一个时刻回收。</p>
-<p>假设现在新分配对象L会造成第0代超出预算,造成必须启动垃圾回收。</p>
-<p>开始垃圾回收时,垃圾回收器必须决定检查哪些代。前面说过,CLR初始化时会为第0代对象选择预算.事实上,它还必须为第1代选择预算.</p>
-<p>开始一次垃圾回收时,垃圾回收器还会检查第一代占用了多少内存。在本例中,由于第1代占用内存远少于预算,所以垃圾回收器只检查第0代对象。回顾之前基于代的垃圾回收器做出的第一个假设：对象越新，生存期越短。 因此，第0代包含更多的垃圾的可能性更大，能回收更多的内存。由于忽略第1代中的对象，所以加快了垃圾回收速度。</p>
-<p>显然，忽略第1代中的对象能提升垃圾回收器的性能。但对性能有更大提振作用的是现在不必遍历托管堆中的每个对象。如果根或对象引用了老一代的某个对象，垃圾回收器就可以忽略老对象内部的所有引用，能在更短的时间内构造好可达对象图。当然，如果老对象的字段也可能引用新对象。为了确保对老对象的已更新字段进行检查，垃圾回收器利用了JIT编译器内部的一个机制。这个机制在对象的引用字段发生变化时，会设置一个对应的标志位。这样，垃圾回收器就知道自上一次垃圾回收以来，哪些老对象（如果有的话）已被写入。只有字段发生变化的老对象才需要检查是否引用了第0代中的任何新对象。</p>
-<p>基于代的垃圾回收器还假设越老的对象活得越长。也就是说，第1代对象在应用程序中有可能是继续可达的。如果垃圾回收器检查第1代的对象，很有可能找不到多少垃圾，结果是也回收不了多少内存。因此，对第1代进行垃圾回收很可能是浪费时间的。如果第一代真有垃圾，垃圾将留在那里。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Do.yRCBJEnaOfZaUOdxj4II9*pX2BEcX2QmIG6NQPBE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=qAI5AagCOQEDACU!&amp;su=187009937&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，继续往第0代分配对象，同时程序停止对第1代某对象的使用。</p>
-<p>如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/YEqIM16xFsSgXdvEzgrerLnKw7fEItnrSqEzlaYnUfE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=egJPAXoCTwEDACU!&amp;su=1118118497&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>分配对象P导致第0代超预算，开始GC。第1代的所有对象占据内存仍小于预算，垃圾回收器再次决定只回收第0代。忽略第1代中的垃圾对象。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/EcdSNU5AatqRERWtVdlJ7LiIPHHXe8.mklN.0hHDK9U!/o/dJQAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAIxAWgCMQEDACU!&amp;su=1214124305&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，假设第一代的增长导致它的全部对象占用了全部预算。这时候应用程序分配对象P到对象S，使第0代对象达到它的预算总和。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/6dB68RIUYrqMZ4p0VIY3REJZPg.g3ybkZFIazJ3h.CQ!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jwIiAY8CIgEDACU!&amp;su=177976657&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>这时候，应用程序准备分配对象T，由于第一代已满，所以必须开始GC。但这一次垃圾回收器发现第一代占用了太多内存，以至于用完了预算。由于前几次对第0代进行GC时，第1代中可能已经有很多对象变得不可达。所以这次垃圾回收器决定检查第1代和第0代中的所有对象。两代都被垃圾回收后，堆的情况如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/bxdZDsZi2Y6FSDWs7RXNPkkJK8dCzMD.cfnjwNY2Mjs!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tgI2AbYCNgEDACU!&amp;su=197762641&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>托管堆只支持三代：第0代、第1代和第2代。</p>
-<p>CLR初始化时，会为每一代选择预算。</p>
-<p>然而，CLR的垃圾回收是自调节的。</p>
-<p>这意味着垃圾回收器会在执行垃圾回收的过程了解程序的行为。</p>
-<p>例如：假设应用程序构造了许多对象，但每个对象的时间都很短。<br>在这种情况下，对第0代的垃圾回收会回收到大量的内存。事实上，第0代的所有对象都可能被回收。</p>
-<p>如果垃圾回收器发现在回收第0代后存活下来的对象很少，就可能减少第0代的预算。已分配空间的减少意味着垃圾回收将更频繁地发生，但垃圾回收器每次做的事情也减少，这减少了进程的工作集。</p>
-<p>另一方面，如果垃圾回收器回收了第0代，发现还有很多对象存活，没多少内存可以被回收，就会增大第0代的预算。</p>
-<p>同样的启发性算法调整预算适用于了第1代和第2代的预算。</p>
-<p>引自：《CLR VIA C# -21章》</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/f144e03t(v=vs.100" target="_blank" rel="external">自动内存管理</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">垃圾回收的基础</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">代数</a>.aspx#generations )</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/03/01/托管堆和垃圾回收/" data-id="cilgg02ae0007s0unlh2p02jv" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-托管堆和垃圾回收(续)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/01/托管堆和垃圾回收(续)/" class="article-date">
-  <time datetime="2016-03-01T12:49:34.588Z" itemprop="datePublished">2016-03-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/01/托管堆和垃圾回收(续)/">C#.NET托管堆和垃圾回收(续)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##大对象<br> CLR将对象分成大对象和小对象。目前认为85000字节或者更大的对象是大对象。CLR以不同方式对待大小对象。</p>
-<ol>
-<li><p>大对象不是在小对象的地址空间分配的，而是在进程地址空间的其他地方分配。</p>
-</li>
-<li><p>目前版本的GC不“压缩”大对象，因为在内存中移动它们代价过高。但这可能在进程中的大对象之间造成地址空间碎片化，以至于抛出OutMemoryException。CLR将来的版本可能会压缩大对象。</p>
-</li>
-<li>大对象总是第2代，绝不可能是第0代或者第1代。所以只能为需要长时间存活的资源创建大对象。分配短时间存活的大对象会导致第2代被更频繁地回收，损失性能。大对象一般是大字符串（XML/JSON）或者用于I/O操作的字节数组（从文件/网络将字节读入缓冲区以便处理）。</li>
-</ol>
-<p>##垃圾回收模式<br> CLR启动时会选择一个GC模式，进程中之前该模式都不会改变。</p>
-<p> 有两个基本GC模式。</p>
-<p>###工作站<br>该模式针对客户端应用程序优化GC。GC造成的延时很低，应用程序线程挂起时间很短，避免用户感到焦虑。在该模式中,GC假定机器上运行的其他应用程序都不会消耗太多的CPU资源。</p>
-<p>###服务器<br> 该模式针对服务器端应用程序优化GC。被优化的主要是吞吐量和资源利用。GC假定机器上没有运行其他应用程序（无论客户端还是服务器应用程序），并假定机器的所有CPU都可以用来辅助完成GC。该模式造成托管堆被拆分成几个区域，每个CPU一个。开始垃圾回收时，垃圾回收器在每个CPU上运行一个特殊线程；每个线程都和其他线程并发回收它自己的区域。对于工作者线程行为一致的服务器应用程序，并发回收能很好进行。这个功能要求应用程序在多CPU计算机上运行，是线程能真正同时工作，从而得到性能上的提升。</p>
-<p>应用程序默认以“工作站”GC模式运行。寄宿了CLR的服务器应用程序（如ASP.NET ）可请求CLR加载服务器 GC.但如果应用程序在单处理器计算机上运行，CLR总是使用“工作站”GC模式。</p>
-<p>独立应用程序可以创建一个配置文件告诉CLR 使用CLR使用服务器回收器。配置文件要为应用程序添加gcServer元素。下面是一个示例配置文件：</p>
-<p><configuration><br>       <runtime><br>             <gcserver enabled="true"><br>      </gcserver></runtime><br></configuration><br>可以使用GCSettings类的只读Boolean属性IsServerGC得到CLR是否处于“服务器”GC模式。</p>
-<p>除了这两种模式，GC还支持两种子模式：并发(默认)或者非并发。<br>在并发方式中，垃圾回收器有一个额外的后台线程，它能在应用程序运行时并发标记对象。 程序运行时，垃圾回收器运行一个普通优先级的后台线程来查找不可达对象。找到之后，垃圾回收器再次挂起所以线程，判断是否要“压缩”内存。如决定压缩，内存会被压缩，根引用会被修正，应用程序线程恢复运行。这一次垃圾回收花费的时间比平常少，因为不可达对象集合已构造好了。但垃圾回收器也可能决定不压缩内存；事实上，垃圾回收器更倾向不压缩。可用内存多，垃圾回收器便不会压缩堆；这有利于增强性能，但会增大程序的工作集。使用并发垃圾回收器，应用程序消耗的内存通常比使用非并发垃圾回收器多。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/03/01/托管堆和垃圾回收(续)/" data-id="cilgg02aj000as0unpksbzafw" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-一些有用的网站" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/03/01/一些有用的网站/" class="article-date">
-  <time datetime="2016-03-01T12:49:34.588Z" itemprop="datePublished">2016-03-01</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/nothing/">nothing</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/03/01/一些有用的网站/">一些有用的网站</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">Markdown 语法说明 (简体中文版)</a></p>
-<p><a href="http://wowubuntu.com/markdown/basic.html" target="_blank" rel="external">Markdown: Basics （快速入门）</a></p>
-<p><a href="http://wsgzao.github.io/post/hexo-guide/" target="_blank" rel="external">使用GitHub和Hexo搭建免费静态Blog(本博客案例)</a></p>
-<p><a href="https://www.mxgw.info/t/filename-too-long-in-git.html" target="_blank" rel="external">win下面的git客户端提示FIlename too long解决方法</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/03/01/一些有用的网站/" data-id="cilgg02an000cs0unlsl9csmu" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/LINQ优点总结(转载)/" data-id="cipidu3jq000k9kttc3ikzyxu" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1127,7 +1135,7 @@ public void test2_1()
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">6</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1140,7 +1148,7 @@ public void test2_1()
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">6</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/03/">三月 2016</a><span class="archive-list-count">7</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">13</span></li></ul>
     </div>
   </div>
 
@@ -1150,6 +1158,10 @@ public void test2_1()
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/06/16/C#避免在函数或者操作中抛出异常/">C#避免在函数或者操作中抛出异常</a>
+          </li>
         
           <li>
             <a href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
@@ -1164,11 +1176,7 @@ public void test2_1()
           </li>
         
           <li>
-            <a href="/2016/04/20/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
-          </li>
-        
-          <li>
-            <a href="/2016/04/20/LINQ优点总结(转载)/">C#LINQ 优点 总结(转载)</a>
+            <a href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
           </li>
         
       </ul>
