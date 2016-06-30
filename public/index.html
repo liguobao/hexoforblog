@@ -61,6 +61,114 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-asp.net core启动方式" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/07/01/asp.net core启动方式/" class="article-date">
+  <time datetime="2016-06-30T16:16:48.754Z" itemprop="datePublished">2016-07-01</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net-core/">.net core</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/01/asp.net core启动方式/">ASP.NET Core 启动方式（Hosting）</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>之前版本的ASP.NET程序必须依赖IIS来启动，而IIS上会为挂载在其中的ASP.NET 注册一个ISAPI filter。每当http请求过来时，IIS则会启动w3wp的worker process来开始整个ASP.NET runtime程序。相信大家都这样的流程都有相应的了解。在.net core之前，ASP.NET的主要场景都是运行在Windows平台的，IIS也就是web server的首选了。虽然也有类似于jexus的linux webserver可用，但是基于mono的.NET 总体还是不够Microsoft 原生的强。</p>
+<p>不过到了现在，一切都不同了。</p>
+<h6 id="新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。"><a href="#新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。" class="headerlink" title="新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。"></a>新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。</h6><h3 id="1、Kestrel-和-IIS-platform-handler"><a href="#1、Kestrel-和-IIS-platform-handler" class="headerlink" title="1、Kestrel 和 IIS platform handler"></a>1、Kestrel 和 IIS platform handler</h3><p>在 ASP.NET Core 中，整个runtime都是重写过的，所以它和IIS之间的关系也有所改变。而ASP.NET Core为了跨平台，它现在的执行方式就如一般的Console app一样。ASP.NET Core自带一个高性能的I/O组件 - Kestrel，使得它可以不依赖IIS的存在便启动了runtime。不过Kestrel 也只是一个I/O组件，并没有想IIS提供其它的功能来保护和管理ASP.NET 应用程序。ASP.NET Core同样可以通过IIS进行处理。但是如果通过IIS来进行处理的话，这个时候我们便需要一个“中间人”的角色来负责这个功能了。这个“中间人”的名字叫 Http Platform Handler，主要表现在web.config文档中的设置，其中包括启动ASP.NET Core 程序的的路径和名称，需要传入的参数以及一些其他的设置选项。Http Platform Handler的具体设置例子如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;system.webServer&gt;</span><br><span class="line">    &lt;handlers&gt;</span><br><span class="line">      &lt;add name=<span class="string">"httpPlatformHandler"</span> path=<span class="string">"*"</span> verb=<span class="string">"*"</span></span><br><span class="line">      modules=<span class="string">"httpPlatformHandler"</span> resourceType=<span class="string">"Unspecified"</span>/&gt;</span><br><span class="line">    &lt;/handlers&gt;</span><br><span class="line">    &lt;httpPlatform processPath=<span class="string">"WebApp.exe"</span> arguments=<span class="string">""</span> </span><br><span class="line">    stdoutLogEnabled=<span class="string">"false"</span> startupTimeLimit=<span class="string">"3600"</span>/&gt;</span><br><span class="line">  &lt;/system.webServer&gt;</span><br></pre></td></tr></table></figure></p>
+<p>关于Http Platform Handler的相关资料可以看这个链接：<br><a href="http://www.iis.net/downloads/microsoft/httpplatformhandler" target="_blank" rel="external">http://www.iis.net/downloads/microsoft/httpplatformhandler</a></p>
+<p>从上面的例子可以看出来，ASP.NET Core编译之后便是一个EXE程序，使得你可以直接运行。因此，当HTTP请求进来时，IIS先接受请求，然后根据你设置的web.config的内容将请求转发给WebApp.exe（你的ASP.NET Core程序），然后WebApp.exe开始执行时便会启动Kestrel，接着这个HTTP请求便进入了ASP.NET Core runtime的世界。这样看来，IIS这时候只是一个简单的proxy/forwarder角色。</p>
+<p>PS：在我翻译整理这个文章的时候，世界已经发生了变化：下个版本的asp.net core 将会有全新的IIS module来取代Http Platform Handler。</p>
+<p>具体详细资料见：<a href="https://github.com/aspnet/IISIntegration/issues/105" target="_blank" rel="external">https://github.com/aspnet/IISIntegration/issues/105</a></p>
+<h3 id="2、Main"><a href="#2、Main" class="headerlink" title="2、Main()"></a>2、Main()</h3><p>ASP.NET Core和其他的.NET 程序一样拥有一个static void Main(),这是整个runtime的进入点。下面看一个样例：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span><br><span class="line">       </span>&#123;</span><br><span class="line">           <span class="keyword">var</span> host = <span class="keyword">new</span> WebHostBuilder()</span><br><span class="line">               .UseServer(<span class="string">"Microsoft.AspNetCore.Server.Kestrel"</span>)</span><br><span class="line">               .UseContentRoot(Directory.GetCurrentDirectory())</span><br><span class="line">               .UseDefaultConfiguration(args)</span><br><span class="line">               .UseIISPlatformHandlerUrl()</span><br><span class="line">               .UseStartup&lt;Startup&gt;()</span><br><span class="line">               .Build();</span><br><span class="line"></span><br><span class="line">           host.Run();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure></p>
+<p>ASP.NET Core host engine 的建立者是 WebHostBuilder．</p>
+<p>它实质上是一个了 IWebHostBuilder interface，其中 UseServer() 是用于指定使用什么样的 server。</p>
+<p>其中 UseServer() 有一个扩展方法UseServer(string assemblyName)。这样的话我们可以直接传入Kestrel的程序集名称:”Microsoft.AspNetCore.Server.Kestrel”。当然，这只是其中一种选项。你也可以自己实现一个自己的 server，只要你的 server 实现了 IServerFactory interface 即可。这样的设计提供了一个很大的弹性空间让我们自行选择hosting server（托管服务）。</p>
+<h5 id="UseContentRoot"><a href="#UseContentRoot" class="headerlink" title="UseContentRoot()"></a>UseContentRoot()</h5><ul>
+<li>这个扩展方法是让我们指定应用程序的工作目录（working directory），如果我们没有指定的话，则会默认为我们的应用（webapp.exe）所在目录为工作目录。</li>
+</ul>
+<h5 id="UseDefaultConfiguration"><a href="#UseDefaultConfiguration" class="headerlink" title="UseDefaultConfiguration()"></a>UseDefaultConfiguration()</h5><ul>
+<li>这个扩展方法使得我们在IWebHostBuilder 建立可以传入一些参数，比如 application key, environment name, server factory location, content root path 等等．因此，当我们在运行 WebApp.exe 的时候，同时可以带入我们需要用到的hosting参数（PS：这样的做法就像运行命令行程序时带入参数，多好玩）。这些参数也可以写在appsettings.json里面通过Configuration来读取。<br>所以，UseDefaultConfiguration() 也不一定非要存在于 Main() 之中。（？？？个人不是很理解）</li>
+</ul>
+<p>PS：原作者原话，”如果我沒记错的话，在写这个文章的时候，UseDefaultConfiguration() 已经被改为成了UseDefaultHostingConfiguration()．显然这个名称更能清楚明白．”(？？？个人还没实践)</p>
+<h5 id="UseIISPlatofmrHandleUrl"><a href="#UseIISPlatofmrHandleUrl" class="headerlink" title="UseIISPlatofmrHandleUrl()"></a>UseIISPlatofmrHandleUrl()</h5><ul>
+<li>这个 IWebHostBuilder 的 扩展方法比较特殊。如果你要把 ASP.NET Core 放在 IIS 下，这个扩展方法会读取 IIS http platform handler 的 server port 和 application path，用于作为 ASP.NET Core 的启动位置，如 <a href="http://localhost:5000/start．如果你沒用" target="_blank" rel="external">http://localhost:5000/start．如果你沒用</a> IIS，这个扩展方法对你来说基本是用不上的．</li>
+</ul>
+<h5 id="UseStartup-lt-gt"><a href="#UseStartup-lt-gt" class="headerlink" title="UseStartup&lt;&gt;()"></a>UseStartup&lt;&gt;()</h5><ul>
+<li>这是 WebHostBuilder 里相当重要的一个扩展方法。它的方法签名如下：</li>
+</ul>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> IWebHostBuilder UseStartup&lt;TStartup&gt;</span><br><span class="line">(<span class="keyword">this</span> IWebHostBuilder hostBuilder) <span class="keyword">where</span> TStartup : <span class="keyword">class</span></span><br></pre></td></tr></table></figure>
+<p>这里你可以很清楚地看到 &lt;&gt; 里面要放的就是一个 class。</p>
+<p>在我们这里的范例中，它的名字是 Startup，里面最重要的就是需要定义要使用那些服务(service)以及要使用那些中间件(middleware)。</p>
+<h3 id="3、Startup"><a href="#3、Startup" class="headerlink" title="3、Startup"></a>3、Startup</h3><p>这是一个非常非常重要的class,在ASP.NET Core范例中一般都把它命名成Startup。其实我们把它命名成其他名字也是可以的，或者设定多个Startup。上面的内容可以看到，UseStartup()指定了谁是starup class。然后在Build()便会实例化starup class，之后便执行里面两个重要的方法：ConfigureServices() 和 Configure()。</p>
+<p>我们先來看 Startup 的构造函数.</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Startup</span>(<span class="params">IHostingEnvironment env</span>)</span><br><span class="line">       </span>&#123;</span><br><span class="line">           <span class="comment">// Set up configuration sources.</span></span><br><span class="line">           <span class="keyword">var</span> builder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">               .AddJsonFile(<span class="string">"appsettings.json"</span>)</span><br><span class="line">               .AddJsonFile($<span class="string">"appsettings.&#123;env.EnvironmentName&#125;.json"</span>, optional: <span class="keyword">true</span>)</span><br><span class="line">               .AddEnvironmentVariables();</span><br><span class="line">           Configuration = builder.Build().ReloadOnChanged(<span class="string">"appsettings.json"</span>);</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<p>Host engine 在被执行 Build()时已经知道 startup type 是 Startup class，所以在 Build() 的时候会先创建期示例。在我们这里的是调用Startup类带参数的构造函数。</p>
+<p>在我们这个例子中选择的是传入IHostingEnvironment示例，它为我们带来了环境变量（EnvironmentName）。</p>
+<p>我们这里主要目的是把Configuration实例化。这是一个蛮重要的基础组件，以后会有文章来说明它。</p>
+<p>在这里我们特别说明一下，上面的示例代码中，我们执行了两次 AddJsonFile()，而且第二个json file的参数和第一个的还不太一样。这样的目的是为了让开发者可以把开发环境使用的环境参数和其他环境使用的参数有所区别。比如，你使用的开发环境用的是appsettings.json，这个文件只存在于你的电脑中。另一个文档是appsettings.production.json，这是正式环境使用的参数设定文档。第二個 AddJsonFile() 第二個参数是 true，也就是可能不存在的意思。所以若遇到重复名称参数时，appsettings.production.json 会覆盖 appsettings.json 的內容。这样使得开发环境和生产环境得以区分。</p>
+<p>接下来，在 IWebHostBuilder 的 Build()里面会执行 host engine 初始化的程序，其中就会去找Startup class里面的两个方法： ConfigureServices() 和 Configure()。</p>
+<p> ConfigureSerivces() 是定义了这个 web application 要使用那些服务，然后将这些服务放在 service container (IServiceCollection) 裡面。如下面的样例：</p>
+ <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ConfigureServices</span>(<span class="params">IServiceCollection services</span>)</span><br><span class="line">     </span>&#123;</span><br><span class="line">         <span class="comment">// add entity framework</span></span><br><span class="line">         services.AddEntityFramework()</span><br><span class="line">                 .AddDbContext&lt;BlogsContext&gt;(o =&gt; o.UseSqlServer(Configuration[<span class="string">"Data1:DefaultConnection:ConnectionString"</span>]))</span><br><span class="line">          </span><br><span class="line">         <span class="comment">// Add framework services.</span></span><br><span class="line">         services.AddMvc();</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
+<p>它定义了entity framework和mvc两个服务。这里所谓的服务（services）的意思也就是通过它们带入更庞大的程序代码。这听起来好像有点搞笑，但也真的如此。像Entity framework 里面有这么多的代码，一定都需要带入许多定义好的物件或者参数，而不只是一个程序的进去点而已，所以services 的目的就是在这里。</p>
+<p>Configure() 主要是定义了中间件（middleware）以及它们的顺序．</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseMvcWithDefaultRoute();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<h3 id="4、Build-和-Run"><a href="#4、Build-和-Run" class="headerlink" title="4、Build 和 Run"></a>4、Build 和 Run</h3><p>最后，在IHostWebBuilder里最后的两个动作便是：Build and Run. </p>
+<h5 id="Build"><a href="#Build" class="headerlink" title="Build()"></a>Build()</h5><ul>
+<li>这个方法做的工作便是建立 hosting service，把 Startup 中定义的的 services 和 middleware 接收过来，然后确定content root path 和 application name，接着一句前面这些资料再加上Configuration过来的数据来初始化host engine (WebHost.cs)．</li>
+</ul>
+<h5 id="Run"><a href="#Run" class="headerlink" title="Run()"></a>Run()</h5><ul>
+<li>这个是启动 host engine 的 扩展方法，它在启动之前加入了一个 CancelKeyPress 的事件．因为在 Run() 方法 中传入入了 CancellationTokenSource() ，让我们有一个方法可以随时中断host engine的执行。</li>
+</ul>
+<p>目前的做法就用是 CancelKeyPress 事件，所以你可以按下 Ctrl+C  來中止 host engine 的执行．</p>
+<p>比较特別的是，这一段中止的文字说明居然是用 hard code，參考如下:</p>
+<p>host.Run(cts.Token, “Application started. Press Ctrl+C to shut down.”);</p>
+<p>不过这样的话，这里你也不能写中文…</p>
+<p>全文差不多就这样了，原文在这里：<a href="https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327" target="_blank" rel="external">ASP.NET Core 的啟動方式 (Hosting)</a></p>
+<p>感谢ASP.NET Core 資訊分享。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/07/01/asp.net core启动方式/" data-id="ciq2ihpfn000mjgtttbehsf5e" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
     <article id="post-避免在函数或者操作中抛出异常" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/06/16/避免在函数或者操作中抛出异常/" class="article-date">
@@ -105,391 +213,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="cipig11ug00001ottsoqsh3eh" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-mono-webreques-https-exception" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/23/mono-webreques-https-exception/" class="article-date">
-  <time datetime="2016-04-23T13:59:16.810Z" itemprop="datePublished">2016-04-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>前几天在做一个使用URL通过WebRequest请求HTML页面的功能的时候遇到了点坑，程序在开发环境没有任何的问题，部署到linux mono上之后就跪了。代码如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetHTML</span>(<span class="params"><span class="keyword">string</span> url</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">string</span> htmlCode;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);</span><br><span class="line">        webRequest.Timeout = <span class="number">30000</span>;</span><br><span class="line">        webRequest.Method = <span class="string">"GET"</span>;</span><br><span class="line">        webRequest.UserAgent = <span class="string">"Mozilla/4.0"</span>;</span><br><span class="line">        webRequest.Headers.Add(<span class="string">"Accept-Encoding"</span>, <span class="string">"gzip, deflate"</span>);</span><br><span class="line"></span><br><span class="line">        HttpWebResponse webResponse = (System.Net.HttpWebResponse)webRequest.GetResponse();</span><br><span class="line">        <span class="comment">//获取目标网站的编码格式</span></span><br><span class="line">        <span class="keyword">string</span> contentype = webResponse.Headers[<span class="string">"Content-Type"</span>];</span><br><span class="line">        Regex regex = <span class="keyword">new</span> Regex(<span class="string">"charset\\s*=\\s*[\\W]?\\s*([\\w-]+)"</span>, RegexOptions.IgnoreCase);</span><br><span class="line">        <span class="keyword">if</span> (webResponse.ContentEncoding.ToLower() == <span class="string">"gzip"</span>)<span class="comment">//如果使用了GZip则先解压</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (<span class="keyword">var</span> zipStream = <span class="keyword">new</span> System.IO.Compression.GZipStream(streamReceive, </span><br><span class="line">                System.IO.Compression.CompressionMode.Decompress))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">//匹配编码格式</span></span><br><span class="line">                    <span class="keyword">if</span> (regex.IsMatch(contentype))</span><br><span class="line">                    &#123;</span><br><span class="line">                        Encoding ending = Encoding.GetEncoding(regex.Match(contentype).Groups[<span class="number">1</span>].Value.Trim());</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, ending))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = </span><br><span class="line">                        <span class="keyword">new</span> System.IO.StreamReader(zipStream, Encoding.UTF8))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (System.IO.StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(streamReceive, Encoding.Default))</span><br><span class="line">                &#123;</span><br><span class="line">                    htmlCode = sr.ReadToEnd();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> htmlCode;</span><br><span class="line"></span><br><span class="line">    &#125;<span class="keyword">catch</span>(Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">        LogHelper.WriteException(<span class="string">"GetHTML"</span>, ex, <span class="keyword">new</span> &#123; Url = url &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>开发环境在Windows10 + VS2013,整个代码跑起来没什么问题。</p>
-<p>无论是HTTP还是HTTPS协议，网页HTML一样能获取得到。</p>
-<p>网站部署到linux Jexus之后HTTP协议的网站同样可以获取到HTML，遇到HTTPS协议的网站的时候就跪了。</p>
-<p>抓到的异常信息如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">System.Net.WebException: Error: TrustFailure (The authentication or decryption has failed.) </span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed.</span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed. </span><br><span class="line">---&gt; Mono.Security.Protocol.Tls.TlsException:</span><br><span class="line">Invalid certificate received <span class="keyword">from</span> server. Error code: <span class="number">0xffffffff800b0109</span></span><br><span class="line">at Mono.Security.Protocol.Tls.RecordProtocol.EndReceiveRecord </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b58d80</span> + <span class="number">0x0013e</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.SafeEndReceiveRecord</span><br><span class="line">(IAsyncResult ar, Boolean ignoreEmpty) &lt;<span class="number">0x41b58cb0</span> + <span class="number">0x00031</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.NegotiateAsyncWorker</span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41b72a40</span> + <span class="number">0x0023f</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.EndNegotiateHandshake </span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41ba07e0</span> + <span class="number">0x000f3</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.AsyncHandshakeCallback </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41ba0540</span> + <span class="number">0x00086</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.EndRead </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73fd0</span> + <span class="number">0x00199</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.EndAuthenticateAsClient </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73f30</span> + <span class="number">0x00042</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.AuthenticateAsClient (System.String targetHost, </span><br><span class="line">System.Security.Cryptography.X509Certificates.X509CertificateCollection</span><br><span class="line">clientCertificates, SslProtocols enabledSslProtocols,</span><br><span class="line">Boolean checkCertificateRevocation) &lt;<span class="number">0x41b6a660</span> + <span class="number">0x00055</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.MonoTlsStream.CreateStream (System.Byte[] buffer) </span><br><span class="line">&lt;<span class="number">0x41b69c30</span> + <span class="number">0x00159</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at System.Net.HttpWebRequest.EndGetResponse (IAsyncResult asyncResult) </span><br><span class="line">&lt;<span class="number">0x41b67660</span> + <span class="number">0x001f9</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at System.Net.HttpWebRequest.GetResponse () &lt;<span class="number">0x41b60920</span> + <span class="number">0x0005a</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at WebBookmarkUI.Commom.HTTPHelper.GetHTML (System.String url) &lt;<span class="number">0x41b59b70</span> + <span class="number">0x00235</span>&gt; </span><br><span class="line"><span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>有用的信息基本就是：</p>
-<ol>
-<li>Invalid certificate received from server</li>
-<li>The authentication or decryption has failed</li>
-</ol>
-<p>一开始百思不得其解，为嘛好好的程序在开发环境跑得都好的，到了mono上就挂了，多疑的我还以为是mono的bug。<br>今天静下心来去找了一下资料，发现Mono的文档有这个问题的描述，认真读了一遍，又去请教了一番宇内流云大大，终于弄懂了是什么回事。</p>
-<p>先贴一下相关资料：</p>
-<ol>
-<li><p><a href="http://stackoverflow.com/questions/4926676/mono-webrequest-fails-with-https" target="_blank" rel="external">stackoverflow mono-webrequest-fails-with-https</a></p>
-</li>
-<li><p><a href="http://www.mono-project.com/docs/faq/security/" target="_blank" rel="external">mono doc security</a></p>
-</li>
-</ol>
-<p>这个问题是出现的原因是Windows自带了HTPPS的根证书，linux默认则是没有带有根证书的。我们的mono在调用WebRequest去请求HTTPS协议的网站的时候，找不到任何有效的根证书，所以抛出上面的异常了。</p>
-<p>解决方案也很简单，为linux导入一下HTTPS根证书就好。</p>
-<p>在linux服务器上面执行下面这条命令。<br><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">mozroots</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">import</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">ask</span><span class="literal">-</span><span class="comment">remove</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">machine</span></span><br></pre></td></tr></table></figure></p>
-<p>然后在网站的Application_Start()里面添加下面代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> System.Net.ServicePointManager.ServerCertificateValidationCallback +=</span><br><span class="line"> <span class="keyword">delegate</span>(<span class="keyword">object</span> sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,</span><br><span class="line"> System.Security.Cryptography.X509Certificates.X509Chain chain,</span><br><span class="line"> System.Net.Security.SslPolicyErrors sslPolicyErrors)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// **** Always accept</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>完事。</p>
-<p>这个故事告诉我们，linux干活都是要亲力亲为呀。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="cipidu3jn000i9ktt7vosqs1i" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-Jexus支持HTTPS协议" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/23/Jexus支持HTTPS协议/" class="article-date">
-  <time datetime="2016-04-23T13:58:57.937Z" itemprop="datePublished">2016-04-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/jexus/">jexus</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/Jexus支持HTTPS协议/">Jexus支持HTTPS协议</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>众所周知，在HTTPS页面请求HTTP资料的时候，现代浏览器会拦截，提示用户是否继续，或者直接拦截，提示都不出来。</p>
-<p>最近给自己做了个快速书签工具，点击书签就直接把书签发送到服务器地址，然后保存到我的网站中。</p>
-<p>一开始一切都挺正常的，不过遇到了https的网站的时候，就跪掉了。</p>
-<p>开始的时候看到HTTPS证书是收费的，想想还是算了，反正凑合能用就是。前几天偶尔看到有一个免费申请HTTPS的开源软件，喵了一下看起来还不错，这几天有空了立马开干。下面有一个教程，我申请证书差不多就是按照这个来处理的。</p>
-<p><a href="https://www.paulyang.cn/blog/archives/39?spm=5176.blog2666.yqblogcon1.12.Nu0TgL" target="_blank" rel="external">用Let’s Encrypt获取免费证书</a></p>
-<p>关于这个Let’s Encrypt，维基百科是这样介绍的：</p>
-<blockquote>
-<p>Let’s Encrypt 是一个将于2015年末推出的数字证书认证机构，将通过旨在消除当前手动创建和安装证书的复杂过程的自动化流程，为安全网站提供免费的SSL/TLS证书。  Let’s Encrypt 是由互联网安全研究小组（ISRG，一个公益组织）提供的服务。主要赞助商包括电子前哨基金会，Mozilla基金会，Akamai以及思科。2015年4月9日，ISRG与Linux基金会宣布合作。用以实现这一新的数字证书认证机构的协议被称为自动证书管理环境（ACME）。  GitHub上有这一规范的草案，且提案的一个版本已作为一个Internet草案发布。Let’s Encrypt 宣称这一过程将十分简单、自动化并且免费。  2015年8月7日，该服务更新其推出计划，预计将在2015年9月7日当周某时发布首个证书，随后向列入白名单的域名发行少量证书并逐渐扩大发行。若一切按计划进行，该服务预计将在2015年11月16日当周某时全面开始提供.</p>
-</blockquote>
-<p>整个项目在Github有代码，主要是通过客户端来为我们的网站生成https证书。<br>首先我们先下载客户端，如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/letsencrypt/letsencrypt.git</span><br></pre></td></tr></table></figure></p>
-<p>接着进入这个仓库内，执行下面代码：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./letsencrypt-auto certonly -a &#10;webroot\ --webroot-path &#32593;&#31449;&#25152;&#22312;&#36335;&#24452;(&#22914;&#65306;/var/www/web/) \ &#10;-d &#20320;&#30340;&#22495;&#21517;(&#22914;&#65306;test.online) -d www.&#20320;&#30340;&#22495;&#21517;(&#22914;ww.test.online)</span><br></pre></td></tr></table></figure></p>
-<p>这里需要注意的事，我这里为了排版，给上面的命令加了换行，运行这个命令的时候记得把换行符去掉。<br>换行符在webroot、-d 前面各有一个。</p>
-<p>一切顺利的话，我们在<code>/etc/letsencrypt/live/域名/</code>这个目录下能看到四个文件，分别是：</p>
-<ol>
-<li>域名证书文件</li>
-<li>签发域名证书的证书链文件</li>
-<li>域名证书+证书链文件</li>
-<li>私钥文件</li>
-</ol>
-<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/60e4f29a-6da5-40e1-ae32-453a3bbf2455" alt="letsencrypt文件"></p>
-<p>接着就是为网站设置证书了。</p>
-<p>Jexus设置HTTPS要更改jws.conf文档以及网站的配置文档。</p>
-<p>操作步骤如下：</p>
-<ol>
-<li>修改jws.conf<br>进入Jexus文件夹中，打开 “jws.conf”，添加下面两句：</li>
-</ol>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CertificateFile    = /etc/letsencrypt/live/&#22495;&#21517;/fullchain.pem&#10;CertificateKeyFile = /etc/letsencrypt/live/&#22495;&#21517;/privkey.pem</span><br></pre></td></tr></table></figure>
-<p>修改之后效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/d306d9c5-6391-421d-86fc-053b97d1b489" alt="图片描述"></p>
-<ol>
-<li>开启网站的HTTPS功能</li>
-</ol>
-<p>进入siteconf/文件夹，找到对应的网站conf文件，</p>
-<p>把网站服务端口改为443：<br>port=443</p>
-<p>启用https：<br>UseHttps=true</p>
-<p>修改之后的效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/0800dc87-2500-42d2-a3c5-a75a2c819330" alt="图片描述"></p>
-<p>然后重启jexus即可。</p>
-<p>完了之后，通过HTTPS即可访问。</p>
-<p>最后上一个HTTPS证书的图证明一下这个是可行的。<br><img src="http://7xread.com1.z0.glb.clouddn.com/24842774-311e-4e55-a6b5-b88a89edc754" alt="图片描述"></p>
-<p>撒花，下次再见。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="cipidu3jw000o9ktttf621dko" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-ubuntu使用jexus搭建mywebsql" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/23/ubuntu使用jexus搭建mywebsql/" class="article-date">
-  <time datetime="2016-04-23T13:58:46.283Z" itemprop="datePublished">2016-04-23</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/ubuntu/">ubuntu</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/ubuntu使用jexus搭建mywebsql/">ubuntu使用Jexus搭建MyWebSQL</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>之前在阿里云上装了一个ubuntu，后来也没怎么用力，就挂这一个mysql数据库。最近在家里用MySQL Workbench 连接阿里云上面的MySQL的时候，连着过了一会就中断了。后来看了一圈回来才发现，目测是家里电信宽带的锅，不断给我动态分配IP地址….后来群里面的小伙伴说，搭个websql了事啦。听起来不错的想法，于是昨天就试了一下。</p>
-<p>之前在ubuntu上装过apache，后来为了跑asp.net，把apache停了，换成了jexus。<br>Jexus是国内.NET 跨平台大牛们写的一个web服务器，使用方便，很稳定，也在不断加入新特性。相关资料直接访问<a href="http://www.jexus.org/" target="_blank" rel="external">www.jexus.org</a>。</p>
-<p>jexus是以mono为基础的，其实首先应该先配置mono的运行环境。</p>
-<p>###第一步 安装mono<br>相关资料链接：</p>
-<p><a href="http://www.linuxdot.net/bbsfile-3090" target="_blank" rel="external">在Ubuntu操作系统上安装mono的具体方法</a></p>
-<p><a href="http://www.isvee.com/archives/763" target="_blank" rel="external">Ubuntu 14.04 安装 Mono</a></p>
-<p>我的ubuntu老早之前就安装好了mono，这个就此瞥过咯。</p>
-<p>###第二步 安装jexus</p>
-<p><a href="http://www.linuxdot.net/bbsfile-3084" target="_blank" rel="external">Jexus web server V5.1 安装配置要点</a></p>
-<p><a href="http://www.jexus.org/" target="_blank" rel="external">jexus首页</a></p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">A、安装：</span><br><span class="line">cd /tmp</span><br><span class="line">wget linuxdot.net/down/jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz </span><br><span class="line">tar -zxvf jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz </span><br><span class="line">cd jexus-<span class="number">5.8</span><span class="number">.1</span> </span><br><span class="line">sudo ./install </span><br><span class="line"></span><br><span class="line">B、更新</span><br><span class="line">cd /tmp</span><br><span class="line">sudo /usr/jexus/jws stop</span><br><span class="line">wget linuxdot.net/down/jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz</span><br><span class="line">tar -zxvf jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz</span><br><span class="line">cd jexus-<span class="number">5.8</span><span class="number">.1</span></span><br><span class="line">sudo ./upgrade</span><br></pre></td></tr></table></figure>
-<p>5.8.1差不多是现在最新版本了。</p>
-<p>###第三步 jexus 支持PHP</p>
-<p>先在ubuntu上安装一下PHP5-CGI.</p>
-<p><a href="http://www.linuxidc.com/Linux/2012-05/60172.htm" target="_blank" rel="external">用 Jexus ASP.NET WEB服务器搭建 PHP 网站的具体方法</a></p>
-<p>总结来说就是下面两句：<br><figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-<span class="built_in">get</span> <span class="keyword">update</span></span><br><span class="line"></span><br><span class="line">sudo apt-<span class="built_in">get</span> install php5-cgi</span><br></pre></td></tr></table></figure></p>
-<p>接着：</p>
-<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>)修改“/etc/php.ini”文件:</span><br><span class="line"></span><br><span class="line">找到cgi.force_redirect=<span class="number">1</span>一行，把前边的<span class="string">"#"</span>号去掉，把值从<span class="number">1</span>改为<span class="number">0</span>，如：</span><br><span class="line"></span><br><span class="line">cgi.force_redirect=<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="number">2</span>)修改jws.conf。打开jexus文件夹中的jws.conf，作如下配置：</span><br><span class="line"></span><br><span class="line">填写PHP-CGI程序路径和工作进程数。如：“php-fcgi.<span class="built_in">set</span>=/usr/bin/php-cgi,<span class="number">6</span>”。</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>)修改网站配置。在需要使用PHP的网站的配置文件中添加:</span><br><span class="line"></span><br><span class="line">fastcgi.add=php|socket:/var/run/jexus/phpsvr</span><br></pre></td></tr></table></figure>
-<p><a href="http://www.cnblogs.com/shanyou/p/3369322.html" target="_blank" rel="external">Jexus 支持PHP的三种方式-张善友</a></p>
-<p>搞完上面这些，理论上你的jexus已经能跑PHP网站了。</p>
-<p>###第四步 安装mywebsql</p>
-<p><a href="http://mywebsql.net/" target="_blank" rel="external">mywebsql首页</a></p>
-<p>mywebsql跑起来应该是下图的：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7d902b94-f132-4041-84fa-78f044f91358" alt="mywebsql效果图"></p>
-<p><a href="https://sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip/download" target="_blank" rel="external">下载地址</a></p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /tmp</span><br><span class="line"></span><br><span class="line">wget https:<span class="comment">//sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip</span></span><br><span class="line"></span><br><span class="line">cp mywebsql-3.6.<span class="keyword">zip</span> /<span class="keyword">var</span>/www </span><br><span class="line"></span><br><span class="line"><span class="keyword">cd</span> /<span class="keyword">var</span>/www</span><br><span class="line"></span><br><span class="line">tar -zxvf mywebsql-3.6.<span class="keyword">zip</span></span><br></pre></td></tr></table></figure>
-<p>把mywebsql网站文件弄好之后，就可以去看jexus配置php网站了。</p>
-<p>jexus的网站配置文件夹一般路径就是/usr/jexus/siteconf/</p>
-<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/jexus/siteconf/</span><br><span class="line"></span><br><span class="line">vi mywebSQL <span class="comment">#创建网站配置文件</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> .. </span><br><span class="line"></span><br><span class="line">./jexus restart</span><br></pre></td></tr></table></figure>
-<p>上面的mywebSQL里面就写网站配置了，主要是端口号/运行环境之类的配置。</p>
-<p>贴一下我的配置：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#仅供参考</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">####</span><br><span class="line"># Web Site: Default</span><br><span class="line">###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">port=<span class="number">2016</span></span><br><span class="line">root=/ /var/www/mywebsql</span><br><span class="line">hosts=*    <span class="comment">#OR your.com,*.your.com</span></span><br><span class="line">usephp =<span class="literal">true</span></span><br><span class="line">fastcgi.add=php|<span class="attribute">socket</span>:/var/run/jexus/phpsvr</span><br><span class="line"></span><br><span class="line"><span class="comment"># addr=0.0.0.0</span></span><br><span class="line"><span class="comment"># CheckQuery=false</span></span><br><span class="line"><span class="comment"># NoLog=true</span></span><br><span class="line"><span class="comment"># NoFile=/index.aspx</span></span><br><span class="line"><span class="comment"># Keep_Alive=false</span></span><br><span class="line"><span class="comment"># UseGZIP=true</span></span><br><span class="line"><span class="comment"># UseHttps=true</span></span><br><span class="line"><span class="comment"># DenyFrom=192.168.0.233, 192.168.1.*, 192.168.2.0/24</span></span><br><span class="line"><span class="comment"># AllowFrom=192.168.*.*</span></span><br><span class="line"><span class="comment"># DenyDirs=~/cgi, ~/upfiles</span></span><br><span class="line"><span class="comment"># indexes=myindex.aspx</span></span><br><span class="line"><span class="comment"># rewrite=^/.+?\.(asp|php|cgi|pl|sh)$ /index.aspx</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># reproxy=/bbs/ http://192.168.1.112/bbs/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Jexus php fastcgi address is '/var/run/jexus/phpsvr'</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></span><br><span class="line"><span class="comment"># fastcgi.add=php|socket:/var/run/jexus/phpsvr</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># php-fpm listen address is '127.0.0.1:9000'</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line"><span class="comment"># fastcgi.add=php|tcp:127.0.0.1:9000</span></span><br></pre></td></tr></table></figure>
-<p>到这里，访问<a href="http://你的主机IP:上面配置的端口号" target="_blank" rel="external">http://你的主机IP:上面配置的端口号</a> 就能看到下面的页面了。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/df3951c0-9d3d-4085-b577-743df68c1d98" alt="MywWebSQL登陆页"></p>
-<p>输入账号密码就能登陆。</p>
-<p>###然而….<br>我登陆的时候显示，系统提示：没有安装客户端库。</p>
-<p>###第五步 配置PHP MySQL库</p>
-<p>于是又跑去看了一下MyWebSQL的说明，文档上说可以在/install.php上面看配置。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/cf8d88d8-fb5d-42f0-81cc-e0fbb566ebe5" alt="这是配置好的效果图"></p>
-<p>显示：</p>
-<p>MySQL Client Library    client library is not installed<br>MySQL improved functionality    client library is not installed</p>
-<p>好吧，PHP MySQL客户端库没有安装….</p>
-<p>那就安装咯。<br>于是找到了下面一个文章：<br><a href="http://www.cnblogs.com/CheeseZH/p/4694135.html" target="_blank" rel="external">ZH奶酪：Ubuntu 14.04安装LAMP(Linux，Apache，MySQL，PHP)</a></p>
-<p>安装一下基础库<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-<span class="keyword">get</span> install php5 libapache2-<span class="keyword">mod</span>-php5 php5-mcrypt php5-curl php5-imagick php5-cli</span><br></pre></td></tr></table></figure></p>
-<p>搜索一下还有什么库可以安装。</p>
-<p>apt-cache search php5-</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7bac43bc-01ea-4ce0-ba4b-37a06a51fe3a" alt=""></p>
-<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get <span class="operator"><span class="keyword">install</span> php5 php5-mysqlnd </span><br><span class="line"></span><br><span class="line">sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> php5 php5-mysqlnd-ms</span></span><br></pre></td></tr></table></figure>
-<p>接着重启一下jexus的网站，万事大吉。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="cipidu3jl000f9ktta09f23y4" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/类字段与类属性/" class="article-date">
-  <time datetime="2016-04-20T13:19:01.005Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
-<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
-<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
-<pre><code>using System;
-
-public sealed class SomeType
-{                            //  1  
-// Nested class  
-   private class SomeNestedType { }                //  2  
-
-   // Constant, read­only, and static read/write field   
-   private const Int32 c_SomeConstant = 1;            //  3     
-
-   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
-
-   private static Int32 s_SomeReadWriteField = 3;      //  5  
-
-   // Type constructor  
-   static SomeType() { }                                  //  6  
-
-   // Instance constructors  
-   public SomeType(Int32 x) { }                           //  7  
-
-   public SomeType() { }                                  //  8 
-
-   // Instance and static methods  
-   private String InstanceMethod() { return null; }       // 9   
-
-   public static void Main() { }                        // 10 
-
-   // Instance property  
-   public Int32 SomeProp
-   {                                // 11      
-       get { return 0; }                                // 12      
-       set { }                                          // 13  
-   }
-
-   // Instance parameterful property (indexer) 
-   public Int32 this[String s]
-   {                          // 14       
-       get { return 0; }                                // 15        
-       set { }                                          // 16  
-   }
-
-   // Instance event  
-   public event EventHandler SomeEvent;                  // 17  
-}
-</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
-<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="cipidu3ja00039kttojlmondx" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="ciq2ihpf10003jgttde633eq1" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -516,8 +240,8 @@ public sealed class SomeType
   
     <article id="post-技巧避免修改绑定变量" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/04/20/技巧避免修改绑定变量/" class="article-date">
-  <time datetime="2016-04-20T13:19:01.001Z" itemprop="datePublished">2016-04-20</time>
+    <a href="/2016/06/16/技巧避免修改绑定变量/" class="article-date">
+  <time datetime="2016-06-16T14:10:08.112Z" itemprop="datePublished">2016-06-16</time>
 </a>
     
   <div class="article-category">
@@ -532,7 +256,7 @@ public sealed class SomeType
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
+      <a class="article-title" href="/2016/06/16/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
     </h1>
   
 
@@ -754,7 +478,391 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/技巧避免修改绑定变量/" data-id="cipidu3jd00059kttg81qcp37" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="ciq2ihpf50007jgtt5fotflt6" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-mono-webreques-https-exception" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/23/mono-webreques-https-exception/" class="article-date">
+  <time datetime="2016-04-23T13:59:16.810Z" itemprop="datePublished">2016-04-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>前几天在做一个使用URL通过WebRequest请求HTML页面的功能的时候遇到了点坑，程序在开发环境没有任何的问题，部署到linux mono上之后就跪了。代码如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetHTML</span>(<span class="params"><span class="keyword">string</span> url</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">string</span> htmlCode;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);</span><br><span class="line">        webRequest.Timeout = <span class="number">30000</span>;</span><br><span class="line">        webRequest.Method = <span class="string">"GET"</span>;</span><br><span class="line">        webRequest.UserAgent = <span class="string">"Mozilla/4.0"</span>;</span><br><span class="line">        webRequest.Headers.Add(<span class="string">"Accept-Encoding"</span>, <span class="string">"gzip, deflate"</span>);</span><br><span class="line"></span><br><span class="line">        HttpWebResponse webResponse = (System.Net.HttpWebResponse)webRequest.GetResponse();</span><br><span class="line">        <span class="comment">//获取目标网站的编码格式</span></span><br><span class="line">        <span class="keyword">string</span> contentype = webResponse.Headers[<span class="string">"Content-Type"</span>];</span><br><span class="line">        Regex regex = <span class="keyword">new</span> Regex(<span class="string">"charset\\s*=\\s*[\\W]?\\s*([\\w-]+)"</span>, RegexOptions.IgnoreCase);</span><br><span class="line">        <span class="keyword">if</span> (webResponse.ContentEncoding.ToLower() == <span class="string">"gzip"</span>)<span class="comment">//如果使用了GZip则先解压</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (<span class="keyword">var</span> zipStream = <span class="keyword">new</span> System.IO.Compression.GZipStream(streamReceive, </span><br><span class="line">                System.IO.Compression.CompressionMode.Decompress))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">//匹配编码格式</span></span><br><span class="line">                    <span class="keyword">if</span> (regex.IsMatch(contentype))</span><br><span class="line">                    &#123;</span><br><span class="line">                        Encoding ending = Encoding.GetEncoding(regex.Match(contentype).Groups[<span class="number">1</span>].Value.Trim());</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, ending))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = </span><br><span class="line">                        <span class="keyword">new</span> System.IO.StreamReader(zipStream, Encoding.UTF8))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (System.IO.StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(streamReceive, Encoding.Default))</span><br><span class="line">                &#123;</span><br><span class="line">                    htmlCode = sr.ReadToEnd();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> htmlCode;</span><br><span class="line"></span><br><span class="line">    &#125;<span class="keyword">catch</span>(Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">        LogHelper.WriteException(<span class="string">"GetHTML"</span>, ex, <span class="keyword">new</span> &#123; Url = url &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>开发环境在Windows10 + VS2013,整个代码跑起来没什么问题。</p>
+<p>无论是HTTP还是HTTPS协议，网页HTML一样能获取得到。</p>
+<p>网站部署到linux Jexus之后HTTP协议的网站同样可以获取到HTML，遇到HTTPS协议的网站的时候就跪了。</p>
+<p>抓到的异常信息如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">System.Net.WebException: Error: TrustFailure (The authentication or decryption has failed.) </span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed.</span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed. </span><br><span class="line">---&gt; Mono.Security.Protocol.Tls.TlsException:</span><br><span class="line">Invalid certificate received <span class="keyword">from</span> server. Error code: <span class="number">0xffffffff800b0109</span></span><br><span class="line">at Mono.Security.Protocol.Tls.RecordProtocol.EndReceiveRecord </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b58d80</span> + <span class="number">0x0013e</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.SafeEndReceiveRecord</span><br><span class="line">(IAsyncResult ar, Boolean ignoreEmpty) &lt;<span class="number">0x41b58cb0</span> + <span class="number">0x00031</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.NegotiateAsyncWorker</span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41b72a40</span> + <span class="number">0x0023f</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.EndNegotiateHandshake </span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41ba07e0</span> + <span class="number">0x000f3</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.AsyncHandshakeCallback </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41ba0540</span> + <span class="number">0x00086</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.EndRead </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73fd0</span> + <span class="number">0x00199</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.EndAuthenticateAsClient </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73f30</span> + <span class="number">0x00042</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.AuthenticateAsClient (System.String targetHost, </span><br><span class="line">System.Security.Cryptography.X509Certificates.X509CertificateCollection</span><br><span class="line">clientCertificates, SslProtocols enabledSslProtocols,</span><br><span class="line">Boolean checkCertificateRevocation) &lt;<span class="number">0x41b6a660</span> + <span class="number">0x00055</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.MonoTlsStream.CreateStream (System.Byte[] buffer) </span><br><span class="line">&lt;<span class="number">0x41b69c30</span> + <span class="number">0x00159</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at System.Net.HttpWebRequest.EndGetResponse (IAsyncResult asyncResult) </span><br><span class="line">&lt;<span class="number">0x41b67660</span> + <span class="number">0x001f9</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at System.Net.HttpWebRequest.GetResponse () &lt;<span class="number">0x41b60920</span> + <span class="number">0x0005a</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at WebBookmarkUI.Commom.HTTPHelper.GetHTML (System.String url) &lt;<span class="number">0x41b59b70</span> + <span class="number">0x00235</span>&gt; </span><br><span class="line"><span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span></span><br></pre></td></tr></table></figure>
+<p>有用的信息基本就是：</p>
+<ol>
+<li>Invalid certificate received from server</li>
+<li>The authentication or decryption has failed</li>
+</ol>
+<p>一开始百思不得其解，为嘛好好的程序在开发环境跑得都好的，到了mono上就挂了，多疑的我还以为是mono的bug。<br>今天静下心来去找了一下资料，发现Mono的文档有这个问题的描述，认真读了一遍，又去请教了一番宇内流云大大，终于弄懂了是什么回事。</p>
+<p>先贴一下相关资料：</p>
+<ol>
+<li><p><a href="http://stackoverflow.com/questions/4926676/mono-webrequest-fails-with-https" target="_blank" rel="external">stackoverflow mono-webrequest-fails-with-https</a></p>
+</li>
+<li><p><a href="http://www.mono-project.com/docs/faq/security/" target="_blank" rel="external">mono doc security</a></p>
+</li>
+</ol>
+<p>这个问题是出现的原因是Windows自带了HTPPS的根证书，linux默认则是没有带有根证书的。我们的mono在调用WebRequest去请求HTTPS协议的网站的时候，找不到任何有效的根证书，所以抛出上面的异常了。</p>
+<p>解决方案也很简单，为linux导入一下HTTPS根证书就好。</p>
+<p>在linux服务器上面执行下面这条命令。<br><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">mozroots</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">import</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">ask</span><span class="literal">-</span><span class="comment">remove</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">machine</span></span><br></pre></td></tr></table></figure></p>
+<p>然后在网站的Application_Start()里面添加下面代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> System.Net.ServicePointManager.ServerCertificateValidationCallback +=</span><br><span class="line"> <span class="keyword">delegate</span>(<span class="keyword">object</span> sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,</span><br><span class="line"> System.Security.Cryptography.X509Certificates.X509Chain chain,</span><br><span class="line"> System.Net.Security.SslPolicyErrors sslPolicyErrors)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// **** Always accept</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
+<p>完事。</p>
+<p>这个故事告诉我们，linux干活都是要亲力亲为呀。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="ciq2ihpfj000kjgttl6vrat91" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-Jexus支持HTTPS协议" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/23/Jexus支持HTTPS协议/" class="article-date">
+  <time datetime="2016-04-23T13:58:57.937Z" itemprop="datePublished">2016-04-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/jexus/">jexus</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/23/Jexus支持HTTPS协议/">Jexus支持HTTPS协议</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>众所周知，在HTTPS页面请求HTTP资料的时候，现代浏览器会拦截，提示用户是否继续，或者直接拦截，提示都不出来。</p>
+<p>最近给自己做了个快速书签工具，点击书签就直接把书签发送到服务器地址，然后保存到我的网站中。</p>
+<p>一开始一切都挺正常的，不过遇到了https的网站的时候，就跪掉了。</p>
+<p>开始的时候看到HTTPS证书是收费的，想想还是算了，反正凑合能用就是。前几天偶尔看到有一个免费申请HTTPS的开源软件，喵了一下看起来还不错，这几天有空了立马开干。下面有一个教程，我申请证书差不多就是按照这个来处理的。</p>
+<p><a href="https://www.paulyang.cn/blog/archives/39?spm=5176.blog2666.yqblogcon1.12.Nu0TgL" target="_blank" rel="external">用Let’s Encrypt获取免费证书</a></p>
+<p>关于这个Let’s Encrypt，维基百科是这样介绍的：</p>
+<blockquote>
+<p>Let’s Encrypt 是一个将于2015年末推出的数字证书认证机构，将通过旨在消除当前手动创建和安装证书的复杂过程的自动化流程，为安全网站提供免费的SSL/TLS证书。  Let’s Encrypt 是由互联网安全研究小组（ISRG，一个公益组织）提供的服务。主要赞助商包括电子前哨基金会，Mozilla基金会，Akamai以及思科。2015年4月9日，ISRG与Linux基金会宣布合作。用以实现这一新的数字证书认证机构的协议被称为自动证书管理环境（ACME）。  GitHub上有这一规范的草案，且提案的一个版本已作为一个Internet草案发布。Let’s Encrypt 宣称这一过程将十分简单、自动化并且免费。  2015年8月7日，该服务更新其推出计划，预计将在2015年9月7日当周某时发布首个证书，随后向列入白名单的域名发行少量证书并逐渐扩大发行。若一切按计划进行，该服务预计将在2015年11月16日当周某时全面开始提供.</p>
+</blockquote>
+<p>整个项目在Github有代码，主要是通过客户端来为我们的网站生成https证书。<br>首先我们先下载客户端，如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/letsencrypt/letsencrypt.git</span><br></pre></td></tr></table></figure></p>
+<p>接着进入这个仓库内，执行下面代码：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./letsencrypt-auto certonly -a &#10;webroot\ --webroot-path &#32593;&#31449;&#25152;&#22312;&#36335;&#24452;(&#22914;&#65306;/var/www/web/) \ &#10;-d &#20320;&#30340;&#22495;&#21517;(&#22914;&#65306;test.online) -d www.&#20320;&#30340;&#22495;&#21517;(&#22914;ww.test.online)</span><br></pre></td></tr></table></figure></p>
+<p>这里需要注意的事，我这里为了排版，给上面的命令加了换行，运行这个命令的时候记得把换行符去掉。<br>换行符在webroot、-d 前面各有一个。</p>
+<p>一切顺利的话，我们在<code>/etc/letsencrypt/live/域名/</code>这个目录下能看到四个文件，分别是：</p>
+<ol>
+<li>域名证书文件</li>
+<li>签发域名证书的证书链文件</li>
+<li>域名证书+证书链文件</li>
+<li>私钥文件</li>
+</ol>
+<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/60e4f29a-6da5-40e1-ae32-453a3bbf2455" alt="letsencrypt文件"></p>
+<p>接着就是为网站设置证书了。</p>
+<p>Jexus设置HTTPS要更改jws.conf文档以及网站的配置文档。</p>
+<p>操作步骤如下：</p>
+<ol>
+<li>修改jws.conf<br>进入Jexus文件夹中，打开 “jws.conf”，添加下面两句：</li>
+</ol>
+<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CertificateFile    = /etc/letsencrypt/live/&#22495;&#21517;/fullchain.pem&#10;CertificateKeyFile = /etc/letsencrypt/live/&#22495;&#21517;/privkey.pem</span><br></pre></td></tr></table></figure>
+<p>修改之后效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/d306d9c5-6391-421d-86fc-053b97d1b489" alt="图片描述"></p>
+<ol>
+<li>开启网站的HTTPS功能</li>
+</ol>
+<p>进入siteconf/文件夹，找到对应的网站conf文件，</p>
+<p>把网站服务端口改为443：<br>port=443</p>
+<p>启用https：<br>UseHttps=true</p>
+<p>修改之后的效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/0800dc87-2500-42d2-a3c5-a75a2c819330" alt="图片描述"></p>
+<p>然后重启jexus即可。</p>
+<p>完了之后，通过HTTPS即可访问。</p>
+<p>最后上一个HTTPS证书的图证明一下这个是可行的。<br><img src="http://7xread.com1.z0.glb.clouddn.com/24842774-311e-4e55-a6b5-b88a89edc754" alt="图片描述"></p>
+<p>撒花，下次再见。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="ciq2ihpfu000tjgttdctkdw4h" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-ubuntu使用jexus搭建mywebsql" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/23/ubuntu使用jexus搭建mywebsql/" class="article-date">
+  <time datetime="2016-04-23T13:58:46.283Z" itemprop="datePublished">2016-04-23</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/ubuntu/">ubuntu</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/23/ubuntu使用jexus搭建mywebsql/">ubuntu使用Jexus搭建MyWebSQL</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>之前在阿里云上装了一个ubuntu，后来也没怎么用力，就挂这一个mysql数据库。最近在家里用MySQL Workbench 连接阿里云上面的MySQL的时候，连着过了一会就中断了。后来看了一圈回来才发现，目测是家里电信宽带的锅，不断给我动态分配IP地址….后来群里面的小伙伴说，搭个websql了事啦。听起来不错的想法，于是昨天就试了一下。</p>
+<p>之前在ubuntu上装过apache，后来为了跑asp.net，把apache停了，换成了jexus。<br>Jexus是国内.NET 跨平台大牛们写的一个web服务器，使用方便，很稳定，也在不断加入新特性。相关资料直接访问<a href="http://www.jexus.org/" target="_blank" rel="external">www.jexus.org</a>。</p>
+<p>jexus是以mono为基础的，其实首先应该先配置mono的运行环境。</p>
+<p>###第一步 安装mono<br>相关资料链接：</p>
+<p><a href="http://www.linuxdot.net/bbsfile-3090" target="_blank" rel="external">在Ubuntu操作系统上安装mono的具体方法</a></p>
+<p><a href="http://www.isvee.com/archives/763" target="_blank" rel="external">Ubuntu 14.04 安装 Mono</a></p>
+<p>我的ubuntu老早之前就安装好了mono，这个就此瞥过咯。</p>
+<p>###第二步 安装jexus</p>
+<p><a href="http://www.linuxdot.net/bbsfile-3084" target="_blank" rel="external">Jexus web server V5.1 安装配置要点</a></p>
+<p><a href="http://www.jexus.org/" target="_blank" rel="external">jexus首页</a></p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br></pre></td><td class="code"><pre><span class="line">A、安装：</span><br><span class="line">cd /tmp</span><br><span class="line">wget linuxdot.net/down/jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz </span><br><span class="line">tar -zxvf jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz </span><br><span class="line">cd jexus-<span class="number">5.8</span><span class="number">.1</span> </span><br><span class="line">sudo ./install </span><br><span class="line"></span><br><span class="line">B、更新</span><br><span class="line">cd /tmp</span><br><span class="line">sudo /usr/jexus/jws stop</span><br><span class="line">wget linuxdot.net/down/jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz</span><br><span class="line">tar -zxvf jexus-<span class="number">5.8</span><span class="number">.1</span>.tar.gz</span><br><span class="line">cd jexus-<span class="number">5.8</span><span class="number">.1</span></span><br><span class="line">sudo ./upgrade</span><br></pre></td></tr></table></figure>
+<p>5.8.1差不多是现在最新版本了。</p>
+<p>###第三步 jexus 支持PHP</p>
+<p>先在ubuntu上安装一下PHP5-CGI.</p>
+<p><a href="http://www.linuxidc.com/Linux/2012-05/60172.htm" target="_blank" rel="external">用 Jexus ASP.NET WEB服务器搭建 PHP 网站的具体方法</a></p>
+<p>总结来说就是下面两句：<br><figure class="highlight q"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-<span class="built_in">get</span> <span class="keyword">update</span></span><br><span class="line"></span><br><span class="line">sudo apt-<span class="built_in">get</span> install php5-cgi</span><br></pre></td></tr></table></figure></p>
+<p>接着：</p>
+<figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="number">1</span>)修改“/etc/php.ini”文件:</span><br><span class="line"></span><br><span class="line">找到cgi.force_redirect=<span class="number">1</span>一行，把前边的<span class="string">"#"</span>号去掉，把值从<span class="number">1</span>改为<span class="number">0</span>，如：</span><br><span class="line"></span><br><span class="line">cgi.force_redirect=<span class="number">0</span></span><br><span class="line"></span><br><span class="line"><span class="number">2</span>)修改jws.conf。打开jexus文件夹中的jws.conf，作如下配置：</span><br><span class="line"></span><br><span class="line">填写PHP-CGI程序路径和工作进程数。如：“php-fcgi.<span class="built_in">set</span>=/usr/bin/php-cgi,<span class="number">6</span>”。</span><br><span class="line"></span><br><span class="line"><span class="number">3</span>)修改网站配置。在需要使用PHP的网站的配置文件中添加:</span><br><span class="line"></span><br><span class="line">fastcgi.add=php|socket:/var/run/jexus/phpsvr</span><br></pre></td></tr></table></figure>
+<p><a href="http://www.cnblogs.com/shanyou/p/3369322.html" target="_blank" rel="external">Jexus 支持PHP的三种方式-张善友</a></p>
+<p>搞完上面这些，理论上你的jexus已经能跑PHP网站了。</p>
+<p>###第四步 安装mywebsql</p>
+<p><a href="http://mywebsql.net/" target="_blank" rel="external">mywebsql首页</a></p>
+<p>mywebsql跑起来应该是下图的：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/7d902b94-f132-4041-84fa-78f044f91358" alt="mywebsql效果图"></p>
+<p><a href="https://sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip/download" target="_blank" rel="external">下载地址</a></p>
+<figure class="highlight stata"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">cd</span> /tmp</span><br><span class="line"></span><br><span class="line">wget https:<span class="comment">//sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip</span></span><br><span class="line"></span><br><span class="line">cp mywebsql-3.6.<span class="keyword">zip</span> /<span class="keyword">var</span>/www </span><br><span class="line"></span><br><span class="line"><span class="keyword">cd</span> /<span class="keyword">var</span>/www</span><br><span class="line"></span><br><span class="line">tar -zxvf mywebsql-3.6.<span class="keyword">zip</span></span><br></pre></td></tr></table></figure>
+<p>把mywebsql网站文件弄好之后，就可以去看jexus配置php网站了。</p>
+<p>jexus的网站配置文件夹一般路径就是/usr/jexus/siteconf/</p>
+<figure class="highlight bash"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"><span class="built_in">cd</span> /usr/jexus/siteconf/</span><br><span class="line"></span><br><span class="line">vi mywebSQL <span class="comment">#创建网站配置文件</span></span><br><span class="line"></span><br><span class="line"><span class="built_in">cd</span> .. </span><br><span class="line"></span><br><span class="line">./jexus restart</span><br></pre></td></tr></table></figure>
+<p>上面的mywebSQL里面就写网站配置了，主要是端口号/运行环境之类的配置。</p>
+<p>贴一下我的配置：</p>
+<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">#仅供参考</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">####</span><br><span class="line"># Web Site: Default</span><br><span class="line">###</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></span><br><span class="line"></span><br><span class="line">port=<span class="number">2016</span></span><br><span class="line">root=/ /var/www/mywebsql</span><br><span class="line">hosts=*    <span class="comment">#OR your.com,*.your.com</span></span><br><span class="line">usephp =<span class="literal">true</span></span><br><span class="line">fastcgi.add=php|<span class="attribute">socket</span>:/var/run/jexus/phpsvr</span><br><span class="line"></span><br><span class="line"><span class="comment"># addr=0.0.0.0</span></span><br><span class="line"><span class="comment"># CheckQuery=false</span></span><br><span class="line"><span class="comment"># NoLog=true</span></span><br><span class="line"><span class="comment"># NoFile=/index.aspx</span></span><br><span class="line"><span class="comment"># Keep_Alive=false</span></span><br><span class="line"><span class="comment"># UseGZIP=true</span></span><br><span class="line"><span class="comment"># UseHttps=true</span></span><br><span class="line"><span class="comment"># DenyFrom=192.168.0.233, 192.168.1.*, 192.168.2.0/24</span></span><br><span class="line"><span class="comment"># AllowFrom=192.168.*.*</span></span><br><span class="line"><span class="comment"># DenyDirs=~/cgi, ~/upfiles</span></span><br><span class="line"><span class="comment"># indexes=myindex.aspx</span></span><br><span class="line"><span class="comment"># rewrite=^/.+?\.(asp|php|cgi|pl|sh)$ /index.aspx</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># reproxy=/bbs/ http://192.168.1.112/bbs/</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># Jexus php fastcgi address is '/var/run/jexus/phpsvr'</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></span><br><span class="line"><span class="comment"># fastcgi.add=php|socket:/var/run/jexus/phpsvr</span></span><br><span class="line"></span><br><span class="line"><span class="comment"># php-fpm listen address is '127.0.0.1:9000'</span></span><br><span class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></span><br><span class="line"><span class="comment"># fastcgi.add=php|tcp:127.0.0.1:9000</span></span><br></pre></td></tr></table></figure>
+<p>到这里，访问<a href="http://你的主机IP:上面配置的端口号" target="_blank" rel="external">http://你的主机IP:上面配置的端口号</a> 就能看到下面的页面了。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/df3951c0-9d3d-4085-b577-743df68c1d98" alt="MywWebSQL登陆页"></p>
+<p>输入账号密码就能登陆。</p>
+<p>###然而….<br>我登陆的时候显示，系统提示：没有安装客户端库。</p>
+<p>###第五步 配置PHP MySQL库</p>
+<p>于是又跑去看了一下MyWebSQL的说明，文档上说可以在/install.php上面看配置。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/cf8d88d8-fb5d-42f0-81cc-e0fbb566ebe5" alt="这是配置好的效果图"></p>
+<p>显示：</p>
+<p>MySQL Client Library    client library is not installed<br>MySQL improved functionality    client library is not installed</p>
+<p>好吧，PHP MySQL客户端库没有安装….</p>
+<p>那就安装咯。<br>于是找到了下面一个文章：<br><a href="http://www.cnblogs.com/CheeseZH/p/4694135.html" target="_blank" rel="external">ZH奶酪：Ubuntu 14.04安装LAMP(Linux，Apache，MySQL，PHP)</a></p>
+<p>安装一下基础库<br><figure class="highlight applescript"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-<span class="keyword">get</span> install php5 libapache2-<span class="keyword">mod</span>-php5 php5-mcrypt php5-curl php5-imagick php5-cli</span><br></pre></td></tr></table></figure></p>
+<p>搜索一下还有什么库可以安装。</p>
+<p>apt-cache search php5-</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/7bac43bc-01ea-4ce0-ba4b-37a06a51fe3a" alt=""></p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line">sudo apt-get <span class="operator"><span class="keyword">install</span> php5 php5-mysqlnd </span><br><span class="line"></span><br><span class="line">sudo apt-<span class="keyword">get</span> <span class="keyword">install</span> php5 php5-mysqlnd-ms</span></span><br></pre></td></tr></table></figure>
+<p>接着重启一下jexus的网站，万事大吉。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="ciq2ihpfh000hjgttszqlhoe2" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/04/20/类字段与类属性/" class="article-date">
+  <time datetime="2016-04-20T13:19:01.005Z" itemprop="datePublished">2016-04-20</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
+<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
+<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
+<pre><code>using System;
+
+public sealed class SomeType
+{                            //  1  
+// Nested class  
+   private class SomeNestedType { }                //  2  
+
+   // Constant, read­only, and static read/write field   
+   private const Int32 c_SomeConstant = 1;            //  3     
+
+   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
+
+   private static Int32 s_SomeReadWriteField = 3;      //  5  
+
+   // Type constructor  
+   static SomeType() { }                                  //  6  
+
+   // Instance constructors  
+   public SomeType(Int32 x) { }                           //  7  
+
+   public SomeType() { }                                  //  8 
+
+   // Instance and static methods  
+   private String InstanceMethod() { return null; }       // 9   
+
+   public static void Main() { }                        // 10 
+
+   // Instance property  
+   public Int32 SomeProp
+   {                                // 11      
+       get { return 0; }                                // 12      
+       set { }                                          // 13  
+   }
+
+   // Instance parameterful property (indexer) 
+   public Int32 this[String s]
+   {                          // 14       
+       get { return 0; }                                // 15        
+       set { }                                          // 16  
+   }
+
+   // Instance event  
+   public event EventHandler SomeEvent;                  // 17  
+}
+</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
+<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="ciq2ihpf40005jgtt3az7a6f8" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -869,7 +977,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="cipidu3jf00079kttkcaoozxg" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="ciq2ihpf80009jgtts2motocq" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -940,7 +1048,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="cipidu3jh000a9ktt2omfecb2" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="ciq2ihpfa000cjgttmtam0gyd" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -999,105 +1107,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/一些有用的网站/" data-id="cipidu3ji000c9ktt6l3tj1um" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-LINQ优点总结(转载)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/LINQ优点总结(转载)/" class="article-date">
-  <time datetime="2016-04-20T13:19:00.985Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/LINQ优点总结(转载)/">C#LINQ 优点 总结(转载)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>原文链接：<a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a></p>
-<p>这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。</p>
-<p>由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。</p>
-<p>（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）</p>
-<p>LINQ的优点：</p>
-<p>LINQ基本有以下七个优点，让我来一一举例说明：</p>
-<p>#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：</p>
-<p>(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：</p>
-<p>语句高亮显示，类型检查，允许使用debugger调试</p>
-<p>(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。</p>
-<p>(3):集成后的语法更加的清晰易懂，可读性较高。</p>
-<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">比较： </span><br><span class="line"><span class="comment">//原来的格式</span></span><br><span class="line">SqlConnection sqlConn = <span class="keyword">new</span> SqlConnection(connectionString);&gt;</span><br><span class="line">sqlConn.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">command.Connection = sqlConn;</span><br><span class="line">command.CommandText = <span class="string">"Select * From Customer"</span>;</span><br><span class="line">SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//LINQ的格式</span></span><br><span class="line">NORTHWNDDataContext dc = <span class="keyword">new</span> NORTHWNDDataContext();</span><br><span class="line"><span class="keyword">var</span> query = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure>
-<p>#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。</p>
-<p>使用统一化查询语言的好处在于以下几点：</p>
-<p>你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。<br>由于使用了统一的语法，可以使代码维护变的更加简单。<br>以下代码体现了LINQ的统一化：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据源:对象集合</span></span><br><span class="line"><span class="keyword">var</span> query = <span class="function"><span class="keyword">from</span> c <span class="keyword">in</span> <span class="title">GetCustomers</span>(<span class="params"></span>)</span><br><span class="line">            <span class="keyword">select</span> c</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//数据源:SQL</span></span><br><span class="line"><span class="keyword">var</span> query1 = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">             <span class="keyword">select</span> c;</span><br><span class="line"><span class="comment">//数据源:XML</span></span><br><span class="line"><span class="keyword">var</span> query2 = <span class="keyword">from</span> c <span class="keyword">in</span> customers.Descendants(<span class="string">"Customer"</span>)</span><br><span class="line">             <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure></p>
-<p>#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:</p>
-<p>(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。</p>
-<p>(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。</p>
-<p>以下是些第三方的LINQ provider：</p>
-<p>LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google</p>
-<p>#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。</p>
-<p>Declarative programming(声明式编程)的优点体现在以下2点：</p>
-<p>(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。</p>
-<p>(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。</p>
-<p>举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。</p>
-<p>比较Declarative programming 与 Imperative programming：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"><span class="keyword">var</span> query = from list <span class="keyword">in</span> lists</span><br><span class="line">            from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">            where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">            orderby <span class="built_in">num</span> descending</span><br><span class="line">            select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//命令式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list1.Add(<span class="number">1</span>);</span><br><span class="line">list1.Add(<span class="number">2</span>);</span><br><span class="line">list1.Add(<span class="number">3</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list2 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list2.Add(<span class="number">4</span>);</span><br><span class="line">list2.Add(<span class="number">5</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt;();</span><br><span class="line">lists1.Add(list1);</span><br><span class="line">lists1.Add(list2);</span><br><span class="line"> </span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; newList = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">foreach (<span class="keyword">var</span> item <span class="keyword">in</span> lists1)</span><br><span class="line">      foreach (<span class="keyword">var</span> <span class="built_in">num</span> <span class="keyword">in</span> item)</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span>)</span><br><span class="line">            newList.Add(<span class="built_in">num</span>);</span><br><span class="line">newList.Reverse();</span><br></pre></td></tr></table></figure></p>
-<p>#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。</p>
-<p>SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是</p>
-<p>rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。</p>
-<p>这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。</p>
-<p>#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。</p>
-<p>LINQ返回的结果都是基于接口：IEnumerable<t>，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。</t></p>
-<p>优点在于：</p>
-<p>(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。</p>
-<p>(2).便于代码维护。把代码拆分后能使代码变的更易理解。</p>
-<p>以下代码体现了可组成性：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码体现了Composable</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;</span><br><span class="line"> &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query1 = from list <span class="keyword">in</span> lists</span><br><span class="line">             from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query2 = from <span class="built_in">num</span> <span class="keyword">in</span> query1</span><br><span class="line">             where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query3 = from <span class="built_in">num</span> <span class="keyword">in</span> query2</span><br><span class="line">             orderby <span class="built_in">num</span> descending</span><br><span class="line">             select <span class="built_in">num</span>;</span><br></pre></td></tr></table></figure></p>
-<p>######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。</p>
-<p>方便用户做数据移植。</p>
-<p>以下代码体现了转换的特性：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//把关系型数据转换成XML型</span></span><br><span class="line">	<span class="keyword">var</span> query = <span class="keyword">new</span> XElement(<span class="string">"Orders"</span>,</span><br><span class="line">            <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">where</span> c.City == <span class="string">"Paris"</span></span><br><span class="line">            <span class="function"><span class="keyword">select</span> new <span class="title">XElement</span>(<span class="params"><span class="string">"Order"</span>,</span><br><span class="line">                new XAttribute(<span class="string">"Address"</span>, c.Address</span>)))</span>;</span><br></pre></td></tr></table></figure></p>
-<p>以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。</p>
-<p>//2011/1/28 补充(LINQ TO SQL)</p>
-<p>在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。</p>
-<p><a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a> </p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/LINQ优点总结(转载)/" data-id="cipidu3jq000k9kttc3ikzyxu" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/一些有用的网站/" data-id="ciq2ihpfe000ejgttjvaqdzjx" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1135,7 +1145,7 @@ public void test2_1()
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1148,7 +1158,7 @@ public void test2_1()
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">13</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -1160,7 +1170,15 @@ public void test2_1()
       <ul>
         
           <li>
+            <a href="/2016/07/01/asp.net core启动方式/">ASP.NET Core 启动方式（Hosting）</a>
+          </li>
+        
+          <li>
             <a href="/2016/06/16/避免在函数或者操作中抛出异常/">避免在函数或者操作中抛出异常</a>
+          </li>
+        
+          <li>
+            <a href="/2016/06/16/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
           </li>
         
           <li>
@@ -1169,14 +1187,6 @@ public void test2_1()
         
           <li>
             <a href="/2016/04/23/Jexus支持HTTPS协议/">Jexus支持HTTPS协议</a>
-          </li>
-        
-          <li>
-            <a href="/2016/04/23/ubuntu使用jexus搭建mywebsql/">ubuntu使用Jexus搭建MyWebSQL</a>
-          </li>
-        
-          <li>
-            <a href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
           </li>
         
       </ul>
