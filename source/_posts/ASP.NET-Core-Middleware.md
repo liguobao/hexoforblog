@@ -10,12 +10,9 @@ category: .net
 
 来到ASP.NET Core时代，类似功能的内容可能我们看得就要多得多了。因为在ASP.NET Core时代，微软将HttpModule“变更”之后，并为它授予了更灵活应用场景。
 
-#####这就是这个文章要介绍的主角：Middleware（中间件）。
+##### 这就是这个文章要介绍的主角：Middleware（中间件）。
 
-
-
-
-##Middleware
+## Middleware
 
 为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。
 
@@ -45,14 +42,11 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env,
 
 如果我们把UseMvc去掉，那么MVC routing也就不存在了，我们输入 http://website/[Controller]/[Action] 类似的地址也就无效了。
 
-
-
-###和HttpModule的不同之处
+### 和HttpModule的不同之处
 
 在使用HttpModule的时候，我们是在实现/重写接口，这个时候就要求我们在适当的地方做适当的事情。例如，要做 authorization 的话就最好在 HttpModule 定义好的 Authorization 事件 (AuthorizatRequest) 中完成这个功能。在 ASP.NET life cycle 的文件里我们可以查到 HttpModule  定义了那些事件，每一個事件都有哪些特別的功能。因此我们需要全面了解之后再来选择实现/重写我们需要的事件。而在Middleware中，完全没有这样的限制，也不存在这样的事件，我们可以自行设计实现我们的机制。
 
-
-##Middleware 流程
+## Middleware 流程
 [https://docs.asp.net/en/latest/fundamentals/middleware.html](https://docs.asp.net/en/latest/fundamentals/middleware.html) 这个文章中说明了基本的middleware概念。目前asp.net docs里面有不少的内容都是开源社区开发者贡献的
 
 在这个文章里面有一个简单的流程图说明了ASP.NET runtime中middleware的执行过程。
@@ -67,9 +61,7 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env,
 
 下来通过一个例子我们一起来了解一下Middleware。
 
-
-
-##编写简单的 Middleware 
+## 编写简单的 Middleware 
 
 ```csharp
 public class SampleMiddleware
@@ -145,8 +137,7 @@ public void Configure(IApplicationBuilder app,IHostingEnvironment env,
 
 ![http redirect](http://7xread.com1.z0.glb.clouddn.com/1d7e4c87-9fff-4401-8933-36dcbf857199)
 
-
-##Middleware 的执行顺序很重要
+## Middleware 的执行顺序很重要
 
 前面解释了 middleware 执行过程是一个接着一个的．不同的 middleware 对 HttpContext 的內容都可能有不同的处理或更改，因此执行舒服便格外重要。举个例子，如果将上面 Configure() 的代码变更如下:
 
@@ -172,10 +163,9 @@ public void Configure(IApplicationBuilder app, IHostingEnvironment env,
 
 为什么会失败呢? 因为我们的 ApplicationBuilder 执行到行到 SampleMiddleware 时候重定向到NoName.html，也就是做读取静态页面，而这个功能服务方是在下一个 middleware (StaticFiles) 才会提供的，因此 ApplicationBuilder 无法找到 NoName.html，所以在浏览器上也就看不到 NoName.html 的內容。
 
-####Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。
+#### Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。
 
-
-##Middleware 背后原理
+## Middleware 背后原理
 
 现在 ASP.NET Core 已是开源项目了，所以最后说明一下 middleware 原理的基本概念．整個 ASP.NET fundamental 的部份用了许多的 function delegate , task, denepdency injection 的编写方法，所以要看 source code 之前，建议先对这三个东西先行了解，这样对理解 ASP.NET Core源码很有帮助．
 
