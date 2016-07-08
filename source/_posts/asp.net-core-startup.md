@@ -168,15 +168,6 @@ host.Run(cts.Token, "Application started. Press Ctrl+C to shut down.");
 
 不过这样的话，这里你也不能写中文...
 
-
-全文差不多就这样了，原文在这里：[ASP.NET Core 的啟動方式 (Hosting)](https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327)
-
-感谢ASP.NET Core 資訊分享。
+本文整理于[https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327](https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327)并已征得作者同意。
+感谢Bruce的分享。
  
-
-
-
-
-```csharp
-
-```

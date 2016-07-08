@@ -61,10 +61,111 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-asp.net core启动方式" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-ASP.NET-Core-Middleware" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/07/01/asp.net core启动方式/" class="article-date">
-  <time datetime="2016-06-30T16:16:48.754Z" itemprop="datePublished">2016-07-01</time>
+    <a href="/2016/07/09/ASP.NET-Core-Middleware/" class="article-date">
+  <time datetime="2016-07-08T16:06:49.252Z" itemprop="datePublished">2016-07-09</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/07/09/ASP.NET-Core-Middleware/">ASP.NET Core Middleware</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在ASP.NET 时代，一般来说我们很少会用到HttpModule/HttpHandler，然而有些场景我们使用HttpModule/HttpHandler倒方便快捷完成我们的需求。有兴趣了解HttpModule/HttpHandler以及使用场景的话，可以看下面这个链接的内容。</p>
+<p><a href="http://www.cnblogs.com/fish-li/archive/2013/01/04/2844908.html" target="_blank" rel="external">选择HttpHandler还是HttpModule？</a></p>
+<p>来到ASP.NET Core时代，类似功能的内容可能我们看得就要多得多了。因为在ASP.NET Core时代，微软将HttpModule“变更”之后，并为它授予了更灵活应用场景。</p>
+<p>#####这就是这个文章要介绍的主角：Middleware（中间件）。</p>
+<p>##Middleware</p>
+<p>为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。</p>
+<p>首先先来看看什么是middleware。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, </span><br><span class="line">                      ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,</span><br><span class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>看过ASP.NET Core项目的话，相信大家对Satarup.cs并不会陌生。在Starup.cs里面便有一个Configure()函数用于定义项目需要使用哪些middleware。</p>
+<p>上面的例子使用了两个middleware，一个是 UseStaticFiles，另一个是 UseMvc。这两个都是core自带的middleware，所以我们可以直接使用。UseStaticFiles 是为HTTP Request提供存取网站的文件，简单理解就是使得网站上的静态文件可访问，而UseMvc就是启用MVC routing机制。有了这两个middleware，我们的的网站就有了MVC routing和读取静态文件的功能。</p>
+<p>如果我们把UseMvc去掉，那么MVC routing也就不存在了，我们输入 <a href="http://website/[Controller]/[Action" target="_blank" rel="external">http://website/[Controller]/[Action</a>] 类似的地址也就无效了。</p>
+<p>###和HttpModule的不同之处</p>
+<p>在使用HttpModule的时候，我们是在实现/重写接口，这个时候就要求我们在适当的地方做适当的事情。例如，要做 authorization 的话就最好在 HttpModule 定义好的 Authorization 事件 (AuthorizatRequest) 中完成这个功能。在 ASP.NET life cycle 的文件里我们可以查到 HttpModule  定义了那些事件，每一個事件都有哪些特別的功能。因此我们需要全面了解之后再来选择实现/重写我们需要的事件。而在Middleware中，完全没有这样的限制，也不存在这样的事件，我们可以自行设计实现我们的机制。</p>
+<p>##Middleware 流程<br><a href="https://docs.asp.net/en/latest/fundamentals/middleware.html" target="_blank" rel="external">https://docs.asp.net/en/latest/fundamentals/middleware.html</a> 这个文章中说明了基本的middleware概念。目前asp.net docs里面有不少的内容都是开源社区开发者贡献的</p>
+<p>在这个文章里面有一个简单的流程图说明了ASP.NET runtime中middleware的执行过程。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/0b6d43ad-7d95-48ea-bbf3-ea7a93c4a366" alt="middleware执行过程"></p>
+<p>在 middleware 里面一定要定义 Invoke()函数，因为这是让 engine 默认调用 middleware 的Incoke函数。Middleware 里面所需要做什么事情就放在 Invoke() 里面，同时 Invoke() 里面还需要调用下一个 middleware。因此执行内容就如上图所示。Middleware 之间除了必须传送 HttpContext之外，也可以自定义传入其他的参数，这比以前的HttpModule方便多了。</p>
+<p>所以当 HTTP request 进来之后，engine 便会呼叫第一个 middleware 的 Invoke()，同时把传入HttpContext，然后第一个 middleware 可以再接着呼叫第二个 middleware 的 Invoke()，同时再把 HttpContext 继续传入，一直到最后一个middleware 的 Invoke() 结束之后，整个 HttpContext 的內容可能在 middleware 里面新增或被改变了，最后再按照整個原先的 call stack 从最后一个 middleware 回到第一个 middleware，再通过  engine 回传到client 端，完成request.</p>
+<p>下来通过一个例子我们一起来了解一下Middleware。</p>
+<p>##编写简单的 Middleware </p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SampleMiddleware</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> RequestDelegate _next;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SampleMiddleware</span>(<span class="params">RequestDelegate next</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        _next = next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">Invoke</span>(<span class="params">HttpContext context</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(context.User.Identity.Name))</span><br><span class="line">        &#123;</span><br><span class="line">            context.Response.Redirect(<span class="string">"/NoName.html"</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">await</span> _next.Invoke(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这一个middleware的名字叫SampleMiddleware。它有一个构造函数以及Invoke函数，而Invoke()只接收一个参数HttpContext。</p>
+<p>_next是一个叫 RequestDelegate类型，换言之这就是一个delegate，用于代表下一个middleware是谁。所以在构造函数中要把下一个middleware delegate传入。看到这里或许会觉得奇怪，我们的middleware在执行过程中怎么会知道下一个middleware是谁？这一部分稍后解释。</p>
+<p>在 Invoke() 里面，在 await _next.Invoke() 之前都是当前middleware的逻辑代码，从上面流程图来看的话就是由左自右的方向． await _next.Invoke() 之后的代码是就是流程图上由右至右的方向，因此，透過这样简单的设计，开发者就能很明确地控制什么样逻辑要先做或后做了。</p>
+<p>在 SampleMiddleware 之中，这里只做了一個很简单的动作，如果 username 是空白的话，就将该连接重定向到到 NoName.html 然后中断 middleware 的执行。</p>
+<p>为了能让这个middleware作为 ApplicationBuilder来使用，我们另外需要写一个扩展方法。代码如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">partial</span> <span class="keyword">class</span> <span class="title">MiddlewareExtensions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IApplicationBuilder <span class="title">UseSampleMiddleware</span>(<span class="params"></span><br><span class="line">    <span class="keyword">this</span> IApplicationBuilder builder</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> builder.UseMiddleware&lt;SampleMiddleware&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>这给扩展方法建立了UseSampleMiddleware()，使得我们可以让ApplicationBuilder 去读 SampleMiddleware。</p>
+<p>这是回到Startup.cs中，在 Configure() 里面我们就可以把 SampleMiddleware 加入到我们的 pipeline中了。具体代码如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app,IHostingEnvironment env, </span><br><span class="line">                      ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseSampleMiddleware();   <span class="comment">// &lt;-- SampleMiddleware</span></span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,</span><br><span class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>把 SampleMiddleware 放在 UseStaticFiles 和 UseMvc 之间，也就是说在 http request 还沒进入到 MVC routing 之前，就会先检查 HttpContext 里面是不是有空白的 username。很显然username肯定是空白的，因为我并沒有加入任何使用者验证代码这里面，所以利用 dotnet run 來运行这个项目的时候，你就会看到 Http code 302 出現，它的意思就是 http redirect，也就是 SampleMiddleware 里面面所做的 redirect 发生作用了。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/1d7e4c87-9fff-4401-8933-36dcbf857199" alt="http redirect"></p>
+<p>##Middleware 的执行顺序很重要</p>
+<p>前面解释了 middleware 执行过程是一个接着一个的．不同的 middleware 对 HttpContext 的內容都可能有不同的处理或更改，因此执行舒服便格外重要。举个例子，如果将上面 Configure() 的代码变更如下:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env,</span><br><span class="line">                       ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseSampleMiddleware();   <span class="comment">// SampleMiddleware</span></span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();        <span class="comment">// StaticFiles</span></span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,<span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>我们把SampleMiddleware 放到StaticFiles 之前。这就导致在 SampleMiddleware 里重定向到 NoName.html会失败。</p>
+<p>为什么会失败呢? 因为我们的 ApplicationBuilder 执行到行到 SampleMiddleware 时候重定向到NoName.html，也就是做读取静态页面，而这个功能服务方是在下一个 middleware (StaticFiles) 才会提供的，因此 ApplicationBuilder 无法找到 NoName.html，所以在浏览器上也就看不到 NoName.html 的內容。</p>
+<p>####Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。</p>
+<p>##Middleware 背后原理</p>
+<p>现在 ASP.NET Core 已是开源项目了，所以最后说明一下 middleware 原理的基本概念．整個 ASP.NET fundamental 的部份用了许多的 function delegate , task, denepdency injection 的编写方法，所以要看 source code 之前，建议先对这三个东西先行了解，这样对理解 ASP.NET Core源码很有帮助．</p>
+<p>在前面的代码中，我们看到 RequestDelegate,  顾名思义就知道这是一个delegate（委托），它是用来代表 middleware 的 delegate. 它的 source code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/RequestDelegate.cs" target="_blank" rel="external">RequestDelegate.cs</a></p>
+<p>IApplicationBuilder interface 是一個相当重要的接口，它定义了整個APP要用哪些服务和參數，当然也包含要使用那些 middleware，它的 souce code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/IApplicationBuilder.cs" target="_blank" rel="external">IApplicationBuilder.cs</a>。</p>
+<p>其中你可以看到 Use()，通过 Use() 的实例就可以把 middleware delegate 注册到 host engine 上。</p>
+<p>另外一个就是 UseMiddlewareExtensions ，前面的代码曾用了 builder.UseMiddleware<samplemiddleware>(); 它会检查你写的 middleware 是不是合法的，比如有沒有 Invoke()，是不是只有一个Invoke()，Invoke() 的参数有沒有一个是 HttpContext type，所有的检查都通过之后便建立出该middleware instance 的 delegate。</samplemiddleware></p>
+<p>因此，当你的 ASP.NET Core APP刚启动的时候，在 Startup.cs 的 Configure() 就会把所有的 middleware delegate 建立起來，然后依序地放到內部的 stack 结构中。以上面的范例来说， stack 结构第一个元素是 StaticFiles,  然后是 SampleMiddleware 最后是 Mvc。接着每個 middleware 要被建立时是做 stack pop 的操作，所以 Mvc 的 _next 是 engine 里一些內部的 middleware 处理器，然後 pop 出 SampleMiddleware 时，就把 SampleMiddleware 的 _next 指向前面一個 pop 出來的 Mvc。依照着这样的逻辑一直到最前面的 middleware。所以在 host engine 在 Build() 之前这些动作都会完成，然后 host engine 才能执行Run()。有关 host engine 可參考<br><a href="https://github.com/aspnet/hosting/blob/master/src/Microsoft.AspNet.Hosting/WebHostBuilder.cs" target="_blank" rel="external">WebHostBuilder.cs</a></p>
+<p>全文完。</p>
+<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/07/09/ASP.NET-Core-Middleware/" data-id="ciqdxqmzo0000o0ttxrnibce6" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-asp.net-core-startup" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/07/09/asp.net-core-startup/" class="article-date">
+  <time datetime="2016-07-08T16:04:35.357Z" itemprop="datePublished">2016-07-09</time>
 </a>
     
   <div class="article-category">
@@ -79,7 +180,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/01/asp.net core启动方式/">ASP.NET Core 启动方式（Hosting）</a>
+      <a class="article-title" href="/2016/07/09/asp.net-core-startup/">ASP.NET Core 启动方式（Hosting）</a>
     </h1>
   
 
@@ -138,13 +239,12 @@
 <p>比较特別的是，这一段中止的文字说明居然是用 hard code，參考如下:</p>
 <p>host.Run(cts.Token, “Application started. Press Ctrl+C to shut down.”);</p>
 <p>不过这样的话，这里你也不能写中文…</p>
-<p>全文差不多就这样了，原文在这里：<a href="https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327" target="_blank" rel="external">ASP.NET Core 的啟動方式 (Hosting)</a></p>
-<p>感谢ASP.NET Core 資訊分享。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"></span><br></pre></td></tr></table></figure>
+<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
+
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/07/01/asp.net core启动方式/" data-id="ciq2ihpfn000mjgtttbehsf5e" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/07/09/asp.net-core-startup/" data-id="ciqdxqn0u000mo0tt8dcg7tgy" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -213,7 +313,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="ciq2ihpf10003jgttde633eq1" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="ciqdxqn080003o0tt0iwq55p5" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -478,7 +578,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="ciq2ihpf50007jgtt5fotflt6" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="ciqdxqn0c0007o0tt098ccoh3" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -560,7 +660,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="ciq2ihpfj000kjgttl6vrat91" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="ciqdxqn0r000ko0ttehmlx75u" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -654,7 +754,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="ciq2ihpfu000tjgttdctkdw4h" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="ciqdxqn10000to0tt8ro1hpjd" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -758,7 +858,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="ciq2ihpfh000hjgttszqlhoe2" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="ciqdxqn0n000ho0tt9a5nslis" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -862,7 +962,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="ciq2ihpf40005jgtt3az7a6f8" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="ciqdxqn0a0005o0tt0z8220mr" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -977,7 +1077,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="ciq2ihpf80009jgtts2motocq" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="ciqdxqn0e0009o0tt6fwxfk1i" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1048,66 +1148,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="ciq2ihpfa000cjgttmtam0gyd" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-一些有用的网站" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/一些有用的网站/" class="article-date">
-  <time datetime="2016-04-20T13:19:00.991Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/nothing/">nothing</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/一些有用的网站/">一些有用的网站</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p><a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">Markdown 语法说明 (简体中文版)</a></p>
-<p><a href="http://wowubuntu.com/markdown/basic.html" target="_blank" rel="external">Markdown: Basics （快速入门）</a></p>
-<p><a href="http://wsgzao.github.io/post/hexo-guide/" target="_blank" rel="external">使用GitHub和Hexo搭建免费静态Blog(本博客案例)</a></p>
-<p><a href="https://www.mxgw.info/t/filename-too-long-in-git.html" target="_blank" rel="external">win下面的git客户端提示FIlename too long解决方法</a></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/一些有用的网站/" data-id="ciq2ihpfe000ejgttjvaqdzjx" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="ciqdxqn0g000co0ttuk5332k8" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1145,7 +1186,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">7</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1158,7 +1199,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -1170,7 +1211,11 @@ public sealed class SomeType
       <ul>
         
           <li>
-            <a href="/2016/07/01/asp.net core启动方式/">ASP.NET Core 启动方式（Hosting）</a>
+            <a href="/2016/07/09/ASP.NET-Core-Middleware/">ASP.NET Core Middleware</a>
+          </li>
+        
+          <li>
+            <a href="/2016/07/09/asp.net-core-startup/">ASP.NET Core 启动方式（Hosting）</a>
           </li>
         
           <li>
@@ -1183,10 +1228,6 @@ public sealed class SomeType
         
           <li>
             <a href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
-          </li>
-        
-          <li>
-            <a href="/2016/04/23/Jexus支持HTTPS协议/">Jexus支持HTTPS协议</a>
           </li>
         
       </ul>
