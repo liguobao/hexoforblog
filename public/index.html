@@ -61,6 +61,100 @@
       <div class="outer">
         <section id="main">
   
+    <article id="post-58CityHouse-Crawler" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/10/58CityHouse-Crawler/" class="article-date">
+  <time datetime="2016-08-10T15:15:03.187Z" itemprop="datePublished">2016-08-10</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/net/">.net</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/10/58CityHouse-Crawler/">.NET_58同城品牌公寓爬虫</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>源码地址：<a href="https://github.com/liguobao/58HouseSearch" target="_blank" rel="external">https://github.com/liguobao/58HouseSearch</a></p>
+<p>在线地址：<a href="http://codelover.link:8080/">58公寓高德搜房(全国版)：http://codelover.link:8080/</a></p>
+<p>周末闲着无事刷知乎发现一个爬虫教程（<a href="https://zhuanlan.zhihu.com/p/21883516" target="_blank" rel="external">高德API+Python解决租房问题</a><br>），正中最近想要换地方住的痛点。然后大早上懒觉都没睡就屁颠屁颠开始研究这个教程了。这样教程在实验楼网站里面有手把手步骤，有兴趣自取（<a href="https://www.shiyanlou.com/courses/599" target="_blank" rel="external">实验楼：高德API+Python解决租房问题</a>）。</p>
+<p>整体项目主要分成两步：</p>
+<p>第一步:python爬取数据，生成数据文件;</p>
+<p>第二部：导入数据文件，在地图上显示房源，设定上班地点后自动计算出行路线和路程时间。</p>
+<p>研究了一下这个教程之后发现这货做得实在有点粗糙，只能当教程用，完全没有通用实际价值。</p>
+<p>而且这里面还有个更大的问题：教程是基于北京的数据来做的，而我在上海…</p>
+<p>虽然说改改python数据源，改改导航页面JS完事。不过是在难用…</p>
+<p>于是，开始自己动手了。先看原有的python代码。</p>
+<figure class="highlight python"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">#-*- coding:utf-8 -*-</span></span><br><span class="line"><span class="keyword">from</span> bs4 <span class="keyword">import</span> BeautifulSoup</span><br><span class="line"><span class="keyword">from</span> urlparse <span class="keyword">import</span> urljoin</span><br><span class="line"><span class="keyword">import</span> requests</span><br><span class="line"><span class="keyword">import</span> csv</span><br><span class="line"></span><br><span class="line">url = <span class="string">"http://bj.58.com/pinpaigongyu/pn/&#123;page&#125;/?minprice=2000_4000"</span></span><br><span class="line"></span><br><span class="line"><span class="comment">#已完成的页数序号，初时为0</span></span><br><span class="line">page = <span class="number">0</span></span><br><span class="line"></span><br><span class="line">csv_file = open(<span class="string">"rent.csv"</span>,<span class="string">"wb"</span>) </span><br><span class="line">csv_writer = csv.writer(csv_file, delimiter=<span class="string">','</span>)</span><br><span class="line"></span><br><span class="line"><span class="keyword">while</span> <span class="keyword">True</span>:</span><br><span class="line">    page += <span class="number">1</span></span><br><span class="line">    <span class="keyword">print</span> <span class="string">"fetch: "</span>, url.format(page=page)</span><br><span class="line">    response = requests.get(url.format(page=page))</span><br><span class="line">    html = BeautifulSoup(response.text)</span><br><span class="line">    house_list = html.select(<span class="string">".list &gt; li"</span>)</span><br><span class="line"></span><br><span class="line">    <span class="comment"># 循环在读不到新的房源时结束</span></span><br><span class="line">    <span class="keyword">if</span> <span class="keyword">not</span> house_list:</span><br><span class="line">        <span class="keyword">break</span></span><br><span class="line"></span><br><span class="line">    <span class="keyword">for</span> house <span class="keyword">in</span> house_list:</span><br><span class="line">        house_title = house.select(<span class="string">"h2"</span>)[<span class="number">0</span>].string.encode(<span class="string">"utf8"</span>)</span><br><span class="line">        house_url = urljoin(url, house.select(<span class="string">"a"</span>)[<span class="number">0</span>][<span class="string">"href"</span>])</span><br><span class="line">        house_info_list = house_title.split()</span><br><span class="line"></span><br><span class="line">        <span class="comment"># 如果第二列是公寓名则取第一列作为地址</span></span><br><span class="line">        <span class="keyword">if</span> <span class="string">"公寓"</span> <span class="keyword">in</span> house_info_list[<span class="number">1</span>] <span class="keyword">or</span> <span class="string">"青年社区"</span> <span class="keyword">in</span> house_info_list[<span class="number">1</span>]:</span><br><span class="line">            house_location = house_info_list[<span class="number">0</span>]</span><br><span class="line">        <span class="keyword">else</span>:</span><br><span class="line">            house_location = house_info_list[<span class="number">1</span>]</span><br><span class="line"></span><br><span class="line">        house_money = house.select(<span class="string">".money"</span>)[<span class="number">0</span>].select(<span class="string">"b"</span>)[<span class="number">0</span>].string.encode(<span class="string">"utf8"</span>)</span><br><span class="line">        csv_writer.writerow([house_title, house_location, house_money, house_url])</span><br><span class="line"></span><br><span class="line">csv_file.close()</span><br></pre></td></tr></table></figure>
+<p>整个代码基本思路就是，爬取<a href="http://bj.58.com/pinpaigongyu/pn/{page}/?minprice=2000_4000页面数据，然后扔到创建的csv文件里面作为下一步的数据源。" target="_blank" rel="external">http://bj.58.com/pinpaigongyu/pn/{page}/?minprice=2000_4000页面数据，然后扔到创建的csv文件里面作为下一步的数据源。</a><br>通过研究<a href="http://bj.58.com/pinpaigongyu/pn/{page}/?minprice=2000_4000这个页面的数据，我们可以很容易发现，在页面中，每条数据都是一个li标签。" target="_blank" rel="external">http://bj.58.com/pinpaigongyu/pn/{page}/?minprice=2000_4000这个页面的数据，我们可以很容易发现，在页面中，每条数据都是一个li标签。</a></p>
+<p>如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/685849af-2ccc-4454-a26e-e2a1c3001378" alt=""></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/909df442-b1d9-4073-84d0-99a5b3cc9022" alt=""></p>
+<h4 id="li结构如下："><a href="#li结构如下：" class="headerlink" title="li结构如下："></a>li结构如下：</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">li</span> <span class="attribute">logr</span>=<span class="value">""</span> <span class="attribute">class</span>=<span class="value">""</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"/pinpaigongyu/26851774057013x.shtml"</span></span><br><span class="line">  <span class="attribute">target</span>=<span class="value">"_blank"</span> <span class="attribute">onclick</span>=<span class="value">"clickLog('from=fcpc_list_gy_sh_tupian')"</span> </span><br><span class="line">  <span class="attribute">tongji_label</span>=<span class="value">"listclick"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"img"</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="title">img</span> <span class="attribute">lazy_src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">src</span>=<span class="value">""</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"des"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">h2</span>&gt;</span>【合租】菊园新区 柳湖景庭 3室次卧<span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"room"</span>&gt;</span></span><br><span class="line">            3室1厅1卫&amp;nbsp; &amp;nbsp; 13m²&amp;nbsp;&amp;nbsp; 3/6层&amp;nbsp; <span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"dist"</span>&gt;</span><span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"spec"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec1"</span>&gt;</span>公共阳台<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec2"</span>&gt;</span>公共卫生间<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec3"</span>&gt;</span>离地铁近<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec4"</span>&gt;</span>厨房<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"money"</span>&gt;</span></span><br><span class="line">            <span class="tag">&lt;<span class="title">span</span>&gt;</span><span class="tag">&lt;<span class="title">b</span>&gt;</span>1100<span class="tag">&lt;/<span class="title">b</span>&gt;</span>元/月 <span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">         <span class="tag">&lt;<span class="title">p</span>&gt;</span>租房月付<span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">  <span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">li</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<p>照着python的思路，是把所有的li标签的数据提取出来的。</p>
+<p>我自己研究的时候又看了下，其实数据都在一个属性为tongji_label=”listclick”的a标签里面。</p>
+<p>一般来说，字符匹配用正则表达式完事，奈何正则水平实在不佳。我还是选择直接上HtmlAgilityPack算了。<br>关于HtmlAgilityPack的介绍还是看官网算了。<a href="http://htmlagilitypack.codeplex.com/" target="_blank" rel="external">HtmlAgilityPack</a></p>
+<p>HtmlAgilityPack是.NET一个比较强大的HTML处理类库了，基本可以让你像JS来操作HTML标签。<br>安装这货很简单，直接在Nuget PM包管理工具里面输入下面命令就完事了。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">Install-Package HtmlAgilityPack</span><br></pre></td></tr></table></figure>
+<p>有需要使用教程可以看这个：<a href="http://www.cnblogs.com/ITmuse/archive/2010/05/29/1747199.html" target="_blank" rel="external">Html Agility Pack基础类介绍及运用</a></p>
+<p>下面直接贴control源码算了。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br><span class="line">62</span><br><span class="line">63</span><br><span class="line">64</span><br><span class="line">65</span><br><span class="line">66</span><br><span class="line">67</span><br><span class="line">68</span><br><span class="line">69</span><br><span class="line">70</span><br><span class="line">71</span><br><span class="line">72</span><br><span class="line">73</span><br><span class="line">74</span><br><span class="line">75</span><br><span class="line">76</span><br><span class="line">77</span><br><span class="line">78</span><br><span class="line">79</span><br><span class="line">80</span><br><span class="line">81</span><br><span class="line">82</span><br><span class="line">83</span><br><span class="line">84</span><br><span class="line">85</span><br><span class="line">86</span><br><span class="line">87</span><br><span class="line">88</span><br><span class="line">89</span><br><span class="line">90</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;/summary&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="costFrom"&gt;</span>价格区间起始值<span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="costTo"&gt;</span>价格区间终止值<span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;param name="cnName"&gt;</span>城市拼音首字母<span class="xmlDocTag">&lt;/param&gt;</span></span></span><br><span class="line"><span class="comment"><span class="xmlDocTag">///</span> <span class="xmlDocTag">&lt;returns&gt;</span><span class="xmlDocTag">&lt;/returns&gt;</span></span></span><br><span class="line"><span class="function"><span class="keyword">public</span> ActionResult <span class="title">Get58CityRoomData</span>(<span class="params"><span class="keyword">int</span> costFrom, <span class="keyword">int</span> costTo, <span class="keyword">string</span> cnName</span>)</span><br><span class="line">       </span>&#123;</span><br><span class="line">           <span class="keyword">if</span> (costTo&lt;=<span class="number">0</span> || costTo &lt; costFrom)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="keyword">false</span>, Error = <span class="string">"输入数据有误，请重新输入。"</span> &#125;);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(cnName))</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="keyword">false</span>, </span><br><span class="line">               Error = <span class="string">"城市定位失败，建议清除浏览器缓存后重新进入。"</span> &#125;);</span><br><span class="line">           &#125;</span><br><span class="line"></span><br><span class="line">           <span class="keyword">try</span></span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">var</span> lstHouse = <span class="keyword">new</span> List&lt;HouseInfo&gt;();</span><br><span class="line"></span><br><span class="line">               <span class="keyword">string</span> tempURL = <span class="string">"http://"</span> + </span><br><span class="line">               cnName + <span class="string">".58.com/pinpaigongyu//pn/&#123;0&#125;/?minprice="</span></span><br><span class="line">               + costFrom + <span class="string">"_"</span> + costTo;</span><br><span class="line"></span><br><span class="line">               Uri uri = <span class="keyword">new</span> Uri(tempURL);</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> htmlResult = HTTPHelper.GetHTMLByURL(<span class="keyword">string</span>.Format(tempURL, <span class="number">1</span>));</span><br><span class="line"></span><br><span class="line">               HtmlDocument htmlDoc = <span class="keyword">new</span> HtmlDocument();</span><br><span class="line">               htmlDoc.LoadHtml(htmlResult);</span><br><span class="line"></span><br><span class="line">               <span class="keyword">var</span> countNodes = htmlDoc.DocumentNode.</span><br><span class="line">               SelectSingleNode(<span class="string">".//span[contains(@class,'list')]"</span>);</span><br><span class="line">               <span class="keyword">int</span> pageCount = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">if</span> (countNodes != <span class="keyword">null</span> &amp;&amp; countNodes.HasChildNodes)</span><br><span class="line">               &#123;</span><br><span class="line">                   pageCount = Convert.ToInt32(countNodes.ChildNodes[<span class="number">0</span>].InnerText) / <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">                   <span class="keyword">if</span>(pageCount==<span class="number">0</span>)</span><br><span class="line">                   &#123;</span><br><span class="line">                       <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="keyword">false</span>, </span><br><span class="line">                       Error =<span class="keyword">string</span>.Format(<span class="string">"没有找到价格区间为&#123;0&#125; - &#123;1&#125;的房子。"</span>,</span><br><span class="line">                       costFrom,costTo)&#125;);</span><br><span class="line">                   &#125;</span><br><span class="line">                   </span><br><span class="line">               &#125;</span><br><span class="line">               <span class="keyword">for</span> (<span class="keyword">int</span> pageIndex = <span class="number">1</span>; pageIndex &lt;= pageCount; pageIndex++)</span><br><span class="line">               &#123;</span><br><span class="line">                   htmlResult = HTTPHelper.GetHTMLByURL(<span class="keyword">string</span>.Format(tempURL, pageIndex));</span><br><span class="line">                   htmlDoc.LoadHtml(htmlResult);</span><br><span class="line">                   <span class="keyword">var</span> roomList = htmlDoc.DocumentNode</span><br><span class="line">                   .SelectNodes(<span class="string">".//a[contains(@tongji_label,'listclick')]"</span>);</span><br><span class="line">                   <span class="keyword">foreach</span> (<span class="keyword">var</span> room <span class="keyword">in</span> roomList)</span><br><span class="line">                   &#123;</span><br><span class="line">                       <span class="keyword">var</span> houseTitle = room.SelectSingleNode(<span class="string">".//h2"</span>).InnerHtml;</span><br><span class="line">                       <span class="keyword">var</span> houseURL = uri.Host + room.Attributes[<span class="string">"href"</span>].Value;</span><br><span class="line">                       <span class="keyword">var</span> house_info_list = houseTitle.Split(<span class="string">' '</span>);</span><br><span class="line">                       <span class="keyword">var</span> house_location = <span class="keyword">string</span>.Empty;</span><br><span class="line">                       <span class="keyword">if</span> (house_info_list[<span class="number">1</span>].Contains(<span class="string">"公寓"</span>) </span><br><span class="line">                       || house_info_list[<span class="number">1</span>].Contains(<span class="string">"青年社区"</span>))</span><br><span class="line">                       &#123;</span><br><span class="line">                           house_location = house_info_list[<span class="number">0</span>];</span><br><span class="line">                       &#125;</span><br><span class="line">                       <span class="keyword">else</span></span><br><span class="line">                       &#123;</span><br><span class="line">                           house_location = house_info_list[<span class="number">1</span>];</span><br><span class="line">                       &#125;</span><br><span class="line">                       <span class="keyword">var</span> momey = room.SelectSingleNode(<span class="string">".//b"</span>).InnerHtml;</span><br><span class="line"></span><br><span class="line">                       lstHouse.Add(<span class="keyword">new</span> HouseInfo()</span><br><span class="line">                       &#123;</span><br><span class="line">                           HouseTitle = houseTitle,</span><br><span class="line">                           HouseLocation = house_location,</span><br><span class="line">                           HouseURL = houseURL,</span><br><span class="line">                           Money = momey,</span><br><span class="line">                       &#125;);</span><br><span class="line">                   &#125;</span><br><span class="line">               &#125;</span><br><span class="line"></span><br><span class="line">               <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="keyword">true</span>, HouseInfos = lstHouse &#125;);</span><br><span class="line">           &#125;</span><br><span class="line">           <span class="keyword">catch</span> (Exception ex)</span><br><span class="line">           &#123;</span><br><span class="line">               <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="keyword">false</span>,</span><br><span class="line">               Error = <span class="string">"获取数据异常。"</span> + ex.ToString() &#125;);</span><br><span class="line">           &#125;</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
+<p>下面解释一下核心代码。</p>
+<p>片段一：获取总数。</p>
+<p>在观察58同城页面的时候，无意发现其实第一个加载的页面中有一个数据总条数，隐藏在页面里面的。<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"listsum"</span>&gt;</span><span class="tag">&lt;<span class="title">em</span>&gt;</span>1813<span class="tag">&lt;/<span class="title">em</span>&gt;</span>条结果<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>这样一来，总页面就很清晰了。页面=总数/每页20条。然后我们根据已知的数据规则去循环请求页面，也就能拿到所有的搜索数据了。</p>
+<p>核心代码，获取总条数。<br><figure class="highlight cpp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line">var countNodes = htmlDoc.DocumentNode.</span><br><span class="line">SelectSingleNode(<span class="string">".//span[contains(@class,'list')]"</span>);</span><br><span class="line"><span class="keyword">int</span> pageCount = <span class="number">10</span>;</span><br><span class="line"></span><br><span class="line"><span class="keyword">if</span> (countNodes != null &amp;&amp; countNodes.HasChildNodes)</span><br><span class="line">&#123;</span><br><span class="line">    pageCount = Convert.ToInt32(countNodes.ChildNodes[<span class="number">0</span>].InnerText) / <span class="number">20</span>;</span><br><span class="line"></span><br><span class="line">    <span class="keyword">if</span>(pageCount==<span class="number">0</span>)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; IsSuccess = <span class="literal">false</span>, </span><br><span class="line">        Error =<span class="built_in">string</span>.Format(<span class="string">"没有找到价格区间为&#123;0&#125; - &#123;1&#125;的房子。"</span>,</span><br><span class="line">        costFrom,costTo)&#125;);</span><br><span class="line">    &#125;</span><br><span class="line">                    </span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>在HTMLDoc里面找到一个span的class包含list的节点，获取它子节点（即em）的内容，强制转换成数字，也就是我们要找的总条数了。总条数除以20就得到了页数，下面就是开始循环请求页面了。</p>
+<p>在最上面我们分析过公寓数据分布，数据是li里面套a标签，我们需要的地理位置、房间名称、价格都在a标签里面。</p>
+<p>这样一来，我们这要获得到页面所有带有属性为tongji_label=”listclick”的a标签数据，也就得到了我们所有需要的数据。</p>
+<p>看一下a标签的数据组成：<br><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="tag">&lt;<span class="title">a</span> <span class="attribute">href</span>=<span class="value">"/pinpaigongyu/26851774057013x.shtml"</span></span><br><span class="line"> <span class="attribute">target</span>=<span class="value">"_blank"</span> <span class="attribute">onclick</span>=<span class="value">"clickLog('from=fcpc_list_gy_sh_tupian')"</span> </span><br><span class="line"> <span class="attribute">tongji_label</span>=<span class="value">"listclick"</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"img"</span>&gt;</span></span><br><span class="line">    <span class="tag">&lt;<span class="title">img</span> <span class="attribute">lazy_src</span>=<span class="value">""</span> <span class="attribute">alt</span>=<span class="value">""</span> <span class="attribute">src</span>=<span class="value">""</span>&gt;</span></span><br><span class="line">   <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"des"</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">h2</span>&gt;</span>【合租】菊园新区 柳湖景庭 3室次卧<span class="tag">&lt;/<span class="title">h2</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"room"</span>&gt;</span></span><br><span class="line">           3室1厅1卫&amp;nbsp; &amp;nbsp; 13m²&amp;nbsp;&amp;nbsp; 3/6层&amp;nbsp; <span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"dist"</span>&gt;</span><span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">p</span> <span class="attribute">class</span>=<span class="value">"spec"</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec1"</span>&gt;</span>公共阳台<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec2"</span>&gt;</span>公共卫生间<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec3"</span>&gt;</span>离地铁近<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">span</span> <span class="attribute">class</span>=<span class="value">"spec4"</span>&gt;</span>厨房<span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"money"</span>&gt;</span></span><br><span class="line">           <span class="tag">&lt;<span class="title">span</span>&gt;</span><span class="tag">&lt;<span class="title">b</span>&gt;</span>1100<span class="tag">&lt;/<span class="title">b</span>&gt;</span>元/月 <span class="tag">&lt;/<span class="title">span</span>&gt;</span></span><br><span class="line">        <span class="tag">&lt;<span class="title">p</span>&gt;</span>租房月付<span class="tag">&lt;/<span class="title">p</span>&gt;</span></span><br><span class="line">       <span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br><span class="line"> <span class="tag">&lt;/<span class="title">a</span>&gt;</span></span><br></pre></td></tr></table></figure></p>
+<p>我们要的房间信息在一个h2的标签里面，公寓租金价钱在class=”money”的div标签里面。</p>
+<p>于是有了一下代码：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"> <span class="keyword">for</span> (<span class="keyword">int</span> pageIndex = <span class="number">1</span>; pageIndex &lt;= pageCount; pageIndex++)</span><br><span class="line">&#123;</span><br><span class="line">    htmlResult = HTTPHelper.GetHTMLByURL(<span class="keyword">string</span>.Format(tempURL, pageIndex));</span><br><span class="line">    htmlDoc.LoadHtml(htmlResult);</span><br><span class="line">    <span class="comment">//找到所有的带有属性为tongji_label="listclick"的a标签数据</span></span><br><span class="line">    <span class="keyword">var</span> roomList = htmlDoc.DocumentNode.SelectNodes(<span class="string">".//a[contains(@tongji_label,'listclick')]"</span>);</span><br><span class="line">    <span class="keyword">foreach</span> (<span class="keyword">var</span> room <span class="keyword">in</span> roomList)</span><br><span class="line">    &#123;</span><br><span class="line">        <span class="comment">//获取其中为h2的房间数据，然后用空格分割成数组</span></span><br><span class="line">        <span class="keyword">var</span> houseTitle = room.SelectSingleNode(<span class="string">".//h2"</span>).InnerHtml;</span><br><span class="line">        <span class="keyword">var</span> houseURL = uri.Host + room.Attributes[<span class="string">"href"</span>].Value;</span><br><span class="line">        <span class="keyword">var</span> house_info_list = houseTitle.Split(<span class="string">' '</span>);</span><br><span class="line">        <span class="keyword">var</span> house_location = <span class="keyword">string</span>.Empty;</span><br><span class="line">        <span class="comment">//分割出来的数组，第二个包含公寓或青年社区，则取第一个数据为所在地区，否则取第二个数据</span></span><br><span class="line">        <span class="comment">//【合租】菊园新区 柳湖景庭 3室次卧 </span></span><br><span class="line">        <span class="comment">// 所在地区为：菊园新区</span></span><br><span class="line">        <span class="keyword">if</span> (house_info_list[<span class="number">1</span>].Contains(<span class="string">"公寓"</span>) || house_info_list[<span class="number">1</span>].Contains(<span class="string">"青年社区"</span>))</span><br><span class="line">        &#123;</span><br><span class="line">            house_location = house_info_list[<span class="number">0</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            house_location = house_info_list[<span class="number">1</span>];</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="comment">//获取标签为b的数据，价格就在里面了</span></span><br><span class="line">        <span class="keyword">var</span> momey = room.SelectSingleNode(<span class="string">".//b"</span>).InnerHtml;</span><br><span class="line"></span><br><span class="line">        lstHouse.Add(<span class="keyword">new</span> HouseInfo()</span><br><span class="line">        &#123;</span><br><span class="line">            HouseTitle = houseTitle,</span><br><span class="line">            HouseLocation = house_location,</span><br><span class="line">            HouseURL = houseURL,</span><br><span class="line">            Money = momey,</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>后端来说，基本就这些内容了。</p>
+<p>还有一些前端高德地图接口调用下次再讲吧，要陪女票玩游戏去了…</p>
+<p>^-^</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/08/10/58CityHouse-Crawler/" data-id="cirp1kcp20000i0ulgf6asuz9" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
     <article id="post-ASP.NET-Core-Middleware" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/07/09/ASP.NET-Core-Middleware/" class="article-date">
@@ -130,7 +224,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/07/09/ASP.NET-Core-Middleware/" data-id="ciqdy25mp00006wttv7zix66c" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/07/09/ASP.NET-Core-Middleware/" data-id="cirp1bema00001sul47daom0g" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -237,7 +331,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/07/09/asp.net-core-startup/" data-id="ciqdy25ns000m6wttwinj2orp" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/07/09/asp.net-core-startup/" data-id="cirp1ben6000m1sul2m8h9ll7" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -306,7 +400,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="ciqdy25n800036wtta56lgp12" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="cirp1bemp00031sulb9w8xnft" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -571,7 +665,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="ciqdy25nd00076wtthna3wjuc" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="cirp1bemt00071sulh891krst" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -653,7 +747,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="ciqdy25np000k6wttp7spgbhh" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="cirp1ben4000k1sulep5hih64" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -747,7 +841,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="ciqdy25ny000t6wttlzszljo2" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="cirp1benc000t1sul8am790bg" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -851,7 +945,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="ciqdy25nn000h6wtt6vgbj9gg" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="cirp1ben1000h1sull4t896kr" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -955,7 +1049,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="ciqdy25nb00056wttj7ajfzmx" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="cirp1bems00051sulvg9vtqp4" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1070,78 +1164,7 @@ public sealed class SomeType
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="ciqdy25nf00096wtt02x2ggcs" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-托管堆和垃圾回收(续)" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/托管堆和垃圾回收(续)/" class="article-date">
-  <time datetime="2016-04-20T13:19:00.995Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/托管堆和垃圾回收(续)/">C#.NET托管堆和垃圾回收(续)</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>##大对象<br> CLR将对象分成大对象和小对象。目前认为85000字节或者更大的对象是大对象。CLR以不同方式对待大小对象。</p>
-<ol>
-<li><p>大对象不是在小对象的地址空间分配的，而是在进程地址空间的其他地方分配。</p>
-</li>
-<li><p>目前版本的GC不“压缩”大对象，因为在内存中移动它们代价过高。但这可能在进程中的大对象之间造成地址空间碎片化，以至于抛出OutMemoryException。CLR将来的版本可能会压缩大对象。</p>
-</li>
-<li>大对象总是第2代，绝不可能是第0代或者第1代。所以只能为需要长时间存活的资源创建大对象。分配短时间存活的大对象会导致第2代被更频繁地回收，损失性能。大对象一般是大字符串（XML/JSON）或者用于I/O操作的字节数组（从文件/网络将字节读入缓冲区以便处理）。</li>
-</ol>
-<p>##垃圾回收模式<br> CLR启动时会选择一个GC模式，进程中之前该模式都不会改变。</p>
-<p> 有两个基本GC模式。</p>
-<p>###工作站<br>该模式针对客户端应用程序优化GC。GC造成的延时很低，应用程序线程挂起时间很短，避免用户感到焦虑。在该模式中,GC假定机器上运行的其他应用程序都不会消耗太多的CPU资源。</p>
-<p>###服务器<br> 该模式针对服务器端应用程序优化GC。被优化的主要是吞吐量和资源利用。GC假定机器上没有运行其他应用程序（无论客户端还是服务器应用程序），并假定机器的所有CPU都可以用来辅助完成GC。该模式造成托管堆被拆分成几个区域，每个CPU一个。开始垃圾回收时，垃圾回收器在每个CPU上运行一个特殊线程；每个线程都和其他线程并发回收它自己的区域。对于工作者线程行为一致的服务器应用程序，并发回收能很好进行。这个功能要求应用程序在多CPU计算机上运行，是线程能真正同时工作，从而得到性能上的提升。</p>
-<p>应用程序默认以“工作站”GC模式运行。寄宿了CLR的服务器应用程序（如ASP.NET ）可请求CLR加载服务器 GC.但如果应用程序在单处理器计算机上运行，CLR总是使用“工作站”GC模式。</p>
-<p>独立应用程序可以创建一个配置文件告诉CLR 使用CLR使用服务器回收器。配置文件要为应用程序添加gcServer元素。下面是一个示例配置文件：</p>
-<p><configuration><br>       <runtime><br>             <gcserver enabled="true"><br>      </gcserver></runtime><br></configuration><br>可以使用GCSettings类的只读Boolean属性IsServerGC得到CLR是否处于“服务器”GC模式。</p>
-<p>除了这两种模式，GC还支持两种子模式：并发(默认)或者非并发。<br>在并发方式中，垃圾回收器有一个额外的后台线程，它能在应用程序运行时并发标记对象。 程序运行时，垃圾回收器运行一个普通优先级的后台线程来查找不可达对象。找到之后，垃圾回收器再次挂起所以线程，判断是否要“压缩”内存。如决定压缩，内存会被压缩，根引用会被修正，应用程序线程恢复运行。这一次垃圾回收花费的时间比平常少，因为不可达对象集合已构造好了。但垃圾回收器也可能决定不压缩内存；事实上，垃圾回收器更倾向不压缩。可用内存多，垃圾回收器便不会压缩堆；这有利于增强性能，但会增大程序的工作集。使用并发垃圾回收器，应用程序消耗的内存通常比使用非并发垃圾回收器多。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收(续)/" data-id="ciqdy25nh000c6wttl2p9uwfg" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="cirp1bemv00091suldqx7r11c" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1179,7 +1202,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">8</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1192,7 +1215,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
     </div>
   </div>
 
@@ -1202,6 +1225,10 @@ public sealed class SomeType
     <h3 class="widget-title">Recents</h3>
     <div class="widget">
       <ul>
+        
+          <li>
+            <a href="/2016/08/10/58CityHouse-Crawler/">.NET_58同城品牌公寓爬虫</a>
+          </li>
         
           <li>
             <a href="/2016/07/09/ASP.NET-Core-Middleware/">ASP.NET Core Middleware</a>
@@ -1217,10 +1244,6 @@ public sealed class SomeType
         
           <li>
             <a href="/2016/06/16/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
-          </li>
-        
-          <li>
-            <a href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
           </li>
         
       </ul>
