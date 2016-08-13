@@ -61,10 +61,105 @@
       <div class="outer">
         <section id="main">
   
-    <article id="post-58CityHouse-Crawler" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-58City-House-Crawler-JS" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/08/10/58CityHouse-Crawler/" class="article-date">
-  <time datetime="2016-08-10T15:15:03.187Z" itemprop="datePublished">2016-08-10</time>
+    <a href="/2016/08/13/58City-House-Crawler-JS/" class="article-date">
+  <time datetime="2016-08-13T06:57:06.718Z" itemprop="datePublished">2016-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/JavaScript/">JavaScript</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/13/58City-House-Crawler-JS/">58同城高德搜房项目JS相关知识</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>在线地址：<a href="http://codelover.link:8080/">58同城品牌公寓高德搜房</a></p>
+<p>Github地址：<a href="https://github.com/liguobao/58HouseSearch" target="_blank" rel="external">https://github.com/liguobao/58HouseSearch</a></p>
+<p>知乎专栏(点赞用的)：<a href="https://zhuanlan.zhihu.com/p/21960329" target="_blank" rel="external">高德API+Python解决租房问题(.NET版)</a></p>
+<p>经过了一个星期的修补补，以及小伙伴奉献的代码，整个项目基本处于基本稳定运行的状态。</p>
+<p>同时加入了一下新功能：</p>
+<ol>
+<li>IP定位：调用高德地图IP定位功能实现</li>
+<li>移动地图中心定位：调用高德地图移动地图定位实现</li>
+<li>定位城市名转58同城城市名以获得准确58同城城市域名：抓取58同城城市分类信息</li>
+<li>优化数据源、去除广告数据：小伙伴奉献代码</li>
+</ol>
+<p>今天主要简单讲解一下其中使用的一些高德地图API接口。</p>
+<p>#####高德地图JavaScript API 主体为map对象，基本所有的操作都是通过map对象来实现的。<br>map对象实例化是通过 Amap类来做的。如以下代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line">map = <span class="keyword">new</span> AMap.Map(<span class="string">"container"</span>, &#123;</span><br><span class="line">        resizeEnable: <span class="literal">true</span>,</span><br><span class="line">        zoomEnable: <span class="literal">true</span>,</span><br><span class="line">        center: [<span class="number">121.297428</span>, <span class="number">31.1345</span>],<span class="comment">//经纬度，此处为上海</span></span><br><span class="line">        zoom: <span class="number">11</span></span><br><span class="line">    &#125;);</span><br></pre></td></tr></table></figure></p>
+<h4 id="IP定位"><a href="#IP定位" class="headerlink" title="IP定位"></a>IP定位</h4><p>调用Map.CitySearch()获得当前IP所在城市，直接将地图显示成当前城市。代码如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCityInfo</span>(<span class="params">map</span>) </span>&#123;</span><br><span class="line">    <span class="comment">//实例化城市查询类</span></span><br><span class="line">    <span class="keyword">var</span> citysearch = <span class="keyword">new</span> AMap.CitySearch();</span><br><span class="line">    <span class="comment">//自动获取用户IP，返回当前城市</span></span><br><span class="line">    citysearch.getLocalCity(<span class="function"><span class="keyword">function</span> (<span class="params">status, result</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (status === <span class="string">'complete'</span> &amp;&amp; result.info === <span class="string">'OK'</span>) &#123;</span><br><span class="line">            <span class="keyword">if</span> (result &amp;&amp; result.city &amp;&amp; result.bounds) &#123;</span><br><span class="line">                <span class="keyword">var</span> cityinfo = result.city;<span class="comment">//获得XX市</span></span><br><span class="line">                <span class="keyword">var</span> citybounds = result.bounds;<span class="comment">//用于设置地图显示位置的实例</span></span><br><span class="line">                cityName = cityinfo.substring(<span class="number">0</span>, cityinfo.length - <span class="number">1</span>);<span class="comment">//去掉市这个字</span></span><br><span class="line">                ConvertCityCNNameToShortCut();<span class="comment">//城市名转换成58同城城市域名字母，如上海-&gt;sh,苏州-&gt;su,</span></span><br><span class="line">                                              <span class="comment">//下面会有实现代码</span></span><br><span class="line"></span><br><span class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = <span class="string">'您当前所在城市：'</span> + cityName;</span><br><span class="line">                <span class="comment">//地图显示当前城市</span></span><br><span class="line">                map.setBounds(citybounds);</span><br><span class="line">            &#125;</span><br><span class="line">        &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">            <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = result.info;</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="移动地图自动中心定位"><a href="#移动地图自动中心定位" class="headerlink" title="移动地图自动中心定位"></a>移动地图自动中心定位</h4><p>之前有一版是让用户输入城市名，然后直接定位到输入的城市的。<br>这个功能卡在了设置地图显示位置上，如果是使用高德地图提供的搜索控件的话，又存在输入结果之后搜索结果可能是多个的问题。而且这点我只是要取到用户想要定位的城市而已，感觉没必要做得太复杂。<br>昨晚在看高德地图API的时候发现，有一个移动地图获得地图中心所在位置的样例，马上眼前一亮了。这个功能比我想要的还要好…果断上。</p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">MapMoveToLocationCity</span>(<span class="params"></span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    map.on(<span class="string">'moveend'</span>, getCity);</span><br><span class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getCity</span>(<span class="params"></span>) </span>&#123;</span><br><span class="line">        map.getCity(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</span><br><span class="line">            <span class="keyword">if</span> (data[<span class="string">'province'</span>] &amp;&amp; <span class="keyword">typeof</span> data[<span class="string">'province'</span>] === <span class="string">'string'</span>) &#123;</span><br><span class="line"></span><br><span class="line">                <span class="keyword">var</span> cityinfo = (data[<span class="string">'city'</span>] || data[<span class="string">'province'</span>]);</span><br><span class="line">                cityName = cityinfo.substring(<span class="number">0</span>, cityinfo.length - <span class="number">1</span>);</span><br><span class="line">                ConvertCityCNNameToShortCut();<span class="comment">//城市名转58同城地区域名</span></span><br><span class="line"></span><br><span class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = <span class="string">'地图中心所在城市：'</span> + cityName;</span><br><span class="line"></span><br><span class="line">            &#125;</span><br><span class="line">        &#125;);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>整个代码的意思是，给map绑定一下移动时间，移动完了之后，调用getCity的方法获取当前地图中心所在城市信息。</p>
+<p>这个时候要注意，城市名可能在city对象里面，也可能在province里面。</p>
+<p>原因很简单：普通城市等级就是城市，我国还存在一个和省份一个等级的城市：直辖市。因此直辖市的城市名是在province里面的。</p>
+<h4 id="城市名匹配58同城地区域名"><a href="#城市名匹配58同城地区域名" class="headerlink" title="城市名匹配58同城地区域名"></a>城市名匹配58同城地区域名</h4><p>这个是上个版本(两三天前)的一个bug引出来的新功能。</p>
+<p>上个版本是让用户输入城市名，然后提取城市名的中文拼音首字母作为58同城地区域名。如上海 =sh，广州=gz，北京=bj，成都=cd。</p>
+<p>这个功能使用的是网上别人写的一个JS库，通过汉字匹配实现的。转换出来的数据没什么问题，不过我国汉字实在奥妙。</p>
+<p>广州=gz，赣州=gz；<br>遂宁=sn；绥宁=sn；<br>惠州=hz，杭州=hz。</p>
+<p>这样一来，上面这个做法就没法玩了。</p>
+<p>想了下怎么解决这个问题，灵机一动。反正是在爬58的数据，这个城市名和城市域名数据58同城肯定有啊，然后找到了这个。<br><a href="http://www.58.com/changecity.aspx?PGTID=0d100000-0007-a77b-4c4b-a28f725b8f5a&amp;ClickID=1" target="_blank" rel="external">58同城城市分类导航</a></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/c01c293a-d5cc-4f58-80dc-13aa05d47b01" alt=""></p>
+<p>很明显，我要的所有城市名和城市域名都是里面了。</p>
+<p>晚上和衣衣说了下，衣衣一大早就把处理好的json数据给我了。</p>
+<p>于是来了下面一段代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="comment">//加载json文件</span></span><br><span class="line">$.getJSON(<span class="string">"DomainJS/city.json"</span>, <span class="function"><span class="keyword">function</span> (<span class="params">data</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">      allCityInfo = data;</span><br><span class="line">&#125;);</span><br><span class="line"></span><br><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">function</span> <span class="title">ConvertCityCNNameToShortCut</span>(<span class="params"></span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">var</span> filterarray = $.grep(allCityInfo, <span class="function"><span class="keyword">function</span> (<span class="params">obj</span>) </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> obj.cityName == cityName;</span><br><span class="line">    &#125;);<span class="comment">//找到当前城市名对应的json对象</span></span><br><span class="line">    <span class="comment">//获取json对象的地区域名</span></span><br><span class="line">    cityNameCNPY = filterarray <span class="keyword">instanceof</span> <span class="built_in">Array</span> ? </span><br><span class="line">    filterarray[<span class="number">0</span>].shortCut : filterarray != <span class="literal">null</span> ? filterarray.shortCut : <span class="string">""</span>;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="高德地图自动补全功能"><a href="#高德地图自动补全功能" class="headerlink" title="高德地图自动补全功能"></a>高德地图自动补全功能</h4><figure class="highlight html"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"><span class="tag">&lt;<span class="title">div</span> <span class="attribute">class</span>=<span class="value">"control-input"</span>&gt;</span></span><br><span class="line">     <span class="tag">&lt;<span class="title">input</span> <span class="attribute">id</span>=<span class="value">"work-location"</span> <span class="attribute">type</span>=<span class="value">"text"</span> <span class="attribute">style</span>=<span class="value">"width:60%"</span>&gt;</span></span><br><span class="line"><span class="tag">&lt;/<span class="title">div</span>&gt;</span></span><br></pre></td></tr></table></figure>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> auto = <span class="keyword">new</span> AMap.Autocomplete(&#123;</span><br><span class="line">       input: <span class="string">"work-location"</span></span><br><span class="line">   &#125;);</span><br><span class="line"></span><br><span class="line">   AMap.event.addListener(auto, <span class="string">"select"</span>, workLocationSelected);</span><br></pre></td></tr></table></figure>
+<p>看方法前面也知道，其实这就是把ID为work-location的input初始化为地图插件，然后给Amap增加了一个监听事件。<br>当其中选中某一个数据的时候，触发workLocationSelected函数。效果如下：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/fe425992-e7c4-4cae-800e-319eff3b17e8" alt=""></p>
+<p>在这里locationSelected是定位到所选位置，代码如下：<br><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">function workLocationSelected(e) &#123;</span><br><span class="line">    workAddress = e.poi.name;</span><br><span class="line">    loadWorkLocation();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function loadWorkLocation() &#123;</span><br><span class="line">    delWorkLocation();</span><br><span class="line">    <span class="keyword">var</span> geocoder = new <span class="type">AMap</span>.<span class="type">Geocoder</span>(&#123;</span><br><span class="line">        city: cityName,</span><br><span class="line">        radius: <span class="number">1000</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    geocoder.getLocation(workAddress, function (status, <span class="literal">result</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (status === <span class="string">"complete"</span> &amp;&amp; <span class="literal">result</span>.info === '<span class="type">OK</span>') &#123;</span><br><span class="line">            <span class="keyword">var</span> geocode = <span class="literal">result</span>.geocodes[<span class="number">0</span>];</span><br><span class="line">            x = geocode.location.getLng();</span><br><span class="line">            y = geocode.location.getLat();</span><br><span class="line">            loadWorkMarker(x, y);</span><br><span class="line">            loadWorkRange(x, y, <span class="number">60</span>, <span class="string">"#3f67a5"</span>, vehicle);</span><br><span class="line">            map.setZoomAndCenter(<span class="number">12</span>, [x, y]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>至于导航功能代码我没怎么动，没去研究就不献丑了…</p>
+<p>最后来个效果图。</p>
+<p>####北京<br><img src="http://7xread.com1.z0.glb.clouddn.com/e7900aba-5a56-417c-9dd9-63527583e84b" alt=""></p>
+<p>####成都<br><img src="http://7xread.com1.z0.glb.clouddn.com/c9947d97-1b76-42bf-82b3-aca817e84e13" alt=""></p>
+<p>####苏州<br><img src="http://7xread.com1.z0.glb.clouddn.com/941809ae-aa37-4a3b-89c7-10646cc7e3e7" alt=""></p>
+<p>###深圳<br><img src="http://7xread.com1.z0.glb.clouddn.com/86712397-27ec-4b37-bbf8-81191e530ef6" alt=""></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/08/13/58City-House-Crawler-JS/" data-id="cirstyaek0000pculehnx6vud" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-58City-House-Crawler" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/13/58City-House-Crawler/" class="article-date">
+  <time datetime="2016-08-13T06:56:56.847Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -79,7 +174,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/08/10/58CityHouse-Crawler/">.NET_58同城品牌公寓爬虫</a>
+      <a class="article-title" href="/2016/08/13/58City-House-Crawler/">.NET_58同城品牌公寓爬虫</a>
     </h1>
   
 
@@ -130,7 +225,7 @@
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/08/10/58CityHouse-Crawler/" data-id="cirp1kcp20000i0ulgf6asuz9" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/58City-House-Crawler/" data-id="cirstyafy0016pcul39fxcd3f" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -155,10 +250,255 @@
 
  
   
-    <article id="post-ASP.NET-Core-Middleware" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-GC-1" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/07/09/ASP.NET-Core-Middleware/" class="article-date">
-  <time datetime="2016-07-08T16:14:36.916Z" itemprop="datePublished">2016-07-09</time>
+    <a href="/2016/08/13/GC-1/" class="article-date">
+  <time datetime="2016-08-13T06:55:20.197Z" itemprop="datePublished">2016-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/13/GC-1/">C#.NET托管堆和垃圾回收</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>###托管堆基础<br> 简述：每个程序都要使用这样或那样的资源，包括文件、内存缓冲区、屏幕空间、网络连接…..事实上，在面向对象的环境中，每个类型都代表可供程序使用的一种资源。要使用这些资源，必须为代表资源的类型分配内存。</p>
+<p> 以下是访问一个资源所需步骤：</p>
+<ol>
+<li>调用IL指令newobj，为代表资源的类型分配内存。(C# new操作符)</li>
+<li>初始化内存，设置资源的初始状态。（一般指构造函数）</li>
+<li>访问类型的成员来使用资源。（使用成员变量、方法、属性等）</li>
+<li>摧毁资源的状态以进行清除。（Dispose？？？）</li>
+<li>释放内存。（GC） </li>
+</ol>
+<p>###从托管堆分配资源</p>
+<p>CLR要求所有的对象都从托管堆分配。<br>进程初始化，CLR划出一个地址空间区域作为托管堆。CLR还要维护一个指针，姑且叫NextObjPtr，该指针指向下一个对象在堆中的分配位置。刚开始的时候， NextObjPtr 设为地址空间区域的基地址。<br>一个区域被非垃圾对象填满后，CLR会分配更多的区域。</p>
+<p>这一个过程一直重复，直至整个进程地址空间被填满。所以，应用程序内存收进程的虚拟地址空间的限制。</p>
+<p>32位进程最多能分配1.5GB，64位进程最多能分配8T。<br>注：进程内存大小的相关资料</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/windows/hardware/Dn613959(v=vs.85" target="_blank" rel="external">Memory Support and Windows Operating Systems</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/ms189334.aspx" target="_blank" rel="external">进程地址空间</a></p>
+<p><a href="http://blog.csdn.net/yusiguyuan/article/details/12405799" target="_blank" rel="external"> 32位模式下C/C++程序可用最大内存</a></p>
+<p>###C# 的new操作符导致CLR执行以下操作：</p>
+<p>1、计算类型的字段（以及从基类型继承的字段）所需要的字节数。</p>
+<p>2、加上对象的开销所需的字节数。每个对象都有两个开销字段：类型对象指针和同步块索引。对于32位应用程序，这两个字段各需要32位，所以每个对象需要增加8字节。对于64位应用程序，这两个字段各需要64位，所以每个对象要增加16字节。</p>
+<p>3、CLR检查区域中是否有分配对象所需的字节数。如果托管堆有足够的可用空间，就在NetxObjPtr指针指向的地址处放入对象，为对象分配的字节会被清零。接着调用类型的构造器（为this参数传递NextObjPtr），new操作符返回对象引用。就在返回这个对象引用之前，NextObjPtr指针的值会加上这个对象占用的字节数来得到一个新值，即下个对象放入托管堆时的地址。如下图：</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/i3rlSCPAcnT9pL0El0BptPIBpuvnxHpBw9Nkp*UqIjw!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=LwKNAC8CjQADACU!&amp;su=1199793361&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>###垃圾回收算法</p>
+<p>####CLR使用引用跟踪算法。<br>引用跟踪算法只关心引用类型的变量，因为只有这种变量才能引用堆上面的对象；<br>值类型变量直接包含值类型实例。引用类型变量可在许多场合使用，包括类的静态和实例字段，或者方法的参数和局部变量。这里我们将所有引用类型的变量都称为根。<br>CLR开始GC时，首先暂停所有的线程。(这样可以防止线程在CLR检查期间访问对象并更改其状态。) 然后CLR进入GC标记阶段。在这个阶段，CLR遍历堆中的所有对象，将同步块索引字段中的一位设为0。这表明所有的对象都应删除。然后，CLR检查所有的活动根，查看他们引用了哪些对象。这正是CLR的GC被称作引用跟踪GC的原因。如果一个根包含null，CLR忽略这个根并继续检查下一个根。<br>下图展示一个堆，其中包含几个对象。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/eVBVeXGrNAfoWfyRgl4aC2RRSGgiDpmbrocv4lTSJMA!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=gAIFAYACBQEDACU!&amp;su=1176931729&amp;sce=0-12-12&amp;rf=2-9" alt="图片1"></p>
+<p>应用程序的根直接引用对象A 、C、D 、F。所有的对象都已经被标记。标记对象D时，GC发现这个对象含有一个引用对象H的字段，造成对象H也被标记。标记过程会持续，直至应用程序的所有根所有检查完毕。<br>检查完毕后，堆中的对象要么已标记，要么未标记。已标记的对象不能被垃圾回收，因为至少有一个根在引用它。我们说这种对象是可达的，因为应用程序可以通过引用它的变量抵达它。 未标记的对象是不可达的，因为应用程序中不存在使对象能被再次访问的根。</p>
+<p>CLR知道哪些对象可以幸存，哪些可以被删除后，进入GC的压缩（类似于碎片整理）阶段。在压缩阶段，CLR对堆中已标记的对象进行“乾坤大挪移”，整理所有幸存下来的对象，使他们占用连续的内存。</p>
+<p>这样做的好处在于：</p>
+<p>1、所有幸存对象在内存中紧挨在一起，恢复了引用的“局部性”，减少了应用程序的工作集，从而提升了将来访问这些对象时的性能；</p>
+<p>2、经过整理后，可用空间也是连续的，整个地址空间区段得到了解放，允许其他东西进驻。</p>
+<p>在内存中移动了对象之后有一个问题亟待解决。引用幸存对象的根现在引用的还是对象最初在内存中的位置，而非移动后的位置。被暂停的线程恢复执行时，将访问旧的内存位置，会造成内存损坏。 这显然是不能容忍的，所以作为压缩阶段的一部分，CLR还要从每个根减去所引用对象在内存中偏移的字节数。这样就能保证每个根还是引用和之前一样的对象，只是对象在内存中变换了位置。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/FyP2yk1O6kMsq3.u4e4x3qrAxpwbajgSHOd4QHTJOhE!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=TQI*AU0CPwEDACU!&amp;su=1202148209&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>##代：提升性能 (待续)<br>CLR的GC是基于代的垃圾回收器，它对你的代码做出了以下几点假设：</p>
+<p>1、对象越新，生存周期越短。</p>
+<p>2、对象越老，生存周期越长。</p>
+<p>3、回收堆的一部分 ，速度快于回收整个堆。</p>
+<p>大量研究表明，这些假设对于现今大多数的应用程序都是成立的，它们影响了垃圾回收器的实现方式。这里将解释代的工作原理。</p>
+<p>托管堆在初始化时不包括对象。添加到堆的对象成为第0代对象。简单来说，第0代对象就是那些新构造的对象，垃圾回收器从未检查过它们。如下图，新启动的应用程序，分配了5个对象（从A到E）。过了一会，C和E变得不可达了。</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/77WJus7lssJpEJ2RZREQoNx.5CL31HLdboJbAgCqS0E!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tQIVAbUCFQEDACU!&amp;su=172682065&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>CLR初始化第0代对象选择一个预算容量。如果分配一个新对象造成第0代超预算，就必须启动一次GC。假设对象A到E刚好用完了第0代的空间，那么分配对象F就必须启动GC。GC之后存活的对象现场成为第1代对象。如下图：</p>
+<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/GEDzaV4pNFNQUuDwl2EQrv*eD9Sk9OJCzx5SpRRI2fk!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=OAL5ADgC.QADACU!&amp;su=1155276897&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>一次GC之后，第0代就不包含任何对象。和前面一样，新对象会分配到第0代。新分配对象F到对象K都到了第0代。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Op0QokzBTNYCFR6zzm2tpc2V7U70IsIJTeWrd0UAUb0!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=yAJeAcgCXgEDACU!&amp;su=1124261217&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>之后，程序继续运行，B、H、J变得不可达，它们的内存将在某一个时刻回收。</p>
+<p>假设现在新分配对象L会造成第0代超出预算,造成必须启动垃圾回收。</p>
+<p>开始垃圾回收时,垃圾回收器必须决定检查哪些代。前面说过,CLR初始化时会为第0代对象选择预算.事实上,它还必须为第1代选择预算.</p>
+<p>开始一次垃圾回收时,垃圾回收器还会检查第一代占用了多少内存。在本例中,由于第1代占用内存远少于预算,所以垃圾回收器只检查第0代对象。回顾之前基于代的垃圾回收器做出的第一个假设：对象越新，生存期越短。 因此，第0代包含更多的垃圾的可能性更大，能回收更多的内存。由于忽略第1代中的对象，所以加快了垃圾回收速度。</p>
+<p>显然，忽略第1代中的对象能提升垃圾回收器的性能。但对性能有更大提振作用的是现在不必遍历托管堆中的每个对象。如果根或对象引用了老一代的某个对象，垃圾回收器就可以忽略老对象内部的所有引用，能在更短的时间内构造好可达对象图。当然，如果老对象的字段也可能引用新对象。为了确保对老对象的已更新字段进行检查，垃圾回收器利用了JIT编译器内部的一个机制。这个机制在对象的引用字段发生变化时，会设置一个对应的标志位。这样，垃圾回收器就知道自上一次垃圾回收以来，哪些老对象（如果有的话）已被写入。只有字段发生变化的老对象才需要检查是否引用了第0代中的任何新对象。</p>
+<p>基于代的垃圾回收器还假设越老的对象活得越长。也就是说，第1代对象在应用程序中有可能是继续可达的。如果垃圾回收器检查第1代的对象，很有可能找不到多少垃圾，结果是也回收不了多少内存。因此，对第1代进行垃圾回收很可能是浪费时间的。如果第一代真有垃圾，垃圾将留在那里。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Do.yRCBJEnaOfZaUOdxj4II9*pX2BEcX2QmIG6NQPBE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=qAI5AagCOQEDACU!&amp;su=187009937&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>程序继续运行，继续往第0代分配对象，同时程序停止对第1代某对象的使用。</p>
+<p>如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/YEqIM16xFsSgXdvEzgrerLnKw7fEItnrSqEzlaYnUfE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=egJPAXoCTwEDACU!&amp;su=1118118497&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>分配对象P导致第0代超预算，开始GC。第1代的所有对象占据内存仍小于预算，垃圾回收器再次决定只回收第0代。忽略第1代中的垃圾对象。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/EcdSNU5AatqRERWtVdlJ7LiIPHHXe8.mklN.0hHDK9U!/o/dJQAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAIxAWgCMQEDACU!&amp;su=1214124305&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>程序继续运行，假设第一代的增长导致它的全部对象占用了全部预算。这时候应用程序分配对象P到对象S，使第0代对象达到它的预算总和。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/6dB68RIUYrqMZ4p0VIY3REJZPg.g3ybkZFIazJ3h.CQ!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jwIiAY8CIgEDACU!&amp;su=177976657&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>这时候，应用程序准备分配对象T，由于第一代已满，所以必须开始GC。但这一次垃圾回收器发现第一代占用了太多内存，以至于用完了预算。由于前几次对第0代进行GC时，第1代中可能已经有很多对象变得不可达。所以这次垃圾回收器决定检查第1代和第0代中的所有对象。两代都被垃圾回收后，堆的情况如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/bxdZDsZi2Y6FSDWs7RXNPkkJK8dCzMD.cfnjwNY2Mjs!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tgI2AbYCNgEDACU!&amp;su=197762641&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
+<p>托管堆只支持三代：第0代、第1代和第2代。</p>
+<p>CLR初始化时，会为每一代选择预算。</p>
+<p>然而，CLR的垃圾回收是自调节的。</p>
+<p>这意味着垃圾回收器会在执行垃圾回收的过程了解程序的行为。</p>
+<p>例如：假设应用程序构造了许多对象，但每个对象的时间都很短。<br>在这种情况下，对第0代的垃圾回收会回收到大量的内存。事实上，第0代的所有对象都可能被回收。</p>
+<p>如果垃圾回收器发现在回收第0代后存活下来的对象很少，就可能减少第0代的预算。已分配空间的减少意味着垃圾回收将更频繁地发生，但垃圾回收器每次做的事情也减少，这减少了进程的工作集。</p>
+<p>另一方面，如果垃圾回收器回收了第0代，发现还有很多对象存活，没多少内存可以被回收，就会增大第0代的预算。</p>
+<p>同样的启发性算法调整预算适用于了第1代和第2代的预算。</p>
+<p>引自：《CLR VIA C# -21章》</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/f144e03t(v=vs.100" target="_blank" rel="external">自动内存管理</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">垃圾回收的基础</a>.aspx)</p>
+<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">代数</a>.aspx#generations )</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/08/13/GC-1/" data-id="cirstyafn000vpcul5z4yspmq" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-GC-2" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/13/GC-2/" class="article-date">
+  <time datetime="2016-08-13T06:55:10.000Z" itemprop="datePublished">2016-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/GC/">GC</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/13/GC-2/">C#.NET托管堆和垃圾回收(续)</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p>##大对象<br> CLR将对象分成大对象和小对象。目前认为85000字节或者更大的对象是大对象。CLR以不同方式对待大小对象。</p>
+<ol>
+<li><p>大对象不是在小对象的地址空间分配的，而是在进程地址空间的其他地方分配。</p>
+</li>
+<li><p>目前版本的GC不“压缩”大对象，因为在内存中移动它们代价过高。但这可能在进程中的大对象之间造成地址空间碎片化，以至于抛出OutMemoryException。CLR将来的版本可能会压缩大对象。</p>
+</li>
+<li>大对象总是第2代，绝不可能是第0代或者第1代。所以只能为需要长时间存活的资源创建大对象。分配短时间存活的大对象会导致第2代被更频繁地回收，损失性能。大对象一般是大字符串（XML/JSON）或者用于I/O操作的字节数组（从文件/网络将字节读入缓冲区以便处理）。</li>
+</ol>
+<p>##垃圾回收模式<br> CLR启动时会选择一个GC模式，进程中之前该模式都不会改变。</p>
+<p> 有两个基本GC模式。</p>
+<p>###工作站<br>该模式针对客户端应用程序优化GC。GC造成的延时很低，应用程序线程挂起时间很短，避免用户感到焦虑。在该模式中,GC假定机器上运行的其他应用程序都不会消耗太多的CPU资源。</p>
+<p>###服务器<br> 该模式针对服务器端应用程序优化GC。被优化的主要是吞吐量和资源利用。GC假定机器上没有运行其他应用程序（无论客户端还是服务器应用程序），并假定机器的所有CPU都可以用来辅助完成GC。该模式造成托管堆被拆分成几个区域，每个CPU一个。开始垃圾回收时，垃圾回收器在每个CPU上运行一个特殊线程；每个线程都和其他线程并发回收它自己的区域。对于工作者线程行为一致的服务器应用程序，并发回收能很好进行。这个功能要求应用程序在多CPU计算机上运行，是线程能真正同时工作，从而得到性能上的提升。</p>
+<p>应用程序默认以“工作站”GC模式运行。寄宿了CLR的服务器应用程序（如ASP.NET ）可请求CLR加载服务器 GC.但如果应用程序在单处理器计算机上运行，CLR总是使用“工作站”GC模式。</p>
+<p>独立应用程序可以创建一个配置文件告诉CLR 使用CLR使用服务器回收器。配置文件要为应用程序添加gcServer元素。下面是一个示例配置文件：</p>
+<p><configuration><br>       <runtime><br>             <gcserver enabled="true"><br>      </gcserver></runtime><br></configuration><br>可以使用GCSettings类的只读Boolean属性IsServerGC得到CLR是否处于“服务器”GC模式。</p>
+<p>除了这两种模式，GC还支持两种子模式：并发(默认)或者非并发。<br>在并发方式中，垃圾回收器有一个额外的后台线程，它能在应用程序运行时并发标记对象。 程序运行时，垃圾回收器运行一个普通优先级的后台线程来查找不可达对象。找到之后，垃圾回收器再次挂起所以线程，判断是否要“压缩”内存。如决定压缩，内存会被压缩，根引用会被修正，应用程序线程恢复运行。这一次垃圾回收花费的时间比平常少，因为不可达对象集合已构造好了。但垃圾回收器也可能决定不压缩内存；事实上，垃圾回收器更倾向不压缩。可用内存多，垃圾回收器便不会压缩堆；这有利于增强性能，但会增大程序的工作集。使用并发垃圾回收器，应用程序消耗的内存通常比使用非并发垃圾回收器多。</p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/08/13/GC-2/" data-id="cirstyafk000spculcxx50ww8" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-something" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/13/something/" class="article-date">
+  <time datetime="2016-08-13T06:54:55.646Z" itemprop="datePublished">2016-08-13</time>
+</a>
+    
+  <div class="article-category">
+    <a class="article-category-link" href="/categories/nothing/">nothing</a>
+  </div>
+
+  </div>
+  <div class="article-inner">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 itemprop="name">
+      <a class="article-title" href="/2016/08/13/something/">一些有用的网站</a>
+    </h1>
+  
+
+      </header>
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+        <p><a href="http://wowubuntu.com/markdown/" target="_blank" rel="external">Markdown 语法说明 (简体中文版)</a></p>
+<p><a href="http://wowubuntu.com/markdown/basic.html" target="_blank" rel="external">Markdown: Basics （快速入门）</a></p>
+<p><a href="http://wsgzao.github.io/post/hexo-guide/" target="_blank" rel="external">使用GitHub和Hexo搭建免费静态Blog(本博客案例)</a></p>
+<p><a href="https://www.mxgw.info/t/filename-too-long-in-git.html" target="_blank" rel="external">win下面的git客户端提示FIlename too long解决方法</a></p>
+
+      
+    </div>
+    <footer class="article-footer">
+      <a data-url="http://codelover.link/2016/08/13/something/" data-id="cirstyaf20006pculu2sru9ai" class="article-share-link">Share</a>
+      
+      
+	  <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+	<span class="jiathis_txt">分享到：</span>
+	<a class="jiathis_button_tools_1"></a>
+	<a class="jiathis_button_tools_2"></a>
+	<a class="jiathis_button_tools_3"></a>
+	<a class="jiathis_button_tools_4"></a>
+	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+	<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+	  
+    </footer>
+  </div>
+  
+</article>
+
+
+
+ 
+  
+    <article id="post-classfield-property" class="article article-type-post" itemscope itemprop="blogPost">
+  <div class="article-meta">
+    <a href="/2016/08/13/classfield-property/" class="article-date">
+  <time datetime="2016-08-13T06:54:39.692Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -173,7 +513,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/09/ASP.NET-Core-Middleware/">ASP.NET Core Middleware</a>
+      <a class="article-title" href="/2016/08/13/classfield-property/">.NET 类字段与类属性</a>
     </h1>
   
 
@@ -181,50 +521,60 @@
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>在ASP.NET 时代，一般来说我们很少会用到HttpModule/HttpHandler，然而有些场景我们使用HttpModule/HttpHandler倒方便快捷完成我们的需求。有兴趣了解HttpModule/HttpHandler以及使用场景的话，可以看下面这个链接的内容。</p>
-<p><a href="http://www.cnblogs.com/fish-li/archive/2013/01/04/2844908.html" target="_blank" rel="external">选择HttpHandler还是HttpModule？</a></p>
-<p>来到ASP.NET Core时代，类似功能的内容可能我们看得就要多得多了。因为在ASP.NET Core时代，微软将HttpModule“变更”之后，并为它授予了更灵活应用场景。</p>
-<h5 id="这就是这个文章要介绍的主角：Middleware（中间件）。"><a href="#这就是这个文章要介绍的主角：Middleware（中间件）。" class="headerlink" title="这就是这个文章要介绍的主角：Middleware（中间件）。"></a>这就是这个文章要介绍的主角：Middleware（中间件）。</h5><h2 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h2><p>为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。</p>
-<p>首先先来看看什么是middleware。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, </span><br><span class="line">                      ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,</span><br><span class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>看过ASP.NET Core项目的话，相信大家对Satarup.cs并不会陌生。在Starup.cs里面便有一个Configure()函数用于定义项目需要使用哪些middleware。</p>
-<p>上面的例子使用了两个middleware，一个是 UseStaticFiles，另一个是 UseMvc。这两个都是core自带的middleware，所以我们可以直接使用。UseStaticFiles 是为HTTP Request提供存取网站的文件，简单理解就是使得网站上的静态文件可访问，而UseMvc就是启用MVC routing机制。有了这两个middleware，我们的的网站就有了MVC routing和读取静态文件的功能。</p>
-<p>如果我们把UseMvc去掉，那么MVC routing也就不存在了，我们输入 <a href="http://website/[Controller]/[Action" target="_blank" rel="external">http://website/[Controller]/[Action</a>] 类似的地址也就无效了。</p>
-<h3 id="和HttpModule的不同之处"><a href="#和HttpModule的不同之处" class="headerlink" title="和HttpModule的不同之处"></a>和HttpModule的不同之处</h3><p>在使用HttpModule的时候，我们是在实现/重写接口，这个时候就要求我们在适当的地方做适当的事情。例如，要做 authorization 的话就最好在 HttpModule 定义好的 Authorization 事件 (AuthorizatRequest) 中完成这个功能。在 ASP.NET life cycle 的文件里我们可以查到 HttpModule  定义了那些事件，每一個事件都有哪些特別的功能。因此我们需要全面了解之后再来选择实现/重写我们需要的事件。而在Middleware中，完全没有这样的限制，也不存在这样的事件，我们可以自行设计实现我们的机制。</p>
-<h2 id="Middleware-流程"><a href="#Middleware-流程" class="headerlink" title="Middleware 流程"></a>Middleware 流程</h2><p><a href="https://docs.asp.net/en/latest/fundamentals/middleware.html" target="_blank" rel="external">https://docs.asp.net/en/latest/fundamentals/middleware.html</a> 这个文章中说明了基本的middleware概念。目前asp.net docs里面有不少的内容都是开源社区开发者贡献的</p>
-<p>在这个文章里面有一个简单的流程图说明了ASP.NET runtime中middleware的执行过程。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/0b6d43ad-7d95-48ea-bbf3-ea7a93c4a366" alt="middleware执行过程"></p>
-<p>在 middleware 里面一定要定义 Invoke()函数，因为这是让 engine 默认调用 middleware 的Incoke函数。Middleware 里面所需要做什么事情就放在 Invoke() 里面，同时 Invoke() 里面还需要调用下一个 middleware。因此执行内容就如上图所示。Middleware 之间除了必须传送 HttpContext之外，也可以自定义传入其他的参数，这比以前的HttpModule方便多了。</p>
-<p>所以当 HTTP request 进来之后，engine 便会呼叫第一个 middleware 的 Invoke()，同时把传入HttpContext，然后第一个 middleware 可以再接着呼叫第二个 middleware 的 Invoke()，同时再把 HttpContext 继续传入，一直到最后一个middleware 的 Invoke() 结束之后，整个 HttpContext 的內容可能在 middleware 里面新增或被改变了，最后再按照整個原先的 call stack 从最后一个 middleware 回到第一个 middleware，再通过  engine 回传到client 端，完成request.</p>
-<p>下来通过一个例子我们一起来了解一下Middleware。</p>
-<h2 id="编写简单的-Middleware"><a href="#编写简单的-Middleware" class="headerlink" title="编写简单的 Middleware"></a>编写简单的 Middleware</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SampleMiddleware</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> RequestDelegate _next;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SampleMiddleware</span>(<span class="params">RequestDelegate next</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        _next = next;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">Invoke</span>(<span class="params">HttpContext context</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(context.User.Identity.Name))</span><br><span class="line">        &#123;</span><br><span class="line">            context.Response.Redirect(<span class="string">"/NoName.html"</span>);</span><br><span class="line">            <span class="keyword">return</span>;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">await</span> _next.Invoke(context);</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这一个middleware的名字叫SampleMiddleware。它有一个构造函数以及Invoke函数，而Invoke()只接收一个参数HttpContext。</p>
-<p>_next是一个叫 RequestDelegate类型，换言之这就是一个delegate，用于代表下一个middleware是谁。所以在构造函数中要把下一个middleware delegate传入。看到这里或许会觉得奇怪，我们的middleware在执行过程中怎么会知道下一个middleware是谁？这一部分稍后解释。</p>
-<p>在 Invoke() 里面，在 await _next.Invoke() 之前都是当前middleware的逻辑代码，从上面流程图来看的话就是由左自右的方向． await _next.Invoke() 之后的代码是就是流程图上由右至右的方向，因此，透過这样简单的设计，开发者就能很明确地控制什么样逻辑要先做或后做了。</p>
-<p>在 SampleMiddleware 之中，这里只做了一個很简单的动作，如果 username 是空白的话，就将该连接重定向到到 NoName.html 然后中断 middleware 的执行。</p>
-<p>为了能让这个middleware作为 ApplicationBuilder来使用，我们另外需要写一个扩展方法。代码如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">partial</span> <span class="keyword">class</span> <span class="title">MiddlewareExtensions</span></span><br><span class="line">&#123;</span><br><span class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IApplicationBuilder <span class="title">UseSampleMiddleware</span>(<span class="params"></span><br><span class="line">    <span class="keyword">this</span> IApplicationBuilder builder</span>)</span><br><span class="line">    </span>&#123;</span><br><span class="line">        <span class="keyword">return</span> builder.UseMiddleware&lt;SampleMiddleware&gt;();</span><br><span class="line">    &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>这给扩展方法建立了UseSampleMiddleware()，使得我们可以让ApplicationBuilder 去读 SampleMiddleware。</p>
-<p>这是回到Startup.cs中，在 Configure() 里面我们就可以把 SampleMiddleware 加入到我们的 pipeline中了。具体代码如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app,IHostingEnvironment env, </span><br><span class="line">                      ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseSampleMiddleware();   <span class="comment">// &lt;-- SampleMiddleware</span></span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,</span><br><span class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
-<p>把 SampleMiddleware 放在 UseStaticFiles 和 UseMvc 之间，也就是说在 http request 还沒进入到 MVC routing 之前，就会先检查 HttpContext 里面是不是有空白的 username。很显然username肯定是空白的，因为我并沒有加入任何使用者验证代码这里面，所以利用 dotnet run 來运行这个项目的时候，你就会看到 Http code 302 出現，它的意思就是 http redirect，也就是 SampleMiddleware 里面面所做的 redirect 发生作用了。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/1d7e4c87-9fff-4401-8933-36dcbf857199" alt="http redirect"></p>
-<h2 id="Middleware-的执行顺序很重要"><a href="#Middleware-的执行顺序很重要" class="headerlink" title="Middleware 的执行顺序很重要"></a>Middleware 的执行顺序很重要</h2><p>前面解释了 middleware 执行过程是一个接着一个的．不同的 middleware 对 HttpContext 的內容都可能有不同的处理或更改，因此执行舒服便格外重要。举个例子，如果将上面 Configure() 的代码变更如下:</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env,</span><br><span class="line">                       ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseSampleMiddleware();   <span class="comment">// SampleMiddleware</span></span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();        <span class="comment">// StaticFiles</span></span><br><span class="line"></span><br><span class="line">    app.UseMvc(routes =&gt;</span><br><span class="line">    &#123;</span><br><span class="line">        routes.MapRoute(<span class="string">"default"</span>,<span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</span><br><span class="line">    &#125;);</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>我们把SampleMiddleware 放到StaticFiles 之前。这就导致在 SampleMiddleware 里重定向到 NoName.html会失败。</p>
-<p>为什么会失败呢? 因为我们的 ApplicationBuilder 执行到行到 SampleMiddleware 时候重定向到NoName.html，也就是做读取静态页面，而这个功能服务方是在下一个 middleware (StaticFiles) 才会提供的，因此 ApplicationBuilder 无法找到 NoName.html，所以在浏览器上也就看不到 NoName.html 的內容。</p>
-<h4 id="Middleware-这样的设计带来了很大的方便和弹性，同時我们自己也要小心-middleware-前后相依性的问题。"><a href="#Middleware-这样的设计带来了很大的方便和弹性，同時我们自己也要小心-middleware-前后相依性的问题。" class="headerlink" title="Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。"></a>Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。</h4><h2 id="Middleware-背后原理"><a href="#Middleware-背后原理" class="headerlink" title="Middleware 背后原理"></a>Middleware 背后原理</h2><p>现在 ASP.NET Core 已是开源项目了，所以最后说明一下 middleware 原理的基本概念．整個 ASP.NET fundamental 的部份用了许多的 function delegate , task, denepdency injection 的编写方法，所以要看 source code 之前，建议先对这三个东西先行了解，这样对理解 ASP.NET Core源码很有帮助．</p>
-<p>在前面的代码中，我们看到 RequestDelegate,  顾名思义就知道这是一个delegate（委托），它是用来代表 middleware 的 delegate. 它的 source code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/RequestDelegate.cs" target="_blank" rel="external">RequestDelegate.cs</a></p>
-<p>IApplicationBuilder interface 是一個相当重要的接口，它定义了整個APP要用哪些服务和參數，当然也包含要使用那些 middleware，它的 souce code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/IApplicationBuilder.cs" target="_blank" rel="external">IApplicationBuilder.cs</a>。</p>
-<p>其中你可以看到 Use()，通过 Use() 的实例就可以把 middleware delegate 注册到 host engine 上。</p>
-<p>另外一个就是 UseMiddlewareExtensions ，前面的代码曾用了 builder.UseMiddleware<samplemiddleware>(); 它会检查你写的 middleware 是不是合法的，比如有沒有 Invoke()，是不是只有一个Invoke()，Invoke() 的参数有沒有一个是 HttpContext type，所有的检查都通过之后便建立出该middleware instance 的 delegate。</samplemiddleware></p>
-<p>因此，当你的 ASP.NET Core APP刚启动的时候，在 Startup.cs 的 Configure() 就会把所有的 middleware delegate 建立起來，然后依序地放到內部的 stack 结构中。以上面的范例来说， stack 结构第一个元素是 StaticFiles,  然后是 SampleMiddleware 最后是 Mvc。接着每個 middleware 要被建立时是做 stack pop 的操作，所以 Mvc 的 _next 是 engine 里一些內部的 middleware 处理器，然後 pop 出 SampleMiddleware 时，就把 SampleMiddleware 的 _next 指向前面一個 pop 出來的 Mvc。依照着这样的逻辑一直到最前面的 middleware。所以在 host engine 在 Build() 之前这些动作都会完成，然后 host engine 才能执行Run()。有关 host engine 可參考<br><a href="https://github.com/aspnet/hosting/blob/master/src/Microsoft.AspNet.Hosting/WebHostBuilder.cs" target="_blank" rel="external">WebHostBuilder.cs</a></p>
-<p>全文完。</p>
-<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
+        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
+<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
+<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
+<pre><code>using System;
+
+public sealed class SomeType
+{                            //  1  
+// Nested class  
+   private class SomeNestedType { }                //  2  
+
+   // Constant, read­only, and static read/write field   
+   private const Int32 c_SomeConstant = 1;            //  3     
+
+   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
+
+   private static Int32 s_SomeReadWriteField = 3;      //  5  
+
+   // Type constructor  
+   static SomeType() { }                                  //  6  
+
+   // Instance constructors  
+   public SomeType(Int32 x) { }                           //  7  
+
+   public SomeType() { }                                  //  8 
+
+   // Instance and static methods  
+   private String InstanceMethod() { return null; }       // 9   
+
+   public static void Main() { }                        // 10 
+
+   // Instance property  
+   public Int32 SomeProp
+   {                                // 11      
+       get { return 0; }                                // 12      
+       set { }                                          // 13  
+   }
+
+   // Instance parameterful property (indexer) 
+   public Int32 this[String s]
+   {                          // 14       
+       get { return 0; }                                // 15        
+       set { }                                          // 16  
+   }
+
+   // Instance event  
+   public event EventHandler SomeEvent;                  // 17  
+}
+</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
+<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/07/09/ASP.NET-Core-Middleware/" data-id="cirp1bema00001sul47daom0g" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/classfield-property/" data-id="cirstyaf8000epculep4e4qnv" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -249,117 +599,10 @@
 
  
   
-    <article id="post-asp.net-core-startup" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-can&#39;t-modify-linq-object" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/07/09/asp.net-core-startup/" class="article-date">
-  <time datetime="2016-07-08T16:04:35.357Z" itemprop="datePublished">2016-07-09</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net-core/">.net core</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/07/09/asp.net-core-startup/">ASP.NET Core 启动方式（Hosting）</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>之前版本的ASP.NET程序必须依赖IIS来启动，而IIS上会为挂载在其中的ASP.NET 注册一个ISAPI filter。每当http请求过来时，IIS则会启动w3wp的worker process来开始整个ASP.NET runtime程序。相信大家都这样的流程都有相应的了解。在.net core之前，ASP.NET的主要场景都是运行在Windows平台的，IIS也就是web server的首选了。虽然也有类似于jexus的linux webserver可用，但是基于mono的.NET 总体还是不够Microsoft 原生的强。</p>
-<p>不过到了现在，一切都不同了。</p>
-<h6 id="新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。"><a href="#新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。" class="headerlink" title="新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。"></a>新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。</h6><h3 id="1、Kestrel-和-IIS-platform-handler"><a href="#1、Kestrel-和-IIS-platform-handler" class="headerlink" title="1、Kestrel 和 IIS platform handler"></a>1、Kestrel 和 IIS platform handler</h3><p>在 ASP.NET Core 中，整个runtime都是重写过的，所以它和IIS之间的关系也有所改变。而ASP.NET Core为了跨平台，它现在的执行方式就如一般的Console app一样。ASP.NET Core自带一个高性能的I/O组件 - Kestrel，使得它可以不依赖IIS的存在便启动了runtime。不过Kestrel 也只是一个I/O组件，并没有想IIS提供其它的功能来保护和管理ASP.NET 应用程序。ASP.NET Core同样可以通过IIS进行处理。但是如果通过IIS来进行处理的话，这个时候我们便需要一个“中间人”的角色来负责这个功能了。这个“中间人”的名字叫 Http Platform Handler，主要表现在web.config文档中的设置，其中包括启动ASP.NET Core 程序的的路径和名称，需要传入的参数以及一些其他的设置选项。Http Platform Handler的具体设置例子如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line">&lt;system.webServer&gt;</span><br><span class="line">    &lt;handlers&gt;</span><br><span class="line">      &lt;add name=<span class="string">"httpPlatformHandler"</span> path=<span class="string">"*"</span> verb=<span class="string">"*"</span></span><br><span class="line">      modules=<span class="string">"httpPlatformHandler"</span> resourceType=<span class="string">"Unspecified"</span>/&gt;</span><br><span class="line">    &lt;/handlers&gt;</span><br><span class="line">    &lt;httpPlatform processPath=<span class="string">"WebApp.exe"</span> arguments=<span class="string">""</span> </span><br><span class="line">    stdoutLogEnabled=<span class="string">"false"</span> startupTimeLimit=<span class="string">"3600"</span>/&gt;</span><br><span class="line">  &lt;/system.webServer&gt;</span><br></pre></td></tr></table></figure></p>
-<p>关于Http Platform Handler的相关资料可以看这个链接：<br><a href="http://www.iis.net/downloads/microsoft/httpplatformhandler" target="_blank" rel="external">http://www.iis.net/downloads/microsoft/httpplatformhandler</a></p>
-<p>从上面的例子可以看出来，ASP.NET Core编译之后便是一个EXE程序，使得你可以直接运行。因此，当HTTP请求进来时，IIS先接受请求，然后根据你设置的web.config的内容将请求转发给WebApp.exe（你的ASP.NET Core程序），然后WebApp.exe开始执行时便会启动Kestrel，接着这个HTTP请求便进入了ASP.NET Core runtime的世界。这样看来，IIS这时候只是一个简单的proxy/forwarder角色。</p>
-<p>PS：在我翻译整理这个文章的时候，世界已经发生了变化：下个版本的asp.net core 将会有全新的IIS module来取代Http Platform Handler。</p>
-<p>具体详细资料见：<a href="https://github.com/aspnet/IISIntegration/issues/105" target="_blank" rel="external">https://github.com/aspnet/IISIntegration/issues/105</a></p>
-<h3 id="2、Main"><a href="#2、Main" class="headerlink" title="2、Main()"></a>2、Main()</h3><p>ASP.NET Core和其他的.NET 程序一样拥有一个static void Main(),这是整个runtime的进入点。下面看一个样例：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span><br><span class="line">       </span>&#123;</span><br><span class="line">           <span class="keyword">var</span> host = <span class="keyword">new</span> WebHostBuilder()</span><br><span class="line">               .UseServer(<span class="string">"Microsoft.AspNetCore.Server.Kestrel"</span>)</span><br><span class="line">               .UseContentRoot(Directory.GetCurrentDirectory())</span><br><span class="line">               .UseDefaultConfiguration(args)</span><br><span class="line">               .UseIISPlatformHandlerUrl()</span><br><span class="line">               .UseStartup&lt;Startup&gt;()</span><br><span class="line">               .Build();</span><br><span class="line"></span><br><span class="line">           host.Run();</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure></p>
-<p>ASP.NET Core host engine 的建立者是 WebHostBuilder．</p>
-<p>它实质上是一个了 IWebHostBuilder interface，其中 UseServer() 是用于指定使用什么样的 server。</p>
-<p>其中 UseServer() 有一个扩展方法UseServer(string assemblyName)。这样的话我们可以直接传入Kestrel的程序集名称:”Microsoft.AspNetCore.Server.Kestrel”。当然，这只是其中一种选项。你也可以自己实现一个自己的 server，只要你的 server 实现了 IServerFactory interface 即可。这样的设计提供了一个很大的弹性空间让我们自行选择hosting server（托管服务）。</p>
-<h5 id="UseContentRoot"><a href="#UseContentRoot" class="headerlink" title="UseContentRoot()"></a>UseContentRoot()</h5><ul>
-<li>这个扩展方法是让我们指定应用程序的工作目录（working directory），如果我们没有指定的话，则会默认为我们的应用（webapp.exe）所在目录为工作目录。</li>
-</ul>
-<h5 id="UseDefaultConfiguration"><a href="#UseDefaultConfiguration" class="headerlink" title="UseDefaultConfiguration()"></a>UseDefaultConfiguration()</h5><ul>
-<li>这个扩展方法使得我们在IWebHostBuilder 建立可以传入一些参数，比如 application key, environment name, server factory location, content root path 等等．因此，当我们在运行 WebApp.exe 的时候，同时可以带入我们需要用到的hosting参数（PS：这样的做法就像运行命令行程序时带入参数，多好玩）。这些参数也可以写在appsettings.json里面通过Configuration来读取。<br>所以，UseDefaultConfiguration() 也不一定非要存在于 Main() 之中。（？？？个人不是很理解）</li>
-</ul>
-<p>PS：原作者原话，”如果我沒记错的话，在写这个文章的时候，UseDefaultConfiguration() 已经被改为成了UseDefaultHostingConfiguration()．显然这个名称更能清楚明白．”(？？？个人还没实践)</p>
-<h5 id="UseIISPlatofmrHandleUrl"><a href="#UseIISPlatofmrHandleUrl" class="headerlink" title="UseIISPlatofmrHandleUrl()"></a>UseIISPlatofmrHandleUrl()</h5><ul>
-<li>这个 IWebHostBuilder 的 扩展方法比较特殊。如果你要把 ASP.NET Core 放在 IIS 下，这个扩展方法会读取 IIS http platform handler 的 server port 和 application path，用于作为 ASP.NET Core 的启动位置，如 <a href="http://localhost:5000/start．如果你沒用" target="_blank" rel="external">http://localhost:5000/start．如果你沒用</a> IIS，这个扩展方法对你来说基本是用不上的．</li>
-</ul>
-<h5 id="UseStartup-lt-gt"><a href="#UseStartup-lt-gt" class="headerlink" title="UseStartup&lt;&gt;()"></a>UseStartup&lt;&gt;()</h5><ul>
-<li>这是 WebHostBuilder 里相当重要的一个扩展方法。它的方法签名如下：</li>
-</ul>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br></pre></td><td class="code"><pre><span class="line"></span><br><span class="line"><span class="keyword">public</span> <span class="keyword">static</span> IWebHostBuilder UseStartup&lt;TStartup&gt;</span><br><span class="line">(<span class="keyword">this</span> IWebHostBuilder hostBuilder) <span class="keyword">where</span> TStartup : <span class="keyword">class</span></span><br></pre></td></tr></table></figure>
-<p>这里你可以很清楚地看到 &lt;&gt; 里面要放的就是一个 class。</p>
-<p>在我们这里的范例中，它的名字是 Startup，里面最重要的就是需要定义要使用那些服务(service)以及要使用那些中间件(middleware)。</p>
-<h3 id="3、Startup"><a href="#3、Startup" class="headerlink" title="3、Startup"></a>3、Startup</h3><p>这是一个非常非常重要的class,在ASP.NET Core范例中一般都把它命名成Startup。其实我们把它命名成其他名字也是可以的，或者设定多个Startup。上面的内容可以看到，UseStartup()指定了谁是starup class。然后在Build()便会实例化starup class，之后便执行里面两个重要的方法：ConfigureServices() 和 Configure()。</p>
-<p>我们先來看 Startup 的构造函数.</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="title">Startup</span>(<span class="params">IHostingEnvironment env</span>)</span><br><span class="line">       </span>&#123;</span><br><span class="line">           <span class="comment">// Set up configuration sources.</span></span><br><span class="line">           <span class="keyword">var</span> builder = <span class="keyword">new</span> ConfigurationBuilder()</span><br><span class="line">               .AddJsonFile(<span class="string">"appsettings.json"</span>)</span><br><span class="line">               .AddJsonFile($<span class="string">"appsettings.&#123;env.EnvironmentName&#125;.json"</span>, optional: <span class="keyword">true</span>)</span><br><span class="line">               .AddEnvironmentVariables();</span><br><span class="line">           Configuration = builder.Build().ReloadOnChanged(<span class="string">"appsettings.json"</span>);</span><br><span class="line">       &#125;</span><br></pre></td></tr></table></figure>
-<p>Host engine 在被执行 Build()时已经知道 startup type 是 Startup class，所以在 Build() 的时候会先创建期示例。在我们这里的是调用Startup类带参数的构造函数。</p>
-<p>在我们这个例子中选择的是传入IHostingEnvironment示例，它为我们带来了环境变量（EnvironmentName）。</p>
-<p>我们这里主要目的是把Configuration实例化。这是一个蛮重要的基础组件，以后会有文章来说明它。</p>
-<p>在这里我们特别说明一下，上面的示例代码中，我们执行了两次 AddJsonFile()，而且第二个json file的参数和第一个的还不太一样。这样的目的是为了让开发者可以把开发环境使用的环境参数和其他环境使用的参数有所区别。比如，你使用的开发环境用的是appsettings.json，这个文件只存在于你的电脑中。另一个文档是appsettings.production.json，这是正式环境使用的参数设定文档。第二個 AddJsonFile() 第二個参数是 true，也就是可能不存在的意思。所以若遇到重复名称参数时，appsettings.production.json 会覆盖 appsettings.json 的內容。这样使得开发环境和生产环境得以区分。</p>
-<p>接下来，在 IWebHostBuilder 的 Build()里面会执行 host engine 初始化的程序，其中就会去找Startup class里面的两个方法： ConfigureServices() 和 Configure()。</p>
-<p> ConfigureSerivces() 是定义了这个 web application 要使用那些服务，然后将这些服务放在 service container (IServiceCollection) 裡面。如下面的样例：</p>
- <figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"> </span><br><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ConfigureServices</span>(<span class="params">IServiceCollection services</span>)</span><br><span class="line">     </span>&#123;</span><br><span class="line">         <span class="comment">// add entity framework</span></span><br><span class="line">         services.AddEntityFramework()</span><br><span class="line">                 .AddDbContext&lt;BlogsContext&gt;(o =&gt; o.UseSqlServer(Configuration[<span class="string">"Data1:DefaultConnection:ConnectionString"</span>]))</span><br><span class="line">          </span><br><span class="line">         <span class="comment">// Add framework services.</span></span><br><span class="line">         services.AddMvc();</span><br><span class="line">     &#125;</span><br></pre></td></tr></table></figure>
-<p>它定义了entity framework和mvc两个服务。这里所谓的服务（services）的意思也就是通过它们带入更庞大的程序代码。这听起来好像有点搞笑，但也真的如此。像Entity framework 里面有这么多的代码，一定都需要带入许多定义好的物件或者参数，而不只是一个程序的进去点而已，所以services 的目的就是在这里。</p>
-<p>Configure() 主要是定义了中间件（middleware）以及它们的顺序．</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</span><br><span class="line">    loggerFactory.AddDebug();</span><br><span class="line"></span><br><span class="line">    app.UseStaticFiles();</span><br><span class="line"></span><br><span class="line">    app.UseMvcWithDefaultRoute();</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<h3 id="4、Build-和-Run"><a href="#4、Build-和-Run" class="headerlink" title="4、Build 和 Run"></a>4、Build 和 Run</h3><p>最后，在IHostWebBuilder里最后的两个动作便是：Build and Run. </p>
-<h5 id="Build"><a href="#Build" class="headerlink" title="Build()"></a>Build()</h5><ul>
-<li>这个方法做的工作便是建立 hosting service，把 Startup 中定义的的 services 和 middleware 接收过来，然后确定content root path 和 application name，接着一句前面这些资料再加上Configuration过来的数据来初始化host engine (WebHost.cs)．</li>
-</ul>
-<h5 id="Run"><a href="#Run" class="headerlink" title="Run()"></a>Run()</h5><ul>
-<li>这个是启动 host engine 的 扩展方法，它在启动之前加入了一个 CancelKeyPress 的事件．因为在 Run() 方法 中传入入了 CancellationTokenSource() ，让我们有一个方法可以随时中断host engine的执行。</li>
-</ul>
-<p>目前的做法就用是 CancelKeyPress 事件，所以你可以按下 Ctrl+C  來中止 host engine 的执行．</p>
-<p>比较特別的是，这一段中止的文字说明居然是用 hard code，參考如下:</p>
-<p>host.Run(cts.Token, “Application started. Press Ctrl+C to shut down.”);</p>
-<p>不过这样的话，这里你也不能写中文…</p>
-<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/07/09/asp.net-core-startup/" data-id="cirp1ben6000m1sul2m8h9ll7" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-避免在函数或者操作中抛出异常" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/06/16/避免在函数或者操作中抛出异常/" class="article-date">
-  <time datetime="2016-06-16T15:10:11.876Z" itemprop="datePublished">2016-06-16</time>
+    <a href="/2016/08/13/can't-modify-linq-object/" class="article-date">
+  <time datetime="2016-08-13T06:53:48.561Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -374,76 +617,7 @@
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/16/避免在函数或者操作中抛出异常/">避免在函数或者操作中抛出异常</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <h2 id="1、引言"><a href="#1、引言" class="headerlink" title="1、引言"></a>1、引言</h2><p>如某个场景下，你的函数或操作需要操作一个序列的对象，且在处理的过程中抛出了异常。这时如果没有一些状态记录之类的数据，我们不了解已经处理了多少的数据，也不知道应该采用怎么样的策略回滚，因此根本无法返回到之前的状态。<br>我们看一下下面的一个代码：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> allEmp = FindAllEmployees();</span><br><span class="line">allEmp.ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
-<p>这样的代码看起来没什么问题。可是某一天，这个程序运行时抛出了异常。抛出异常的位置可能未知，导致部分员工得到了加薪，另外的一些员工却没有。结果是除了人工检查数据，我们已经没有办法重新找回丢失的状态。</p>
-<p>这样的代码修改元素的方式导致发生了上面的问题。这段代码并没有遵循“强异常安全保证”规则。换而言之，在运行时遇到错误，我们无法得知具体发生了什么，没有发生什么。</p>
-<h3 id="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"><a href="#原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。" class="headerlink" title="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"></a>原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。</h3><p>我们有几种方法都可以实现这样的需求，但是每种方法都有各自的优势和风险。</p>
-<h2 id="2、在函数-操作中抛出异常"><a href="#2、在函数-操作中抛出异常" class="headerlink" title="2、在函数/操作中抛出异常"></a>2、在函数/操作中抛出异常</h2><p>显而易见的，不是所有的方法都会遇到这样的问题（异常导致状态丢失）。很多时候我们只是检查了一下序列中的元素，访问之后并不会修改其中的元素。这类的行为我们其实并不需要太过于小心。现在我们回到最开始的地方，对于上面的场景（为每位员工加薪百分之五），如果我们想遵循“强异常安全保证”原则，那应该如何修改这个方法呢？</p>
-<h4 id="第一种异常：获取数据的时候异常"><a href="#第一种异常：获取数据的时候异常" class="headerlink" title="第一种异常：获取数据的时候异常"></a>第一种异常：获取数据的时候异常</h4><p>在上面的例子中，即使FindAllEmployees()函数抛出异常，导致我们无法正确让员工加薪。虽然这样的情况并不是导致我们的数据产生问题，但是该加薪的大家没有得到加薪，这是一个多么沮丧的事情呢。</p>
-<h4 id="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。"><a href="#解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。" class="headerlink" title="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。"></a>解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。</h4><p>很多时候，我们在开始修改数据之前，先校验数据的合法性以及剔除错误数据（如果允许剔除的话）并不是非常困难。我们是可以采取这样的方法来实现我们的目的。不过在这里的话，我们就必须严格处理操作方法，使得它能满足所有情况下的需求。</p>
-<h4 id="第二种异常：lambda表达式中操作数据异常"><a href="#第二种异常：lambda表达式中操作数据异常" class="headerlink" title="第二种异常：lambda表达式中操作数据异常"></a>第二种异常：lambda表达式中操作数据异常</h4><p>同样是上面的例子，如果我们在执行加薪操作的时候，提升了那些已经离职的员工薪资导致了异常，使得程序中断，状态丢失。这样的情况，我们在执行加薪操作前先过滤掉已离职的员工便是一种正确的做法。</p>
-<h4 id="解决方法：操作数据前通过校验过滤后再执行操作"><a href="#解决方法：操作数据前通过校验过滤后再执行操作" class="headerlink" title="解决方法：操作数据前通过校验过滤后再执行操作"></a>解决方法：操作数据前通过校验过滤后再执行操作</h4><p>如：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allEmp.Where(emp=&gt;emp.Active).ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
-<h4 id="第三种异常：执行操作的时候抛出异常"><a href="#第三种异常：执行操作的时候抛出异常" class="headerlink" title="第三种异常：执行操作的时候抛出异常"></a>第三种异常：执行操作的时候抛出异常</h4><p>有时候，我们根本无法保证处理方法的时候会不会抛出异常。这个时候就必须采取一些代价更加昂贵的处理方法了。</p>
-<h4 id="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"><a href="#解决方法：创建副本尝试执行操作，副本无误后执行真正操作" class="headerlink" title="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"></a>解决方法：创建副本尝试执行操作，副本无误后执行真正操作</h4><p>我们在编写这类代码的时候，应该考虑抛出异常之后的处理方案。这就意味着，我们的操作应该先在原数据副本上执行，随后仅在操作成功之后再将其替换原有的数据。<br>如:</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> updatas = (<span class="keyword">from</span> e <span class="keyword">in</span> allEmp </span><br><span class="line">              <span class="keyword">select</span> <span class="keyword">new</span> Emp</span><br><span class="line">              &#123;</span><br><span class="line">                  EmpID=e.EmpID,</span><br><span class="line">                  .....</span><br><span class="line">                  MonthlySalary =e.MonthlySalary *=<span class="number">1.05</span>M</span><br><span class="line">              &#125;).ToList();</span><br><span class="line"></span><br><span class="line">allEmp = updatas;</span><br></pre></td></tr></table></figure>
-<p>但是这样的修改也引发了其他的问题：代码量增加了，同时生成副本也消耗了大量的资源。这样的做法也有一个好处，我们在操作副本数据时遇到异常之后，有充分的”空间”来处理这些数据。</p>
-<p>实际中，这意味着我们让查询表达式返回了新序列，而不是去修改原先序列中的元素。这样的话，我们在尝试完成所有的操作的同时，即使失败了，也不会影响到我们程序的原有状态。</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/避免在函数或者操作中抛出异常/" data-id="cirp1bemp00031sulb9w8xnft" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-技巧避免修改绑定变量" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/06/16/技巧避免修改绑定变量/" class="article-date">
-  <time datetime="2016-06-16T14:10:08.112Z" itemprop="datePublished">2016-06-16</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/06/16/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
+      <a class="article-title" href="/2016/08/13/can't-modify-linq-object/">.NET-lmabda避免修改绑定变量</a>
     </h1>
   
 
@@ -665,7 +839,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/06/16/技巧避免修改绑定变量/" data-id="cirp1bemt00071sulh891krst" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/can't-modify-linq-object/" data-id="cirstyafb000gpcul2lg5h0iu" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -690,10 +864,10 @@ public void test2_1()
 
  
   
-    <article id="post-mono-webreques-https-exception" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-LINQ-advantage" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/04/23/mono-webreques-https-exception/" class="article-date">
-  <time datetime="2016-04-23T13:59:16.810Z" itemprop="datePublished">2016-04-23</time>
+    <a href="/2016/08/13/LINQ-advantage/" class="article-date">
+  <time datetime="2016-08-13T06:53:13.893Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -708,7 +882,7 @@ public void test2_1()
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/mono-webreques-https-exception/">mono webreques https exception</a>
+      <a class="article-title" href="/2016/08/13/LINQ-advantage/">C#LINQ 优点 总结(转载)</a>
     </h1>
   
 
@@ -716,38 +890,54 @@ public void test2_1()
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>前几天在做一个使用URL通过WebRequest请求HTML页面的功能的时候遇到了点坑，程序在开发环境没有任何的问题，部署到linux mono上之后就跪了。代码如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br><span class="line">34</span><br><span class="line">35</span><br><span class="line">36</span><br><span class="line">37</span><br><span class="line">38</span><br><span class="line">39</span><br><span class="line">40</span><br><span class="line">41</span><br><span class="line">42</span><br><span class="line">43</span><br><span class="line">44</span><br><span class="line">45</span><br><span class="line">46</span><br><span class="line">47</span><br><span class="line">48</span><br><span class="line">49</span><br><span class="line">50</span><br><span class="line">51</span><br><span class="line">52</span><br><span class="line">53</span><br><span class="line">54</span><br><span class="line">55</span><br><span class="line">56</span><br><span class="line">57</span><br><span class="line">58</span><br><span class="line">59</span><br><span class="line">60</span><br><span class="line">61</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetHTML</span>(<span class="params"><span class="keyword">string</span> url</span>)</span><br><span class="line"></span>&#123;</span><br><span class="line">    <span class="keyword">string</span> htmlCode;</span><br><span class="line">    <span class="keyword">try</span></span><br><span class="line">    &#123;</span><br><span class="line">        HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);</span><br><span class="line">        webRequest.Timeout = <span class="number">30000</span>;</span><br><span class="line">        webRequest.Method = <span class="string">"GET"</span>;</span><br><span class="line">        webRequest.UserAgent = <span class="string">"Mozilla/4.0"</span>;</span><br><span class="line">        webRequest.Headers.Add(<span class="string">"Accept-Encoding"</span>, <span class="string">"gzip, deflate"</span>);</span><br><span class="line"></span><br><span class="line">        HttpWebResponse webResponse = (System.Net.HttpWebResponse)webRequest.GetResponse();</span><br><span class="line">        <span class="comment">//获取目标网站的编码格式</span></span><br><span class="line">        <span class="keyword">string</span> contentype = webResponse.Headers[<span class="string">"Content-Type"</span>];</span><br><span class="line">        Regex regex = <span class="keyword">new</span> Regex(<span class="string">"charset\\s*=\\s*[\\W]?\\s*([\\w-]+)"</span>, RegexOptions.IgnoreCase);</span><br><span class="line">        <span class="keyword">if</span> (webResponse.ContentEncoding.ToLower() == <span class="string">"gzip"</span>)<span class="comment">//如果使用了GZip则先解压</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (<span class="keyword">var</span> zipStream = <span class="keyword">new</span> System.IO.Compression.GZipStream(streamReceive, </span><br><span class="line">                System.IO.Compression.CompressionMode.Decompress))</span><br><span class="line">                &#123;</span><br><span class="line">                    <span class="comment">//匹配编码格式</span></span><br><span class="line">                    <span class="keyword">if</span> (regex.IsMatch(contentype))</span><br><span class="line">                    &#123;</span><br><span class="line">                        Encoding ending = Encoding.GetEncoding(regex.Match(contentype).Groups[<span class="number">1</span>].Value.Trim());</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, ending))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                    <span class="keyword">else</span></span><br><span class="line">                    &#123;</span><br><span class="line">                        <span class="keyword">using</span> (StreamReader sr = </span><br><span class="line">                        <span class="keyword">new</span> System.IO.StreamReader(zipStream, Encoding.UTF8))</span><br><span class="line">                        &#123;</span><br><span class="line">                            htmlCode = sr.ReadToEnd();</span><br><span class="line">                        &#125;</span><br><span class="line">                    &#125;</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">else</span></span><br><span class="line">        &#123;</span><br><span class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</span><br><span class="line">            &#123;</span><br><span class="line">                <span class="keyword">using</span> (System.IO.StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(streamReceive, Encoding.Default))</span><br><span class="line">                &#123;</span><br><span class="line">                    htmlCode = sr.ReadToEnd();</span><br><span class="line">                &#125;</span><br><span class="line">            &#125;</span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">return</span> htmlCode;</span><br><span class="line"></span><br><span class="line">    &#125;<span class="keyword">catch</span>(Exception ex)</span><br><span class="line">    &#123;</span><br><span class="line">        LogHelper.WriteException(<span class="string">"GetHTML"</span>, ex, <span class="keyword">new</span> &#123; Url = url &#125;);</span><br><span class="line">        <span class="keyword">return</span> <span class="string">""</span>;</span><br><span class="line">    &#125;</span><br><span class="line"></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
-<p>开发环境在Windows10 + VS2013,整个代码跑起来没什么问题。</p>
-<p>无论是HTTP还是HTTPS协议，网页HTML一样能获取得到。</p>
-<p>网站部署到linux Jexus之后HTTP协议的网站同样可以获取到HTML，遇到HTTPS协议的网站的时候就跪了。</p>
-<p>抓到的异常信息如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br><span class="line">30</span><br><span class="line">31</span><br><span class="line">32</span><br><span class="line">33</span><br></pre></td><td class="code"><pre><span class="line">System.Net.WebException: Error: TrustFailure (The authentication or decryption has failed.) </span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed.</span><br><span class="line">---&gt; System.IO.IOException: The authentication or decryption has failed. </span><br><span class="line">---&gt; Mono.Security.Protocol.Tls.TlsException:</span><br><span class="line">Invalid certificate received <span class="keyword">from</span> server. Error code: <span class="number">0xffffffff800b0109</span></span><br><span class="line">at Mono.Security.Protocol.Tls.RecordProtocol.EndReceiveRecord </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b58d80</span> + <span class="number">0x0013e</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.SafeEndReceiveRecord</span><br><span class="line">(IAsyncResult ar, Boolean ignoreEmpty) &lt;<span class="number">0x41b58cb0</span> + <span class="number">0x00031</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.NegotiateAsyncWorker</span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41b72a40</span> + <span class="number">0x0023f</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslClientStream.EndNegotiateHandshake </span><br><span class="line">(IAsyncResult result) &lt;<span class="number">0x41ba07e0</span> + <span class="number">0x000f3</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.AsyncHandshakeCallback </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41ba0540</span> + <span class="number">0x00086</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at Mono.Security.Protocol.Tls.SslStreamBase.EndRead </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73fd0</span> + <span class="number">0x00199</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.EndAuthenticateAsClient </span><br><span class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73f30</span> + <span class="number">0x00042</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.Private.LegacySslStream.AuthenticateAsClient (System.String targetHost, </span><br><span class="line">System.Security.Cryptography.X509Certificates.X509CertificateCollection</span><br><span class="line">clientCertificates, SslProtocols enabledSslProtocols,</span><br><span class="line">Boolean checkCertificateRevocation) &lt;<span class="number">0x41b6a660</span> + <span class="number">0x00055</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at Mono.Net.Security.MonoTlsStream.CreateStream (System.Byte[] buffer) </span><br><span class="line">&lt;<span class="number">0x41b69c30</span> + <span class="number">0x00159</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">--- End of inner exception stack trace ---</span><br><span class="line">at System.Net.HttpWebRequest.EndGetResponse (IAsyncResult asyncResult) </span><br><span class="line">&lt;<span class="number">0x41b67660</span> + <span class="number">0x001f9</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at System.Net.HttpWebRequest.GetResponse () &lt;<span class="number">0x41b60920</span> + <span class="number">0x0005a</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </span><br><span class="line">at WebBookmarkUI.Commom.HTTPHelper.GetHTML (System.String url) &lt;<span class="number">0x41b59b70</span> + <span class="number">0x00235</span>&gt; </span><br><span class="line"><span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span></span><br></pre></td></tr></table></figure>
-<p>有用的信息基本就是：</p>
-<ol>
-<li>Invalid certificate received from server</li>
-<li>The authentication or decryption has failed</li>
-</ol>
-<p>一开始百思不得其解，为嘛好好的程序在开发环境跑得都好的，到了mono上就挂了，多疑的我还以为是mono的bug。<br>今天静下心来去找了一下资料，发现Mono的文档有这个问题的描述，认真读了一遍，又去请教了一番宇内流云大大，终于弄懂了是什么回事。</p>
-<p>先贴一下相关资料：</p>
-<ol>
-<li><p><a href="http://stackoverflow.com/questions/4926676/mono-webrequest-fails-with-https" target="_blank" rel="external">stackoverflow mono-webrequest-fails-with-https</a></p>
-</li>
-<li><p><a href="http://www.mono-project.com/docs/faq/security/" target="_blank" rel="external">mono doc security</a></p>
-</li>
-</ol>
-<p>这个问题是出现的原因是Windows自带了HTPPS的根证书，linux默认则是没有带有根证书的。我们的mono在调用WebRequest去请求HTTPS协议的网站的时候，找不到任何有效的根证书，所以抛出上面的异常了。</p>
-<p>解决方案也很简单，为linux导入一下HTTPS根证书就好。</p>
-<p>在linux服务器上面执行下面这条命令。<br><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">mozroots</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">import</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">ask</span><span class="literal">-</span><span class="comment">remove</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">machine</span></span><br></pre></td></tr></table></figure></p>
-<p>然后在网站的Application_Start()里面添加下面代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br></pre></td><td class="code"><pre><span class="line"> System.Net.ServicePointManager.ServerCertificateValidationCallback +=</span><br><span class="line"> <span class="keyword">delegate</span>(<span class="keyword">object</span> sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,</span><br><span class="line"> System.Security.Cryptography.X509Certificates.X509Chain chain,</span><br><span class="line"> System.Net.Security.SslPolicyErrors sslPolicyErrors)</span><br><span class="line">&#123;</span><br><span class="line">    <span class="keyword">return</span> <span class="keyword">true</span>; <span class="comment">// **** Always accept</span></span><br><span class="line">&#125;;</span><br></pre></td></tr></table></figure>
-<p>完事。</p>
-<p>这个故事告诉我们，linux干活都是要亲力亲为呀。</p>
+        <p>原文链接：<a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a></p>
+<p>这几天在读一本LINQ方面的书《Essential LINQ》,在这里和大家分享下。</p>
+<p>由于对LINQ的深入总结需要大量的篇幅，因此在这里分成几个部分来讲。</p>
+<p>（*我看《Essential LINQ》是英文版的，有些名词不能翻译成正统的中文解释请给予谅解）</p>
+<p>LINQ的优点：</p>
+<p>LINQ基本有以下七个优点，让我来一一举例说明：</p>
+<p>#####1.Integrated：所谓的Integrated（集成化），LINQ是从以下方面体现集成的：</p>
+<p>(1):把查询语法融入了C#(VB)这些语言中，让他变成了一种语法。这样就能和C#中的其他语法一样支持：</p>
+<p>语句高亮显示，类型检查，允许使用debugger调试</p>
+<p>(2):把以前复杂的查询前的工作都集成封装起来，让开发人员侧重于查询。</p>
+<p>(3):集成后的语法更加的清晰易懂，可读性较高。</p>
+<figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line">比较： </span><br><span class="line"><span class="comment">//原来的格式</span></span><br><span class="line">SqlConnection sqlConn = <span class="keyword">new</span> SqlConnection(connectionString);&gt;</span><br><span class="line">sqlConn.Open();</span><br><span class="line">SqlCommand command = <span class="keyword">new</span> SqlCommand();</span><br><span class="line">command.Connection = sqlConn;</span><br><span class="line">command.CommandText = <span class="string">"Select * From Customer"</span>;</span><br><span class="line">SqlDataReader dataReader = command.ExecuteReader(CommandBehavior.CloseConnection);</span><br><span class="line"> </span><br><span class="line"><span class="comment">//LINQ的格式</span></span><br><span class="line">NORTHWNDDataContext dc = <span class="keyword">new</span> NORTHWNDDataContext();</span><br><span class="line"><span class="keyword">var</span> query = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure>
+<p>#####2.Unitive：所谓Unitive(统一化)就指不管对任何类型外部和内部数据源(对象集合,xlm,数据库数据)都使用统一的查询语法。</p>
+<p>使用统一化查询语言的好处在于以下几点：</p>
+<p>你不用因为要使用不太熟悉的数据源而花很多精力去了解它，你可以快速简单的使用LINQ语法对起查询。<br>由于使用了统一的语法，可以使代码维护变的更加简单。<br>以下代码体现了LINQ的统一化：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//数据源:对象集合</span></span><br><span class="line"><span class="keyword">var</span> query = <span class="function"><span class="keyword">from</span> c <span class="keyword">in</span> <span class="title">GetCustomers</span>(<span class="params"></span>)</span><br><span class="line">            <span class="keyword">select</span> c</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//数据源:SQL</span></span><br><span class="line"><span class="keyword">var</span> query1 = <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">             <span class="keyword">select</span> c;</span><br><span class="line"><span class="comment">//数据源:XML</span></span><br><span class="line"><span class="keyword">var</span> query2 = <span class="keyword">from</span> c <span class="keyword">in</span> customers.Descendants(<span class="string">"Customer"</span>)</span><br><span class="line">             <span class="keyword">select</span> c;</span><br></pre></td></tr></table></figure></p>
+<p>#####3.Extensible：所谓Extensible(可扩展)指以下2个方面:</p>
+<p>(1).可查询数据源的扩展。 LINQ提供了个LINQ provider model，你可以为LINQ创建或提供provider让LINQ支持更多的数据源。</p>
+<p>(2).可扩展查询方法。开发者可以根据自己的需求为LINQ重写和扩展查询方法。</p>
+<p>以下是些第三方的LINQ provider：</p>
+<p>LINQ Extender, LINQ to JavaScript, LINQ to JSON, LINQ to MySQL, LINQ to Flickr, LINQ to Google</p>
+<p>#####4.Declarative：所谓Declarative(声明式)，简单的来说指的是开发人员只要告诉程序做什么，程序自己判断怎么做。</p>
+<p>Declarative programming(声明式编程)的优点体现在以下2点：</p>
+<p>(1).提高了开发速度。因为开发者不用书写大量的代码来具体化执行步骤，只许告诉程序做什么。</p>
+<p>(2).提高代码优化空间。因为开发者不用参与干涉对程序执行的具体步骤，这样就提供给编译器更多的空间去优化代码。</p>
+<p>举例SQL来说，LINQ生成的SQL语句往往比一对SQL水平一般的开发者能写出更好的SQL语句。</p>
+<p>比较Declarative programming 与 Imperative programming：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//声明式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"><span class="keyword">var</span> query = from list <span class="keyword">in</span> lists</span><br><span class="line">            from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">            where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">            orderby <span class="built_in">num</span> descending</span><br><span class="line">            select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="comment">//命令式编程</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list1.Add(<span class="number">1</span>);</span><br><span class="line">list1.Add(<span class="number">2</span>);</span><br><span class="line">list1.Add(<span class="number">3</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; list2 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">list2.Add(<span class="number">4</span>);</span><br><span class="line">list2.Add(<span class="number">5</span>);</span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists1 = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt;();</span><br><span class="line">lists1.Add(list1);</span><br><span class="line">lists1.Add(list2);</span><br><span class="line"> </span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; newList = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;();</span><br><span class="line">foreach (<span class="keyword">var</span> item <span class="keyword">in</span> lists1)</span><br><span class="line">      foreach (<span class="keyword">var</span> <span class="built_in">num</span> <span class="keyword">in</span> item)</span><br><span class="line">        <span class="keyword">if</span> (<span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span>)</span><br><span class="line">            newList.Add(<span class="built_in">num</span>);</span><br><span class="line">newList.Reverse();</span><br></pre></td></tr></table></figure></p>
+<p>#####5.Hierarchical：所谓Hierarchical(层次化)指使用面向对象的方式抽象数据。</p>
+<p>SQL是关系型数据库，它以关系的方式描述数据以数据的联系，但我们的程序设计成面向对象的因此我们在程序里得到的数据库数据往往都是</p>
+<p>rectangular grid（平面的显示数据）。但是LINQ通过所谓的O-R Mapping方式，把关系型转换成对象与对象方式描述数据。</p>
+<p>这样带来的好处是：开发者能直接以对象的方式去操作数据，对习惯面向对象的开发者来说面向对象模型更易理解。</p>
+<p>#####6.Composable：所谓Composable(可组成)指LINQ可以把一个复杂的查询拆分成多个简单查询。</p>
+<p>LINQ返回的结果都是基于接口：IEnumerable<t>，因此能对查询结果继续查询，而且LINQ具有延迟执行的特性因此拆分执行不会影响效率。</t></p>
+<p>优点在于：</p>
+<p>(1).方便调试。把复杂的查询拆分成简单的查询，然后逐个调试。</p>
+<p>(2).便于代码维护。把代码拆分后能使代码变的更易理解。</p>
+<p>以下代码体现了可组成性：<br><figure class="highlight dart"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//以下代码体现了Composable</span></span><br><span class="line"><span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; lists = <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;&gt; &#123; <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt;</span><br><span class="line"> &#123; <span class="number">1</span>, <span class="number">2</span>, <span class="number">3</span> &#125;, <span class="keyword">new</span> <span class="built_in">List</span>&lt;<span class="built_in">int</span>&gt; &#123; <span class="number">4</span>, <span class="number">5</span> &#125; &#125;;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query1 = from list <span class="keyword">in</span> lists</span><br><span class="line">             from <span class="built_in">num</span> <span class="keyword">in</span> list</span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query2 = from <span class="built_in">num</span> <span class="keyword">in</span> query1</span><br><span class="line">             where <span class="built_in">num</span> % <span class="number">3</span> == <span class="number">0</span></span><br><span class="line">             select <span class="built_in">num</span>;</span><br><span class="line"> </span><br><span class="line"><span class="keyword">var</span> query3 = from <span class="built_in">num</span> <span class="keyword">in</span> query2</span><br><span class="line">             orderby <span class="built_in">num</span> descending</span><br><span class="line">             select <span class="built_in">num</span>;</span><br></pre></td></tr></table></figure></p>
+<p>######7.Transformative：所谓Transformative(可转换)指的是LINQ能把一种数据源的内容转换到其他数据源。</p>
+<p>方便用户做数据移植。</p>
+<p>以下代码体现了转换的特性：<br><figure class="highlight cs"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">//把关系型数据转换成XML型</span></span><br><span class="line">	<span class="keyword">var</span> query = <span class="keyword">new</span> XElement(<span class="string">"Orders"</span>,</span><br><span class="line">            <span class="keyword">from</span> c <span class="keyword">in</span> dc.Customers</span><br><span class="line">            <span class="keyword">where</span> c.City == <span class="string">"Paris"</span></span><br><span class="line">            <span class="function"><span class="keyword">select</span> new <span class="title">XElement</span>(<span class="params"><span class="string">"Order"</span>,</span><br><span class="line">                new XAttribute(<span class="string">"Address"</span>, c.Address</span>)))</span>;</span><br></pre></td></tr></table></figure></p>
+<p>以上就是LINQ的几大优点，很高兴能在这里和大家分享。有任何不足之处请给予补充和纠正，谢谢光临小舍。</p>
+<p>//2011/1/28 补充(LINQ TO SQL)</p>
+<p>在LINQ TO SQL 方面，如果使用LINQ TO SQL可以有效的防止SQL注入，LINQ TO SQL 会把注入的代码当做无用的参数处理。</p>
+<p><a href="http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html" target="_blank" rel="external">http://www.cnblogs.com/c-jquery-linq-sql-net-problem/archive/2011/01/15/LINQ_Merit.html</a> </p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/mono-webreques-https-exception/" data-id="cirp1ben4000k1sulep5hih64" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/LINQ-advantage/" data-id="cirstyaff000lpcul3hd0zube" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -772,14 +962,14 @@ public void test2_1()
 
  
   
-    <article id="post-Jexus支持HTTPS协议" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-don’t-throw-exception-in-foreach" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/04/23/Jexus支持HTTPS协议/" class="article-date">
-  <time datetime="2016-04-23T13:58:57.937Z" itemprop="datePublished">2016-04-23</time>
+    <a href="/2016/08/13/don’t-throw-exception-in-foreach/" class="article-date">
+  <time datetime="2016-08-13T06:52:38.684Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
-    <a class="article-category-link" href="/categories/jexus/">jexus</a>
+    <a class="article-category-link" href="/categories/net/">.net</a>
   </div>
 
   </div>
@@ -790,7 +980,7 @@ public void test2_1()
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/Jexus支持HTTPS协议/">Jexus支持HTTPS协议</a>
+      <a class="article-title" href="/2016/08/13/don’t-throw-exception-in-foreach/">避免在函数或者操作中抛出异常</a>
     </h1>
   
 
@@ -798,50 +988,25 @@ public void test2_1()
     
     <div class="article-entry" itemprop="articleBody">
       
-        <p>众所周知，在HTTPS页面请求HTTP资料的时候，现代浏览器会拦截，提示用户是否继续，或者直接拦截，提示都不出来。</p>
-<p>最近给自己做了个快速书签工具，点击书签就直接把书签发送到服务器地址，然后保存到我的网站中。</p>
-<p>一开始一切都挺正常的，不过遇到了https的网站的时候，就跪掉了。</p>
-<p>开始的时候看到HTTPS证书是收费的，想想还是算了，反正凑合能用就是。前几天偶尔看到有一个免费申请HTTPS的开源软件，喵了一下看起来还不错，这几天有空了立马开干。下面有一个教程，我申请证书差不多就是按照这个来处理的。</p>
-<p><a href="https://www.paulyang.cn/blog/archives/39?spm=5176.blog2666.yqblogcon1.12.Nu0TgL" target="_blank" rel="external">用Let’s Encrypt获取免费证书</a></p>
-<p>关于这个Let’s Encrypt，维基百科是这样介绍的：</p>
-<blockquote>
-<p>Let’s Encrypt 是一个将于2015年末推出的数字证书认证机构，将通过旨在消除当前手动创建和安装证书的复杂过程的自动化流程，为安全网站提供免费的SSL/TLS证书。  Let’s Encrypt 是由互联网安全研究小组（ISRG，一个公益组织）提供的服务。主要赞助商包括电子前哨基金会，Mozilla基金会，Akamai以及思科。2015年4月9日，ISRG与Linux基金会宣布合作。用以实现这一新的数字证书认证机构的协议被称为自动证书管理环境（ACME）。  GitHub上有这一规范的草案，且提案的一个版本已作为一个Internet草案发布。Let’s Encrypt 宣称这一过程将十分简单、自动化并且免费。  2015年8月7日，该服务更新其推出计划，预计将在2015年9月7日当周某时发布首个证书，随后向列入白名单的域名发行少量证书并逐渐扩大发行。若一切按计划进行，该服务预计将在2015年11月16日当周某时全面开始提供.</p>
-</blockquote>
-<p>整个项目在Github有代码，主要是通过客户端来为我们的网站生成https证书。<br>首先我们先下载客户端，如下：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">git clone https://github.com/letsencrypt/letsencrypt.git</span><br></pre></td></tr></table></figure></p>
-<p>接着进入这个仓库内，执行下面代码：<br><figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">./letsencrypt-auto certonly -a &#10;webroot\ --webroot-path &#32593;&#31449;&#25152;&#22312;&#36335;&#24452;(&#22914;&#65306;/var/www/web/) \ &#10;-d &#20320;&#30340;&#22495;&#21517;(&#22914;&#65306;test.online) -d www.&#20320;&#30340;&#22495;&#21517;(&#22914;ww.test.online)</span><br></pre></td></tr></table></figure></p>
-<p>这里需要注意的事，我这里为了排版，给上面的命令加了换行，运行这个命令的时候记得把换行符去掉。<br>换行符在webroot、-d 前面各有一个。</p>
-<p>一切顺利的话，我们在<code>/etc/letsencrypt/live/域名/</code>这个目录下能看到四个文件，分别是：</p>
-<ol>
-<li>域名证书文件</li>
-<li>签发域名证书的证书链文件</li>
-<li>域名证书+证书链文件</li>
-<li>私钥文件</li>
-</ol>
-<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/60e4f29a-6da5-40e1-ae32-453a3bbf2455" alt="letsencrypt文件"></p>
-<p>接着就是为网站设置证书了。</p>
-<p>Jexus设置HTTPS要更改jws.conf文档以及网站的配置文档。</p>
-<p>操作步骤如下：</p>
-<ol>
-<li>修改jws.conf<br>进入Jexus文件夹中，打开 “jws.conf”，添加下面两句：</li>
-</ol>
-<figure class="highlight"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">CertificateFile    = /etc/letsencrypt/live/&#22495;&#21517;/fullchain.pem&#10;CertificateKeyFile = /etc/letsencrypt/live/&#22495;&#21517;/privkey.pem</span><br></pre></td></tr></table></figure>
-<p>修改之后效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/d306d9c5-6391-421d-86fc-053b97d1b489" alt="图片描述"></p>
-<ol>
-<li>开启网站的HTTPS功能</li>
-</ol>
-<p>进入siteconf/文件夹，找到对应的网站conf文件，</p>
-<p>把网站服务端口改为443：<br>port=443</p>
-<p>启用https：<br>UseHttps=true</p>
-<p>修改之后的效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/0800dc87-2500-42d2-a3c5-a75a2c819330" alt="图片描述"></p>
-<p>然后重启jexus即可。</p>
-<p>完了之后，通过HTTPS即可访问。</p>
-<p>最后上一个HTTPS证书的图证明一下这个是可行的。<br><img src="http://7xread.com1.z0.glb.clouddn.com/24842774-311e-4e55-a6b5-b88a89edc754" alt="图片描述"></p>
-<p>撒花，下次再见。</p>
+        <h2 id="1、引言"><a href="#1、引言" class="headerlink" title="1、引言"></a>1、引言</h2><p>如某个场景下，你的函数或操作需要操作一个序列的对象，且在处理的过程中抛出了异常。这时如果没有一些状态记录之类的数据，我们不了解已经处理了多少的数据，也不知道应该采用怎么样的策略回滚，因此根本无法返回到之前的状态。<br>我们看一下下面的一个代码：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> allEmp = FindAllEmployees();</span><br><span class="line">allEmp.ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
+<p>这样的代码看起来没什么问题。可是某一天，这个程序运行时抛出了异常。抛出异常的位置可能未知，导致部分员工得到了加薪，另外的一些员工却没有。结果是除了人工检查数据，我们已经没有办法重新找回丢失的状态。</p>
+<p>这样的代码修改元素的方式导致发生了上面的问题。这段代码并没有遵循“强异常安全保证”规则。换而言之，在运行时遇到错误，我们无法得知具体发生了什么，没有发生什么。</p>
+<h3 id="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"><a href="#原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。" class="headerlink" title="原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。"></a>原则：如果我们能保证当方法无法完成时，程序的状态不会发生改变，这样的问题就不会发生。</h3><p>我们有几种方法都可以实现这样的需求，但是每种方法都有各自的优势和风险。</p>
+<h2 id="2、在函数-操作中抛出异常"><a href="#2、在函数-操作中抛出异常" class="headerlink" title="2、在函数/操作中抛出异常"></a>2、在函数/操作中抛出异常</h2><p>显而易见的，不是所有的方法都会遇到这样的问题（异常导致状态丢失）。很多时候我们只是检查了一下序列中的元素，访问之后并不会修改其中的元素。这类的行为我们其实并不需要太过于小心。现在我们回到最开始的地方，对于上面的场景（为每位员工加薪百分之五），如果我们想遵循“强异常安全保证”原则，那应该如何修改这个方法呢？</p>
+<h4 id="第一种异常：获取数据的时候异常"><a href="#第一种异常：获取数据的时候异常" class="headerlink" title="第一种异常：获取数据的时候异常"></a>第一种异常：获取数据的时候异常</h4><p>在上面的例子中，即使FindAllEmployees()函数抛出异常，导致我们无法正确让员工加薪。虽然这样的情况并不是导致我们的数据产生问题，但是该加薪的大家没有得到加薪，这是一个多么沮丧的事情呢。</p>
+<h4 id="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。"><a href="#解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees-方法），让其永远不会抛出异常。" class="headerlink" title="解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。"></a>解决方法：重写前面以lambda表达式给出的操作方法（即FindAllEmployees()方法），让其永远不会抛出异常。</h4><p>很多时候，我们在开始修改数据之前，先校验数据的合法性以及剔除错误数据（如果允许剔除的话）并不是非常困难。我们是可以采取这样的方法来实现我们的目的。不过在这里的话，我们就必须严格处理操作方法，使得它能满足所有情况下的需求。</p>
+<h4 id="第二种异常：lambda表达式中操作数据异常"><a href="#第二种异常：lambda表达式中操作数据异常" class="headerlink" title="第二种异常：lambda表达式中操作数据异常"></a>第二种异常：lambda表达式中操作数据异常</h4><p>同样是上面的例子，如果我们在执行加薪操作的时候，提升了那些已经离职的员工薪资导致了异常，使得程序中断，状态丢失。这样的情况，我们在执行加薪操作前先过滤掉已离职的员工便是一种正确的做法。</p>
+<h4 id="解决方法：操作数据前通过校验过滤后再执行操作"><a href="#解决方法：操作数据前通过校验过滤后再执行操作" class="headerlink" title="解决方法：操作数据前通过校验过滤后再执行操作"></a>解决方法：操作数据前通过校验过滤后再执行操作</h4><p>如：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line">allEmp.Where(emp=&gt;emp.Active).ForEach(e =&gt; e.MonthlySalary *=<span class="number">1.05</span>M);</span><br></pre></td></tr></table></figure></p>
+<h4 id="第三种异常：执行操作的时候抛出异常"><a href="#第三种异常：执行操作的时候抛出异常" class="headerlink" title="第三种异常：执行操作的时候抛出异常"></a>第三种异常：执行操作的时候抛出异常</h4><p>有时候，我们根本无法保证处理方法的时候会不会抛出异常。这个时候就必须采取一些代价更加昂贵的处理方法了。</p>
+<h4 id="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"><a href="#解决方法：创建副本尝试执行操作，副本无误后执行真正操作" class="headerlink" title="解决方法：创建副本尝试执行操作，副本无误后执行真正操作"></a>解决方法：创建副本尝试执行操作，副本无误后执行真正操作</h4><p>我们在编写这类代码的时候，应该考虑抛出异常之后的处理方案。这就意味着，我们的操作应该先在原数据副本上执行，随后仅在操作成功之后再将其替换原有的数据。<br>如:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">var</span> updatas = (<span class="keyword">from</span> e <span class="keyword">in</span> allEmp </span><br><span class="line">              <span class="keyword">select</span> <span class="keyword">new</span> Emp</span><br><span class="line">              &#123;</span><br><span class="line">                  EmpID=e.EmpID,</span><br><span class="line">                  .....</span><br><span class="line">                  MonthlySalary =e.MonthlySalary *=<span class="number">1.05</span>M</span><br><span class="line">              &#125;).ToList();</span><br><span class="line"></span><br><span class="line">allEmp = updatas;</span><br></pre></td></tr></table></figure>
+<p>但是这样的修改也引发了其他的问题：代码量增加了，同时生成副本也消耗了大量的资源。这样的做法也有一个好处，我们在操作副本数据时遇到异常之后，有充分的”空间”来处理这些数据。</p>
+<p>实际中，这意味着我们让查询表达式返回了新序列，而不是去修改原先序列中的元素。这样的话，我们在尝试完成所有的操作的同时，即使失败了，也不会影响到我们程序的原有状态。</p>
 
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/Jexus支持HTTPS协议/" data-id="cirp1benc000t1sul8am790bg" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/don’t-throw-exception-in-foreach/" data-id="cirstyaf6000cpcul1qk5j7p4" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -866,10 +1031,10 @@ public void test2_1()
 
  
   
-    <article id="post-ubuntu使用jexus搭建mywebsql" class="article article-type-post" itemscope itemprop="blogPost">
+    <article id="post-ubuntu-jexus-mywebsql" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
-    <a href="/2016/04/23/ubuntu使用jexus搭建mywebsql/" class="article-date">
-  <time datetime="2016-04-23T13:58:46.283Z" itemprop="datePublished">2016-04-23</time>
+    <a href="/2016/08/13/ubuntu-jexus-mywebsql/" class="article-date">
+  <time datetime="2016-08-13T06:51:48.271Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -884,7 +1049,7 @@ public void test2_1()
         
   
     <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/23/ubuntu使用jexus搭建mywebsql/">ubuntu使用Jexus搭建MyWebSQL</a>
+      <a class="article-title" href="/2016/08/13/ubuntu-jexus-mywebsql/">ubuntu使用Jexus搭建MyWebSQL</a>
     </h1>
   
 
@@ -945,226 +1110,7 @@ public void test2_1()
       
     </div>
     <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/23/ubuntu使用jexus搭建mywebsql/" data-id="cirp1ben1000h1sull4t896kr" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-类字段与类属性" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/类字段与类属性/" class="article-date">
-  <time datetime="2016-04-20T13:19:01.005Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/net/">.net</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/类字段与类属性/">.NET 类字段与类属性</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>#.NET 类字段与类属性<br>@(.NET)[基础|字段|属性]</p>
-<p>##字段<br>字段表示只读或可读/可写的数据值。<br>字段可以是静态的，这种字段被认为是类型状态的一部分。<br>字段也可以是实例（非静态），这种字段被认为是对象状态的一部分。<br>强烈建议把字段声明为私有，防止类型或对象的状态被类型外部代码破坏。</p>
-<p>##属性<br>属性允许用简单的、字段风格的语法设置或查询类型或对象的逻辑状态，同时保证状态不被破坏。<br>作用于类型称为静态属性，作用于对象称为实例属性。<br>属性可以无参，也可以有多个参数（相当少见，但集合类用的多）。 </p>
-<pre><code>using System;
-
-public sealed class SomeType
-{                            //  1  
-// Nested class  
-   private class SomeNestedType { }                //  2  
-
-   // Constant, read­only, and static read/write field   
-   private const Int32 c_SomeConstant = 1;            //  3     
-
-   private readonly String m_SomeReadOnlyField = &quot;2&quot;;     //  4    
-
-   private static Int32 s_SomeReadWriteField = 3;      //  5  
-
-   // Type constructor  
-   static SomeType() { }                                  //  6  
-
-   // Instance constructors  
-   public SomeType(Int32 x) { }                           //  7  
-
-   public SomeType() { }                                  //  8 
-
-   // Instance and static methods  
-   private String InstanceMethod() { return null; }       // 9   
-
-   public static void Main() { }                        // 10 
-
-   // Instance property  
-   public Int32 SomeProp
-   {                                // 11      
-       get { return 0; }                                // 12      
-       set { }                                          // 13  
-   }
-
-   // Instance parameterful property (indexer) 
-   public Int32 this[String s]
-   {                          // 14       
-       get { return 0; }                                // 15        
-       set { }                                          // 16  
-   }
-
-   // Instance event  
-   public event EventHandler SomeEvent;                  // 17  
-}
-</code></pre><p><img src="https://kekaeq-ch3301.files.1drv.com/y3meEWWaK-o9SNfr_fT71Xr3YrPqO1LIswWqMvlHyUxWeH8P0PtXsQlfRkDnGshlMJIy2gPsxNet14efOPOuX-dHmZhCTg8PXyELJR9tnayye4LeEQ6F997b8pSI84wBR6nmmOF8IAr92oKWk36-f8alkEj9TrDQbiMoKGQwO5MTFY/20150105.jpg?psid=1" alt="enter image description here"></p>
-<p><img src="https://kekaeq-ch3301.files.1drv.com/y3mN8FseIEbAaQfT8ynEIc4nYsOUK0p0IN7Hp39imVSZXNQXlSfAYmvaC-9bDM3Hq6rPCV1XgrgvoST8wXejwARXaDmXptZpb_nyWwUzWK1rzaJ6fSsYfnP0icRKUclaVxnlltOJSQiuTFO7_fCfabmv0AsrgL5sLo6GdVJmpd-L10/QQ%E5%9B%BE%E7%89%8720151003165909.jpg?psid=1" alt="enter image description here"></p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/类字段与类属性/" data-id="cirp1bems00051sulvg9vtqp4" class="article-share-link">Share</a>
-      
-      
-	  <!-- JiaThis Button BEGIN -->
-<div class="jiathis_style">
-	<span class="jiathis_txt">分享到：</span>
-	<a class="jiathis_button_tools_1"></a>
-	<a class="jiathis_button_tools_2"></a>
-	<a class="jiathis_button_tools_3"></a>
-	<a class="jiathis_button_tools_4"></a>
-	<a href="http://www.jiathis.com/share" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
-	<a class="jiathis_counter_style"></a>
-</div>
-<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js" charset="utf-8"></script>
-<!-- JiaThis Button END -->
-	  
-    </footer>
-  </div>
-  
-</article>
-
-
-
- 
-  
-    <article id="post-托管堆和垃圾回收" class="article article-type-post" itemscope itemprop="blogPost">
-  <div class="article-meta">
-    <a href="/2016/04/20/托管堆和垃圾回收/" class="article-date">
-  <time datetime="2016-04-20T13:19:00.998Z" itemprop="datePublished">2016-04-20</time>
-</a>
-    
-  <div class="article-category">
-    <a class="article-category-link" href="/categories/GC/">GC</a>
-  </div>
-
-  </div>
-  <div class="article-inner">
-    
-    
-      <header class="article-header">
-        
-  
-    <h1 itemprop="name">
-      <a class="article-title" href="/2016/04/20/托管堆和垃圾回收/">C#.NET托管堆和垃圾回收</a>
-    </h1>
-  
-
-      </header>
-    
-    <div class="article-entry" itemprop="articleBody">
-      
-        <p>###托管堆基础<br> 简述：每个程序都要使用这样或那样的资源，包括文件、内存缓冲区、屏幕空间、网络连接…..事实上，在面向对象的环境中，每个类型都代表可供程序使用的一种资源。要使用这些资源，必须为代表资源的类型分配内存。</p>
-<p> 以下是访问一个资源所需步骤：</p>
-<ol>
-<li>调用IL指令newobj，为代表资源的类型分配内存。(C# new操作符)</li>
-<li>初始化内存，设置资源的初始状态。（一般指构造函数）</li>
-<li>访问类型的成员来使用资源。（使用成员变量、方法、属性等）</li>
-<li>摧毁资源的状态以进行清除。（Dispose？？？）</li>
-<li>释放内存。（GC） </li>
-</ol>
-<p>###从托管堆分配资源</p>
-<p>CLR要求所有的对象都从托管堆分配。<br>进程初始化，CLR划出一个地址空间区域作为托管堆。CLR还要维护一个指针，姑且叫NextObjPtr，该指针指向下一个对象在堆中的分配位置。刚开始的时候， NextObjPtr 设为地址空间区域的基地址。<br>一个区域被非垃圾对象填满后，CLR会分配更多的区域。</p>
-<p>这一个过程一直重复，直至整个进程地址空间被填满。所以，应用程序内存收进程的虚拟地址空间的限制。</p>
-<p>32位进程最多能分配1.5GB，64位进程最多能分配8T。<br>注：进程内存大小的相关资料</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/windows/hardware/Dn613959(v=vs.85" target="_blank" rel="external">Memory Support and Windows Operating Systems</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/ms189334.aspx" target="_blank" rel="external">进程地址空间</a></p>
-<p><a href="http://blog.csdn.net/yusiguyuan/article/details/12405799" target="_blank" rel="external"> 32位模式下C/C++程序可用最大内存</a></p>
-<p>###C# 的new操作符导致CLR执行以下操作：</p>
-<p>1、计算类型的字段（以及从基类型继承的字段）所需要的字节数。</p>
-<p>2、加上对象的开销所需的字节数。每个对象都有两个开销字段：类型对象指针和同步块索引。对于32位应用程序，这两个字段各需要32位，所以每个对象需要增加8字节。对于64位应用程序，这两个字段各需要64位，所以每个对象要增加16字节。</p>
-<p>3、CLR检查区域中是否有分配对象所需的字节数。如果托管堆有足够的可用空间，就在NetxObjPtr指针指向的地址处放入对象，为对象分配的字节会被清零。接着调用类型的构造器（为this参数传递NextObjPtr），new操作符返回对象引用。就在返回这个对象引用之前，NextObjPtr指针的值会加上这个对象占用的字节数来得到一个新值，即下个对象放入托管堆时的地址。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/i3rlSCPAcnT9pL0El0BptPIBpuvnxHpBw9Nkp*UqIjw!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=LwKNAC8CjQADACU!&amp;su=1199793361&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>###垃圾回收算法</p>
-<p>####CLR使用引用跟踪算法。<br>引用跟踪算法只关心引用类型的变量，因为只有这种变量才能引用堆上面的对象；<br>值类型变量直接包含值类型实例。引用类型变量可在许多场合使用，包括类的静态和实例字段，或者方法的参数和局部变量。这里我们将所有引用类型的变量都称为根。<br>CLR开始GC时，首先暂停所有的线程。(这样可以防止线程在CLR检查期间访问对象并更改其状态。) 然后CLR进入GC标记阶段。在这个阶段，CLR遍历堆中的所有对象，将同步块索引字段中的一位设为0。这表明所有的对象都应删除。然后，CLR检查所有的活动根，查看他们引用了哪些对象。这正是CLR的GC被称作引用跟踪GC的原因。如果一个根包含null，CLR忽略这个根并继续检查下一个根。<br>下图展示一个堆，其中包含几个对象。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/eVBVeXGrNAfoWfyRgl4aC2RRSGgiDpmbrocv4lTSJMA!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=gAIFAYACBQEDACU!&amp;su=1176931729&amp;sce=0-12-12&amp;rf=2-9" alt="图片1"></p>
-<p>应用程序的根直接引用对象A 、C、D 、F。所有的对象都已经被标记。标记对象D时，GC发现这个对象含有一个引用对象H的字段，造成对象H也被标记。标记过程会持续，直至应用程序的所有根所有检查完毕。<br>检查完毕后，堆中的对象要么已标记，要么未标记。已标记的对象不能被垃圾回收，因为至少有一个根在引用它。我们说这种对象是可达的，因为应用程序可以通过引用它的变量抵达它。 未标记的对象是不可达的，因为应用程序中不存在使对象能被再次访问的根。</p>
-<p>CLR知道哪些对象可以幸存，哪些可以被删除后，进入GC的压缩（类似于碎片整理）阶段。在压缩阶段，CLR对堆中已标记的对象进行“乾坤大挪移”，整理所有幸存下来的对象，使他们占用连续的内存。</p>
-<p>这样做的好处在于：</p>
-<p>1、所有幸存对象在内存中紧挨在一起，恢复了引用的“局部性”，减少了应用程序的工作集，从而提升了将来访问这些对象时的性能；</p>
-<p>2、经过整理后，可用空间也是连续的，整个地址空间区段得到了解放，允许其他东西进驻。</p>
-<p>在内存中移动了对象之后有一个问题亟待解决。引用幸存对象的根现在引用的还是对象最初在内存中的位置，而非移动后的位置。被暂停的线程恢复执行时，将访问旧的内存位置，会造成内存损坏。 这显然是不能容忍的，所以作为压缩阶段的一部分，CLR还要从每个根减去所引用对象在内存中偏移的字节数。这样就能保证每个根还是引用和之前一样的对象，只是对象在内存中变换了位置。<br>如图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/FyP2yk1O6kMsq3.u4e4x3qrAxpwbajgSHOd4QHTJOhE!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=TQI*AU0CPwEDACU!&amp;su=1202148209&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>##代：提升性能 (待续)<br>CLR的GC是基于代的垃圾回收器，它对你的代码做出了以下几点假设：</p>
-<p>1、对象越新，生存周期越短。</p>
-<p>2、对象越老，生存周期越长。</p>
-<p>3、回收堆的一部分 ，速度快于回收整个堆。</p>
-<p>大量研究表明，这些假设对于现今大多数的应用程序都是成立的，它们影响了垃圾回收器的实现方式。这里将解释代的工作原理。</p>
-<p>托管堆在初始化时不包括对象。添加到堆的对象成为第0代对象。简单来说，第0代对象就是那些新构造的对象，垃圾回收器从未检查过它们。如下图，新启动的应用程序，分配了5个对象（从A到E）。过了一会，C和E变得不可达了。</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/77WJus7lssJpEJ2RZREQoNx.5CL31HLdboJbAgCqS0E!/o/dJMAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tQIVAbUCFQEDACU!&amp;su=172682065&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>CLR初始化第0代对象选择一个预算容量。如果分配一个新对象造成第0代超预算，就必须启动一次GC。假设对象A到E刚好用完了第0代的空间，那么分配对象F就必须启动GC。GC之后存活的对象现场成为第1代对象。如下图：</p>
-<p><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/GEDzaV4pNFNQUuDwl2EQrv*eD9Sk9OJCzx5SpRRI2fk!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=OAL5ADgC.QADACU!&amp;su=1155276897&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>一次GC之后，第0代就不包含任何对象。和前面一样，新对象会分配到第0代。新分配对象F到对象K都到了第0代。<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Op0QokzBTNYCFR6zzm2tpc2V7U70IsIJTeWrd0UAUb0!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=yAJeAcgCXgEDACU!&amp;su=1124261217&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>之后，程序继续运行，B、H、J变得不可达，它们的内存将在某一个时刻回收。</p>
-<p>假设现在新分配对象L会造成第0代超出预算,造成必须启动垃圾回收。</p>
-<p>开始垃圾回收时,垃圾回收器必须决定检查哪些代。前面说过,CLR初始化时会为第0代对象选择预算.事实上,它还必须为第1代选择预算.</p>
-<p>开始一次垃圾回收时,垃圾回收器还会检查第一代占用了多少内存。在本例中,由于第1代占用内存远少于预算,所以垃圾回收器只检查第0代对象。回顾之前基于代的垃圾回收器做出的第一个假设：对象越新，生存期越短。 因此，第0代包含更多的垃圾的可能性更大，能回收更多的内存。由于忽略第1代中的对象，所以加快了垃圾回收速度。</p>
-<p>显然，忽略第1代中的对象能提升垃圾回收器的性能。但对性能有更大提振作用的是现在不必遍历托管堆中的每个对象。如果根或对象引用了老一代的某个对象，垃圾回收器就可以忽略老对象内部的所有引用，能在更短的时间内构造好可达对象图。当然，如果老对象的字段也可能引用新对象。为了确保对老对象的已更新字段进行检查，垃圾回收器利用了JIT编译器内部的一个机制。这个机制在对象的引用字段发生变化时，会设置一个对应的标志位。这样，垃圾回收器就知道自上一次垃圾回收以来，哪些老对象（如果有的话）已被写入。只有字段发生变化的老对象才需要检查是否引用了第0代中的任何新对象。</p>
-<p>基于代的垃圾回收器还假设越老的对象活得越长。也就是说，第1代对象在应用程序中有可能是继续可达的。如果垃圾回收器检查第1代的对象，很有可能找不到多少垃圾，结果是也回收不了多少内存。因此，对第1代进行垃圾回收很可能是浪费时间的。如果第一代真有垃圾，垃圾将留在那里。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/Do.yRCBJEnaOfZaUOdxj4II9*pX2BEcX2QmIG6NQPBE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=qAI5AagCOQEDACU!&amp;su=187009937&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，继续往第0代分配对象，同时程序停止对第1代某对象的使用。</p>
-<p>如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/YEqIM16xFsSgXdvEzgrerLnKw7fEItnrSqEzlaYnUfE!/o/dGUBAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=egJPAXoCTwEDACU!&amp;su=1118118497&amp;sce=0-12-12&amp;rf=2-9" alt=""><br>分配对象P导致第0代超预算，开始GC。第1代的所有对象占据内存仍小于预算，垃圾回收器再次决定只回收第0代。忽略第1代中的垃圾对象。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/EcdSNU5AatqRERWtVdlJ7LiIPHHXe8.mklN.0hHDK9U!/o/dJQAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=aAIxAWgCMQEDACU!&amp;su=1214124305&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>程序继续运行，假设第一代的增长导致它的全部对象占用了全部预算。这时候应用程序分配对象P到对象S，使第0代对象达到它的预算总和。如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/6dB68RIUYrqMZ4p0VIY3REJZPg.g3ybkZFIazJ3h.CQ!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=jwIiAY8CIgEDACU!&amp;su=177976657&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>这时候，应用程序准备分配对象T，由于第一代已满，所以必须开始GC。但这一次垃圾回收器发现第一代占用了太多内存，以至于用完了预算。由于前几次对第0代进行GC时，第1代中可能已经有很多对象变得不可达。所以这次垃圾回收器决定检查第1代和第0代中的所有对象。两代都被垃圾回收后，堆的情况如下图：<br><img src="http://r.photo.store.qq.com/psb?/4d3e65a5-4593-42bc-88f9-7bbb2e647ebe/bxdZDsZi2Y6FSDWs7RXNPkkJK8dCzMD.cfnjwNY2Mjs!/o/dJIAAAAAAAAA&amp;ek=1&amp;kp=1&amp;pt=0&amp;bo=tgI2AbYCNgEDACU!&amp;su=197762641&amp;sce=0-12-12&amp;rf=2-9" alt=""></p>
-<p>托管堆只支持三代：第0代、第1代和第2代。</p>
-<p>CLR初始化时，会为每一代选择预算。</p>
-<p>然而，CLR的垃圾回收是自调节的。</p>
-<p>这意味着垃圾回收器会在执行垃圾回收的过程了解程序的行为。</p>
-<p>例如：假设应用程序构造了许多对象，但每个对象的时间都很短。<br>在这种情况下，对第0代的垃圾回收会回收到大量的内存。事实上，第0代的所有对象都可能被回收。</p>
-<p>如果垃圾回收器发现在回收第0代后存活下来的对象很少，就可能减少第0代的预算。已分配空间的减少意味着垃圾回收将更频繁地发生，但垃圾回收器每次做的事情也减少，这减少了进程的工作集。</p>
-<p>另一方面，如果垃圾回收器回收了第0代，发现还有很多对象存活，没多少内存可以被回收，就会增大第0代的预算。</p>
-<p>同样的启发性算法调整预算适用于了第1代和第2代的预算。</p>
-<p>引自：《CLR VIA C# -21章》</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/f144e03t(v=vs.100" target="_blank" rel="external">自动内存管理</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">垃圾回收的基础</a>.aspx)</p>
-<p><a href="https://msdn.microsoft.com/zh-cn/library/vstudio/ee787088(v=vs.100" target="_blank" rel="external">代数</a>.aspx#generations )</p>
-
-      
-    </div>
-    <footer class="article-footer">
-      <a data-url="http://codelover.link/2016/04/20/托管堆和垃圾回收/" data-id="cirp1bemv00091suldqx7r11c" class="article-share-link">Share</a>
+      <a data-url="http://codelover.link/2016/08/13/ubuntu-jexus-mywebsql/" data-id="cirstyaez0003pculecdyqw3r" class="article-share-link">Share</a>
       
       
 	  <!-- JiaThis Button BEGIN -->
@@ -1202,7 +1148,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Categories</h3>
     <div class="widget">
-      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
+      <ul class="category-list"><li class="category-list-item"><a class="category-list-link" href="/categories/net/">.net</a><span class="category-list-count">9</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/net-core/">.net core</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/CodeSmith/">CodeSmith</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/GC/">GC</a><span class="category-list-count">2</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/JavaScript/">JavaScript</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/jexus/">jexus</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/nothing/">nothing</a><span class="category-list-count">1</span></li><li class="category-list-item"><a class="category-list-link" href="/categories/ubuntu/">ubuntu</a><span class="category-list-count">1</span></li></ul>
     </div>
   </div>
 
@@ -1215,7 +1161,7 @@ public sealed class SomeType
   <div class="widget-wrap">
     <h3 class="widget-title">Archives</h3>
     <div class="widget">
-      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">1</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/06/">六月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">12</span></li></ul>
+      <ul class="archive-list"><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/08/">八月 2016</a><span class="archive-list-count">12</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/07/">七月 2016</a><span class="archive-list-count">2</span></li><li class="archive-list-item"><a class="archive-list-link" href="/archives/2016/04/">四月 2016</a><span class="archive-list-count">4</span></li></ul>
     </div>
   </div>
 
@@ -1227,23 +1173,23 @@ public sealed class SomeType
       <ul>
         
           <li>
-            <a href="/2016/08/10/58CityHouse-Crawler/">.NET_58同城品牌公寓爬虫</a>
+            <a href="/2016/08/13/58City-House-Crawler-JS/">58同城高德搜房项目JS相关知识</a>
           </li>
         
           <li>
-            <a href="/2016/07/09/ASP.NET-Core-Middleware/">ASP.NET Core Middleware</a>
+            <a href="/2016/08/13/58City-House-Crawler/">.NET_58同城品牌公寓爬虫</a>
           </li>
         
           <li>
-            <a href="/2016/07/09/asp.net-core-startup/">ASP.NET Core 启动方式（Hosting）</a>
+            <a href="/2016/08/13/GC-1/">C#.NET托管堆和垃圾回收</a>
           </li>
         
           <li>
-            <a href="/2016/06/16/避免在函数或者操作中抛出异常/">避免在函数或者操作中抛出异常</a>
+            <a href="/2016/08/13/GC-2/">C#.NET托管堆和垃圾回收(续)</a>
           </li>
         
           <li>
-            <a href="/2016/06/16/技巧避免修改绑定变量/">.NET-lmabda避免修改绑定变量</a>
+            <a href="/2016/08/13/something/">一些有用的网站</a>
           </li>
         
       </ul>
@@ -1258,6 +1204,9 @@ public sealed class SomeType
 		 <li class='link'><a href='http://www.1234.sh'>あまみや ゆうこ blog</a></li>
 		 <li class='link'><a href="http://www.linuxdot.net">Linux DotNET大本营</a></li>
 		 <li class='link'><a href="http://piratf.ml/">潘雄飞的博客 - 我是魔法师啦啦啦。</a></li>
+		  <li class='link'><a href="http://codesky.me/">CodeSky 代码之空</a></li>
+		 
+		 
       </ul>
     </div>
 </div>
