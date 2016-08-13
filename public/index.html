@@ -64,7 +64,7 @@
     <article id="post-58City-House-Crawler-JS" class="article article-type-post" itemscope itemprop="blogPost">
   <div class="article-meta">
     <a href="/2016/08/13/58City-House-Crawler-JS/" class="article-date">
-  <time datetime="2016-08-13T06:57:06.718Z" itemprop="datePublished">2016-08-13</time>
+  <time datetime="2016-08-13T15:18:04.778Z" itemprop="datePublished">2016-08-13</time>
 </a>
     
   <div class="article-category">
@@ -123,10 +123,10 @@
 <p>在这里locationSelected是定位到所选位置，代码如下：<br><figure class="highlight nimrod"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br></pre></td><td class="code"><pre><span class="line">function workLocationSelected(e) &#123;</span><br><span class="line">    workAddress = e.poi.name;</span><br><span class="line">    loadWorkLocation();</span><br><span class="line">&#125;</span><br><span class="line"></span><br><span class="line">function loadWorkLocation() &#123;</span><br><span class="line">    delWorkLocation();</span><br><span class="line">    <span class="keyword">var</span> geocoder = new <span class="type">AMap</span>.<span class="type">Geocoder</span>(&#123;</span><br><span class="line">        city: cityName,</span><br><span class="line">        radius: <span class="number">1000</span></span><br><span class="line">    &#125;);</span><br><span class="line"></span><br><span class="line">    geocoder.getLocation(workAddress, function (status, <span class="literal">result</span>) &#123;</span><br><span class="line">        <span class="keyword">if</span> (status === <span class="string">"complete"</span> &amp;&amp; <span class="literal">result</span>.info === '<span class="type">OK</span>') &#123;</span><br><span class="line">            <span class="keyword">var</span> geocode = <span class="literal">result</span>.geocodes[<span class="number">0</span>];</span><br><span class="line">            x = geocode.location.getLng();</span><br><span class="line">            y = geocode.location.getLat();</span><br><span class="line">            loadWorkMarker(x, y);</span><br><span class="line">            loadWorkRange(x, y, <span class="number">60</span>, <span class="string">"#3f67a5"</span>, vehicle);</span><br><span class="line">            map.setZoomAndCenter(<span class="number">12</span>, [x, y]);</span><br><span class="line">        &#125;</span><br><span class="line">    &#125;)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
 <p>至于导航功能代码我没怎么动，没去研究就不献丑了…</p>
 <p>最后来个效果图。</p>
-<p>####北京<br><img src="http://7xread.com1.z0.glb.clouddn.com/e7900aba-5a56-417c-9dd9-63527583e84b" alt=""></p>
-<p>####成都<br><img src="http://7xread.com1.z0.glb.clouddn.com/c9947d97-1b76-42bf-82b3-aca817e84e13" alt=""></p>
-<p>####苏州<br><img src="http://7xread.com1.z0.glb.clouddn.com/941809ae-aa37-4a3b-89c7-10646cc7e3e7" alt=""></p>
-<p>###深圳<br><img src="http://7xread.com1.z0.glb.clouddn.com/86712397-27ec-4b37-bbf8-81191e530ef6" alt=""></p>
+<h4 id="北京"><a href="#北京" class="headerlink" title="北京"></a>北京</h4><p><img src="http://7xread.com1.z0.glb.clouddn.com/e7900aba-5a56-417c-9dd9-63527583e84b" alt=""></p>
+<h4 id="成都"><a href="#成都" class="headerlink" title="成都"></a>成都</h4><p><img src="http://7xread.com1.z0.glb.clouddn.com/c9947d97-1b76-42bf-82b3-aca817e84e13" alt=""></p>
+<h4 id="苏州"><a href="#苏州" class="headerlink" title="苏州"></a>苏州</h4><p><img src="http://7xread.com1.z0.glb.clouddn.com/941809ae-aa37-4a3b-89c7-10646cc7e3e7" alt=""></p>
+<h3 id="深圳"><a href="#深圳" class="headerlink" title="深圳"></a>深圳</h3><p><img src="http://7xread.com1.z0.glb.clouddn.com/86712397-27ec-4b37-bbf8-81191e530ef6" alt=""></p>
 
       
     </div>
