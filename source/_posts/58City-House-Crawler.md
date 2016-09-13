@@ -2,6 +2,10 @@
 layout: post
 title: .NET_58同城品牌公寓爬虫
 category: .net
+date: 2016-08-08 00:00:00
+tags:
+- 58City
+- Crawler
 ---
 
 源码地址：[https://github.com/liguobao/58HouseSearch](https://github.com/liguobao/58HouseSearch)

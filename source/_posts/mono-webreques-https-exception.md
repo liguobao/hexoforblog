@@ -2,6 +2,10 @@
 layout: post
 title: mono webreques https exception
 category: .net
+date: 2016-04-10 12:39:04
+tags:
+  - mono
+  - webreques exception
 ---
 
 前几天在做一个使用URL通过WebRequest请求HTML页面的功能的时候遇到了点坑，程序在开发环境没有任何的问题，部署到linux mono上之后就跪了。代码如下：

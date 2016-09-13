@@ -2,6 +2,7 @@
 layout: post
 title: C#.NET托管堆和垃圾回收
 category: GC
+date: 2016-03-25 00:00:00
 ---
 
 ###托管堆基础

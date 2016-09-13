@@ -2,6 +2,7 @@
 layout: post
 title: 避免在函数或者操作中抛出异常
 category: .net
+date: 2016-06-20 00:00:00
 ---
 
 ## 1、引言

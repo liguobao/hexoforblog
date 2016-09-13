@@ -7,7 +7,7 @@ title: codelover's blog
 subtitle:
 description: 一直走在吃软饭路上的软狗
 author: 李国宝
-language: zh-CN
+language: zh-Hans
 timezone: Asia/Shanghai
 email: codelover@qq.com
 
@@ -64,7 +64,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: http://hexo.io/plugins/
 ## Themes: http://hexo.io/themes/
-theme: landscape
+theme: next
 
 duoshuo_shortname: codelover
 

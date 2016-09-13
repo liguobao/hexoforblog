@@ -2,6 +2,7 @@
 layout: post
 title: ASP.NET Core 启动方式（Hosting）
 category: .net core
+date: 2016-07-28 00:00:00
 ---
 
 之前版本的ASP.NET程序必须依赖IIS来启动，而IIS上会为挂载在其中的ASP.NET 注册一个ISAPI filter。每当http请求过来时，IIS则会启动w3wp的worker process来开始整个ASP.NET runtime程序。相信大家都这样的流程都有相应的了解。在.net core之前，ASP.NET的主要场景都是运行在Windows平台的，IIS也就是web server的首选了。虽然也有类似于jexus的linux webserver可用，但是基于mono的.NET 总体还是不够Microsoft 原生的强。

@@ -2,6 +2,7 @@
 layout: post
 title: 58同城高德搜房项目JS相关知识
 category: JavaScript
+date: 2016-08-13 00:00:00
 ---
 
 在线地址：[58同城品牌公寓高德搜房](http://codelover.link:8080/)
@@ -203,19 +204,15 @@ function loadWorkLocation() {
 #### 北京
 ![](http://7xread.com1.z0.glb.clouddn.com/e7900aba-5a56-417c-9dd9-63527583e84b)
 
-
-
 #### 成都
 ![](http://7xread.com1.z0.glb.clouddn.com/c9947d97-1b76-42bf-82b3-aca817e84e13)
-
-
 
 #### 苏州
 ![](http://7xread.com1.z0.glb.clouddn.com/941809ae-aa37-4a3b-89c7-10646cc7e3e7)
 
-
-### 深圳
+#### 深圳
 ![](http://7xread.com1.z0.glb.clouddn.com/86712397-27ec-4b37-bbf8-81191e530ef6)
+
 
 
 

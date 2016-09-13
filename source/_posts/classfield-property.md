@@ -2,6 +2,7 @@
 layout: post
 title: .NET 类字段与类属性
 category: .net
+date: 2016-02-10 00:00:00
 ---
 #.NET 类字段与类属性
 @(.NET)[基础|字段|属性]

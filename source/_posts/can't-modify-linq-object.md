@@ -2,6 +2,7 @@
 layout: post
 title: .NET-lmabda避免修改绑定变量
 category: .net
+date: 2016-02-15 00:00:00
 ---
 
 先看一段代码

@@ -2,6 +2,7 @@
 layout: post
 title: CodeSmith for MySQL template
 category: CodeSmith
+date: 2016-03-28 00:00:00
 ---
 
 
