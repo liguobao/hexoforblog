@@ -18,13 +18,12 @@ module.exports = function(hljs) {
     keywords: CRYSTAL_KEYWORDS
   };
   var EXPANSION = {
-    className: 'expansion',
+    className: 'template-variable',
     variants: [
       {begin: '\\{\\{', end: '\\}\\}'},
       {begin: '\\{%', end: '%\\}'}
     ],
-    keywords: CRYSTAL_KEYWORDS,
-    relevance: 10
+    keywords: CRYSTAL_KEYWORDS
   };
 
   function recursiveParen(begin, end) {
@@ -58,6 +57,7 @@ module.exports = function(hljs) {
         className: 'regexp',
         contains: [hljs.BACKSLASH_ESCAPE, SUBST],
         variants: [
+          {begin: '//[a-z]*', relevance: 0},
           {begin: '/', end: '/[a-z]*'},
           {begin: '%r\\(', end: '\\)', contains: recursiveParen('\\(', '\\)')},
           {begin: '%r\\[', end: '\\]', contains: recursiveParen('\\[', '\\]')},
@@ -88,9 +88,11 @@ module.exports = function(hljs) {
     relevance: 0
   };
   var ATTRIBUTE = {
-    className: 'annotation',
+    className: 'meta',
     begin: '@\\[', end: '\\]',
-    relevance: 5
+    contains: [
+      hljs.inherit(hljs.QUOTE_STRING_MODE, {className: 'meta-string'})
+    ]
   };
   var CRYSTAL_DEFAULT_CONTAINS = [
     EXPANSION,
@@ -106,14 +108,7 @@ module.exports = function(hljs) {
       contains: [
         hljs.HASH_COMMENT_MODE,
         hljs.inherit(hljs.TITLE_MODE, {begin: '[A-Za-z_]\\w*(::\\w+)*(\\?|\\!)?'}),
-        {
-          className: 'inheritance',
-          begin: '<\\s*',
-          contains: [{
-            className: 'parent',
-            begin: '(' + hljs.IDENT_RE + '::)?' + hljs.IDENT_RE
-          }]
-        }
+        {begin: '<'} // relevance booster for inheritance
       ]
     },
     {
@@ -148,11 +143,6 @@ module.exports = function(hljs) {
       relevance: 5
     },
     {
-      className: 'constant',
-      begin: '(::)?(\\b[A-Z]\\w*(::)?)+',
-      relevance: 0
-    },
-    {
       className: 'symbol',
       begin: hljs.UNDERSCORE_IDENT_RE + '(\\!|\\?)?:',
       relevance: 0
@@ -172,14 +162,9 @@ module.exports = function(hljs) {
         { begin: '\\b(([0-9][0-9_]*[0-9]|[0-9])(\\.[0-9_]*[0-9])?([eE][+-]?[0-9_]*[0-9])?)' + NUM_SUFFIX}
       ],
       relevance: 0
-    },
-    {
-      className: 'variable',
-      begin: '(\\$\\W)|((\\$|\\@\\@?|%)(\\w+))'
     }
   ];
   SUBST.contains = CRYSTAL_DEFAULT_CONTAINS;
-  ATTRIBUTE.contains = CRYSTAL_DEFAULT_CONTAINS;
   EXPANSION.contains = CRYSTAL_DEFAULT_CONTAINS.slice(1); // without EXPANSION
 
   return {
