@@ -18,6 +18,8 @@ root: /
 permalink: :year/:month/:day/:title/
 permalink_defaults:
 
+avatar: http://7xrayk.com1.z0.glb.clouddn.com/%E5%A4%A7%E7%86%8A%E5%B0%8F%E7%86%8A.jpg
+
 # Directory
 source_dir: source
 public_dir: public
@@ -64,7 +66,7 @@ pagination_dir: page
 # Extensions
 ## Plugins: http://hexo.io/plugins/
 ## Themes: http://hexo.io/themes/
-theme: nexttheme
+theme: next
 
 duoshuo_shortname: codelover
 

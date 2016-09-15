@@ -342,7 +342,7 @@
 <li>优化数据源、去除广告数据：小伙伴奉献代码</li>
 </ol>
 <p>今天主要简单讲解一下其中使用的一些高德地图API接口。</p>
-<p>#####高德地图JavaScript API 主体为map对象，基本所有的操作都是通过map对象来实现的。<br>map对象实例化是通过 Amap类来做的。如以下代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">map = <span class="keyword">new</span> AMap.Map(<span class="string">"container"</span>, &#123;</div><div class="line">        resizeEnable: <span class="literal">true</span>,</div><div class="line">        zoomEnable: <span class="literal">true</span>,</div><div class="line">        center: [<span class="number">121.297428</span>, <span class="number">31.1345</span>],<span class="comment">//经纬度，此处为上海</span></div><div class="line">        zoom: <span class="number">11</span></div><div class="line">    &#125;);</div></pre></td></tr></table></figure></p>
+<p>高德地图JavaScript API 主体为map对象，基本所有的操作都是通过map对象来实现的。<br>map对象实例化是通过 Amap类来做的。如以下代码：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">map = <span class="keyword">new</span> AMap.Map(<span class="string">"container"</span>, &#123;</div><div class="line">        resizeEnable: <span class="literal">true</span>,</div><div class="line">        zoomEnable: <span class="literal">true</span>,</div><div class="line">        center: [<span class="number">121.297428</span>, <span class="number">31.1345</span>],<span class="comment">//经纬度，此处为上海</span></div><div class="line">        zoom: <span class="number">11</span></div><div class="line">    &#125;);</div></pre></td></tr></table></figure></p>
 <h4 id="IP定位"><a href="#IP定位" class="headerlink" title="IP定位"></a>IP定位</h4><p>调用Map.CitySearch()获得当前IP所在城市，直接将地图显示成当前城市。代码如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">showCityInfo</span>(<span class="params">map</span>) </span>&#123;</div><div class="line">    <span class="comment">//实例化城市查询类</span></div><div class="line">    <span class="keyword">var</span> citysearch = <span class="keyword">new</span> AMap.CitySearch();</div><div class="line">    <span class="comment">//自动获取用户IP，返回当前城市</span></div><div class="line">    citysearch.getLocalCity(<span class="function"><span class="keyword">function</span> (<span class="params">status, result</span>) </span>&#123;</div><div class="line">        <span class="keyword">if</span> (status === <span class="string">'complete'</span> &amp;&amp; result.info === <span class="string">'OK'</span>) &#123;</div><div class="line">            <span class="keyword">if</span> (result &amp;&amp; result.city &amp;&amp; result.bounds) &#123;</div><div class="line">                <span class="keyword">var</span> cityinfo = result.city;<span class="comment">//获得XX市</span></div><div class="line">                <span class="keyword">var</span> citybounds = result.bounds;<span class="comment">//用于设置地图显示位置的实例</span></div><div class="line">                cityName = cityinfo.substring(<span class="number">0</span>, cityinfo.length - <span class="number">1</span>);<span class="comment">//去掉市这个字</span></div><div class="line">                ConvertCityCNNameToShortCut();<span class="comment">//城市名转换成58同城城市域名字母，如上海-&gt;sh,苏州-&gt;su,</span></div><div class="line">                                              <span class="comment">//下面会有实现代码</span></div><div class="line"></div><div class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = <span class="string">'您当前所在城市：'</span> + cityName;</div><div class="line">                <span class="comment">//地图显示当前城市</span></div><div class="line">                map.setBounds(citybounds);</div><div class="line">            &#125;</div><div class="line">        &#125; <span class="keyword">else</span> &#123;</div><div class="line">            <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = result.info;</div><div class="line">        &#125;</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
 <h4 id="移动地图自动中心定位"><a href="#移动地图自动中心定位" class="headerlink" title="移动地图自动中心定位"></a>移动地图自动中心定位</h4><p>之前有一版是让用户输入城市名，然后直接定位到输入的城市的。<br>这个功能卡在了设置地图显示位置上，如果是使用高德地图提供的搜索控件的话，又存在输入结果之后搜索结果可能是多个的问题。而且这点我只是要取到用户想要定位的城市而已，感觉没必要做得太复杂。<br>昨晚在看高德地图API的时候发现，有一个移动地图获得地图中心所在位置的样例，马上眼前一亮了。这个功能比我想要的还要好…果断上。</p>
 <figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">function</span> <span class="title">MapMoveToLocationCity</span>(<span class="params"></span>)</span></div><div class="line">&#123;</div><div class="line">    map.on(<span class="string">'moveend'</span>, getCity);</div><div class="line">    <span class="function"><span class="keyword">function</span> <span class="title">getCity</span>(<span class="params"></span>) </span>&#123;</div><div class="line">        map.getCity(<span class="function"><span class="keyword">function</span> (<span class="params">data</span>) </span>&#123;</div><div class="line">            <span class="keyword">if</span> (data[<span class="string">'province'</span>] &amp;&amp; <span class="keyword">typeof</span> data[<span class="string">'province'</span>] === <span class="string">'string'</span>) &#123;</div><div class="line"></div><div class="line">                <span class="keyword">var</span> cityinfo = (data[<span class="string">'city'</span>] || data[<span class="string">'province'</span>]);</div><div class="line">                cityName = cityinfo.substring(<span class="number">0</span>, cityinfo.length - <span class="number">1</span>);</div><div class="line">                ConvertCityCNNameToShortCut();<span class="comment">//城市名转58同城地区域名</span></div><div class="line"></div><div class="line">                <span class="built_in">document</span>.getElementById(<span class="string">'IPLocation'</span>).innerHTML = <span class="string">'地图中心所在城市：'</span> + cityName;</div><div class="line"></div><div class="line">            &#125;</div><div class="line">        &#125;);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
@@ -494,7 +494,7 @@
 <p>周末闲着无事刷知乎发现一个爬虫教程（<a href="https://zhuanlan.zhihu.com/p/21883516" target="_blank" rel="external">高德API+Python解决租房问题</a><br>），正中最近想要换地方住的痛点。然后大早上懒觉都没睡就屁颠屁颠开始研究这个教程了。这样教程在实验楼网站里面有手把手步骤，有兴趣自取（<a href="https://www.shiyanlou.com/courses/599" target="_blank" rel="external">实验楼：高德API+Python解决租房问题</a>）。</p>
 <p>整体项目主要分成两步：</p>
 <p>第一步:python爬取数据，生成数据文件;</p>
-<p>第二部：导入数据文件，在地图上显示房源，设定上班地点后自动计算出行路线和路程时间。</p>
+<p>第二步：导入数据文件，在地图上显示房源，设定上班地点后自动计算出行路线和路程时间。</p>
 <p>研究了一下这个教程之后发现这货做得实在有点粗糙，只能当教程用，完全没有通用实际价值。</p>
 <p>而且这里面还有个更大的问题：教程是基于北京的数据来做的，而我在上海…</p>
 <p>虽然说改改python数据源，改改导航页面JS完事。不过是在难用…</p>
@@ -605,8 +605,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/net/" itemprop="url" rel="index">
-                    <span itemprop="name">.net</span>
+                  <a href="/categories/net-core/" itemprop="url" rel="index">
+                    <span itemprop="name">.net core</span>
                   </a>
                 </span>
 
@@ -650,7 +650,8 @@
             <p>在ASP.NET 时代，一般来说我们很少会用到HttpModule/HttpHandler，然而有些场景我们使用HttpModule/HttpHandler倒方便快捷完成我们的需求。有兴趣了解HttpModule/HttpHandler以及使用场景的话，可以看下面这个链接的内容。</p>
 <p><a href="http://www.cnblogs.com/fish-li/archive/2013/01/04/2844908.html" target="_blank" rel="external">选择HttpHandler还是HttpModule？</a></p>
 <p>来到ASP.NET Core时代，类似功能的内容可能我们看得就要多得多了。因为在ASP.NET Core时代，微软将HttpModule“变更”之后，并为它授予了更灵活应用场景。</p>
-<h5 id="这就是这个文章要介绍的主角：Middleware（中间件）。"><a href="#这就是这个文章要介绍的主角：Middleware（中间件）。" class="headerlink" title="这就是这个文章要介绍的主角：Middleware（中间件）。"></a>这就是这个文章要介绍的主角：Middleware（中间件）。</h5><h2 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h2><p>为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。</p>
+<p>这就是这个文章要介绍的主角：Middleware（中间件）。</p>
+<h2 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h2><p>为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。</p>
 <p>首先先来看看什么是middleware。</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, </span></span></div><div class="line">                      ILoggerFactory loggerFactory)</div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseStaticFiles();</div><div class="line"></div><div class="line">    app.UseMvc(routes =&gt;</div><div class="line">    &#123;</div><div class="line">        routes.MapRoute(<span class="string">"default"</span>,</div><div class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <p>看过ASP.NET Core项目的话，相信大家对Satarup.cs并不会陌生。在Starup.cs里面便有一个Configure()函数用于定义项目需要使用哪些middleware。</p>
@@ -807,7 +808,8 @@
           
             <p>之前版本的ASP.NET程序必须依赖IIS来启动，而IIS上会为挂载在其中的ASP.NET 注册一个ISAPI filter。每当http请求过来时，IIS则会启动w3wp的worker process来开始整个ASP.NET runtime程序。相信大家都这样的流程都有相应的了解。在.net core之前，ASP.NET的主要场景都是运行在Windows平台的，IIS也就是web server的首选了。虽然也有类似于jexus的linux webserver可用，但是基于mono的.NET 总体还是不够Microsoft 原生的强。</p>
 <p>不过到了现在，一切都不同了。</p>
-<h6 id="新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。"><a href="#新版ASP-NET-Core有了-NET-Core的支援后已经开始了它的跨平台之旅了，因此ASP-NET-Core的启动方式也得开始重新设计以适应新需求了。" class="headerlink" title="新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。"></a>新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。</h6><h3 id="1、Kestrel-和-IIS-platform-handler"><a href="#1、Kestrel-和-IIS-platform-handler" class="headerlink" title="1、Kestrel 和 IIS platform handler"></a>1、Kestrel 和 IIS platform handler</h3><p>在 ASP.NET Core 中，整个runtime都是重写过的，所以它和IIS之间的关系也有所改变。而ASP.NET Core为了跨平台，它现在的执行方式就如一般的Console app一样。ASP.NET Core自带一个高性能的I/O组件 - Kestrel，使得它可以不依赖IIS的存在便启动了runtime。不过Kestrel 也只是一个I/O组件，并没有想IIS提供其它的功能来保护和管理ASP.NET 应用程序。ASP.NET Core同样可以通过IIS进行处理。但是如果通过IIS来进行处理的话，这个时候我们便需要一个“中间人”的角色来负责这个功能了。这个“中间人”的名字叫 Http Platform Handler，主要表现在web.config文档中的设置，其中包括启动ASP.NET Core 程序的的路径和名称，需要传入的参数以及一些其他的设置选项。Http Platform Handler的具体设置例子如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;system.webServer&gt;</div><div class="line">    &lt;handlers&gt;</div><div class="line">      &lt;add name=<span class="string">"httpPlatformHandler"</span> path=<span class="string">"*"</span> verb=<span class="string">"*"</span></div><div class="line">      modules=<span class="string">"httpPlatformHandler"</span> resourceType=<span class="string">"Unspecified"</span>/&gt;</div><div class="line">    &lt;/handlers&gt;</div><div class="line">    &lt;httpPlatform processPath=<span class="string">"WebApp.exe"</span> arguments=<span class="string">""</span> </div><div class="line">    stdoutLogEnabled=<span class="string">"false"</span> startupTimeLimit=<span class="string">"3600"</span>/&gt;</div><div class="line">  &lt;/system.webServer&gt;</div></pre></td></tr></table></figure></p>
+<p>新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。</p>
+<h3 id="1、Kestrel-和-IIS-platform-handler"><a href="#1、Kestrel-和-IIS-platform-handler" class="headerlink" title="1、Kestrel 和 IIS platform handler"></a>1、Kestrel 和 IIS platform handler</h3><p>在 ASP.NET Core 中，整个runtime都是重写过的，所以它和IIS之间的关系也有所改变。而ASP.NET Core为了跨平台，它现在的执行方式就如一般的Console app一样。ASP.NET Core自带一个高性能的I/O组件 - Kestrel，使得它可以不依赖IIS的存在便启动了runtime。不过Kestrel 也只是一个I/O组件，并没有想IIS提供其它的功能来保护和管理ASP.NET 应用程序。ASP.NET Core同样可以通过IIS进行处理。但是如果通过IIS来进行处理的话，这个时候我们便需要一个“中间人”的角色来负责这个功能了。这个“中间人”的名字叫 Http Platform Handler，主要表现在web.config文档中的设置，其中包括启动ASP.NET Core 程序的的路径和名称，需要传入的参数以及一些其他的设置选项。Http Platform Handler的具体设置例子如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;system.webServer&gt;</div><div class="line">    &lt;handlers&gt;</div><div class="line">      &lt;add name=<span class="string">"httpPlatformHandler"</span> path=<span class="string">"*"</span> verb=<span class="string">"*"</span></div><div class="line">      modules=<span class="string">"httpPlatformHandler"</span> resourceType=<span class="string">"Unspecified"</span>/&gt;</div><div class="line">    &lt;/handlers&gt;</div><div class="line">    &lt;httpPlatform processPath=<span class="string">"WebApp.exe"</span> arguments=<span class="string">""</span> </div><div class="line">    stdoutLogEnabled=<span class="string">"false"</span> startupTimeLimit=<span class="string">"3600"</span>/&gt;</div><div class="line">  &lt;/system.webServer&gt;</div></pre></td></tr></table></figure></p>
 <p>关于Http Platform Handler的相关资料可以看这个链接：<br><a href="http://www.iis.net/downloads/microsoft/httpplatformhandler" target="_blank" rel="external">http://www.iis.net/downloads/microsoft/httpplatformhandler</a></p>
 <p>从上面的例子可以看出来，ASP.NET Core编译之后便是一个EXE程序，使得你可以直接运行。因此，当HTTP请求进来时，IIS先接受请求，然后根据你设置的web.config的内容将请求转发给WebApp.exe（你的ASP.NET Core程序），然后WebApp.exe开始执行时便会启动Kestrel，接着这个HTTP请求便进入了ASP.NET Core runtime的世界。这样看来，IIS这时候只是一个简单的proxy/forwarder角色。</p>
 <p>PS：在我翻译整理这个文章的时候，世界已经发生了变化：下个版本的asp.net core 将会有全新的IIS module来取代Http Platform Handler。</p>
@@ -816,17 +818,17 @@
 <p>ASP.NET Core host engine 的建立者是 WebHostBuilder．</p>
 <p>它实质上是一个了 IWebHostBuilder interface，其中 UseServer() 是用于指定使用什么样的 server。</p>
 <p>其中 UseServer() 有一个扩展方法UseServer(string assemblyName)。这样的话我们可以直接传入Kestrel的程序集名称:”Microsoft.AspNetCore.Server.Kestrel”。当然，这只是其中一种选项。你也可以自己实现一个自己的 server，只要你的 server 实现了 IServerFactory interface 即可。这样的设计提供了一个很大的弹性空间让我们自行选择hosting server（托管服务）。</p>
-<h5 id="UseContentRoot"><a href="#UseContentRoot" class="headerlink" title="UseContentRoot()"></a>UseContentRoot()</h5><ul>
+<h3 id="UseContentRoot"><a href="#UseContentRoot" class="headerlink" title="UseContentRoot()"></a>UseContentRoot()</h3><ul>
 <li>这个扩展方法是让我们指定应用程序的工作目录（working directory），如果我们没有指定的话，则会默认为我们的应用（webapp.exe）所在目录为工作目录。</li>
 </ul>
-<h5 id="UseDefaultConfiguration"><a href="#UseDefaultConfiguration" class="headerlink" title="UseDefaultConfiguration()"></a>UseDefaultConfiguration()</h5><ul>
+<h3 id="UseDefaultConfiguration"><a href="#UseDefaultConfiguration" class="headerlink" title="UseDefaultConfiguration()"></a>UseDefaultConfiguration()</h3><ul>
 <li>这个扩展方法使得我们在IWebHostBuilder 建立可以传入一些参数，比如 application key, environment name, server factory location, content root path 等等．因此，当我们在运行 WebApp.exe 的时候，同时可以带入我们需要用到的hosting参数（PS：这样的做法就像运行命令行程序时带入参数，多好玩）。这些参数也可以写在appsettings.json里面通过Configuration来读取。<br>所以，UseDefaultConfiguration() 也不一定非要存在于 Main() 之中。（？？？个人不是很理解）</li>
 </ul>
 <p>PS：原作者原话，”如果我沒记错的话，在写这个文章的时候，UseDefaultConfiguration() 已经被改为成了UseDefaultHostingConfiguration()．显然这个名称更能清楚明白．”(？？？个人还没实践)</p>
-<h5 id="UseIISPlatofmrHandleUrl"><a href="#UseIISPlatofmrHandleUrl" class="headerlink" title="UseIISPlatofmrHandleUrl()"></a>UseIISPlatofmrHandleUrl()</h5><ul>
+<h3 id="UseIISPlatofmrHandleUrl"><a href="#UseIISPlatofmrHandleUrl" class="headerlink" title="UseIISPlatofmrHandleUrl()"></a>UseIISPlatofmrHandleUrl()</h3><ul>
 <li>这个 IWebHostBuilder 的 扩展方法比较特殊。如果你要把 ASP.NET Core 放在 IIS 下，这个扩展方法会读取 IIS http platform handler 的 server port 和 application path，用于作为 ASP.NET Core 的启动位置，如 <a href="http://localhost:5000/start．如果你沒用" target="_blank" rel="external">http://localhost:5000/start．如果你沒用</a> IIS，这个扩展方法对你来说基本是用不上的．</li>
 </ul>
-<h5 id="UseStartup-lt-gt"><a href="#UseStartup-lt-gt" class="headerlink" title="UseStartup&lt;&gt;()"></a>UseStartup&lt;&gt;()</h5><ul>
+<h3 id="UseStartup-lt-gt"><a href="#UseStartup-lt-gt" class="headerlink" title="UseStartup&lt;&gt;()"></a>UseStartup&lt;&gt;()</h3><ul>
 <li>这是 WebHostBuilder 里相当重要的一个扩展方法。它的方法签名如下：</li>
 </ul>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> IWebHostBuilder UseStartup&lt;TStartup&gt;</div><div class="line">(<span class="keyword">this</span> IWebHostBuilder hostBuilder) <span class="keyword">where</span> TStartup : <span class="keyword">class</span></div></pre></td></tr></table></figure>
@@ -846,10 +848,10 @@
 <p>Configure() 主要是定义了中间件（middleware）以及它们的顺序．</p>
 <figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory</span>)</span></div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseStaticFiles();</div><div class="line"></div><div class="line">    app.UseMvcWithDefaultRoute();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
 <h3 id="4、Build-和-Run"><a href="#4、Build-和-Run" class="headerlink" title="4、Build 和 Run"></a>4、Build 和 Run</h3><p>最后，在IHostWebBuilder里最后的两个动作便是：Build and Run. </p>
-<h5 id="Build"><a href="#Build" class="headerlink" title="Build()"></a>Build()</h5><ul>
+<h3 id="Build"><a href="#Build" class="headerlink" title="Build()"></a>Build()</h3><ul>
 <li>这个方法做的工作便是建立 hosting service，把 Startup 中定义的的 services 和 middleware 接收过来，然后确定content root path 和 application name，接着一句前面这些资料再加上Configuration过来的数据来初始化host engine (WebHost.cs)．</li>
 </ul>
-<h5 id="Run"><a href="#Run" class="headerlink" title="Run()"></a>Run()</h5><ul>
+<h3 id="Run"><a href="#Run" class="headerlink" title="Run()"></a>Run()</h3><ul>
 <li>这个是启动 host engine 的 扩展方法，它在启动之前加入了一个 CancelKeyPress 的事件．因为在 Run() 方法 中传入入了 CancellationTokenSource() ，让我们有一个方法可以随时中断host engine的执行。</li>
 </ul>
 <p>目前的做法就用是 CancelKeyPress 事件，所以你可以按下 Ctrl+C  來中止 host engine 的执行．</p>
@@ -1639,7 +1641,7 @@
             
               
                 
-                <a class="post-title-link" href="/2016/03/28/CodeSmith to MySQL/" itemprop="url">
+                <a class="post-title-link" href="/2016/03/28/CodeSmith-to-MySQL/" itemprop="url">
                   CodeSmith for MySQL template
                 </a>
               
@@ -1683,8 +1685,8 @@
             
               <span class="post-comments-count">
                 &nbsp; | &nbsp;
-                <a href="/2016/03/28/CodeSmith to MySQL/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/CodeSmith to MySQL/" itemprop="commentsCount"></span>
+                <a href="/2016/03/28/CodeSmith-to-MySQL/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/CodeSmith-to-MySQL/" itemprop="commentsCount"></span>
                 </a>
               </span>
             
@@ -1820,7 +1822,7 @@
       <section class="site-overview sidebar-panel  sidebar-panel-active ">
         <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
           <img class="site-author-image" itemprop="image"
-               src="/images/avatar.gif"
+               src="http://7xrayk.com1.z0.glb.clouddn.com/%E5%A4%A7%E7%86%8A%E5%B0%8F%E7%86%8A.jpg"
                alt="李国宝" />
           <p class="site-author-name" itemprop="name">李国宝</p>
           <p class="site-description motion-element" itemprop="description">一直走在吃软饭路上的软狗</p>
@@ -1836,7 +1838,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">8</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1845,7 +1847,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">4</span>
+                <span class="site-state-item-count">6</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>

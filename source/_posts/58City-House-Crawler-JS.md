@@ -22,7 +22,7 @@ Github地址：[https://github.com/liguobao/58HouseSearch](https://github.com/li
 
 今天主要简单讲解一下其中使用的一些高德地图API接口。
 
-#####高德地图JavaScript API 主体为map对象，基本所有的操作都是通过map对象来实现的。
+高德地图JavaScript API 主体为map对象，基本所有的操作都是通过map对象来实现的。
 map对象实例化是通过 Amap类来做的。如以下代码：
 ```javascript
 map = new AMap.Map("container", {

@@ -9,7 +9,7 @@ date: 2016-07-28 00:00:00
 
 不过到了现在，一切都不同了。
 
-###### 新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。
+新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。
 
 
 ### 1、Kestrel 和 IIS platform handler
@@ -61,20 +61,20 @@ ASP.NET Core host engine 的建立者是 WebHostBuilder．
 
 其中 UseServer() 有一个扩展方法UseServer(string assemblyName)。这样的话我们可以直接传入Kestrel的程序集名称:"Microsoft.AspNetCore.Server.Kestrel"。当然，这只是其中一种选项。你也可以自己实现一个自己的 server，只要你的 server 实现了 IServerFactory interface 即可。这样的设计提供了一个很大的弹性空间让我们自行选择hosting server（托管服务）。
 
-##### UseContentRoot() 
+### UseContentRoot() 
 - 这个扩展方法是让我们指定应用程序的工作目录（working directory），如果我们没有指定的话，则会默认为我们的应用（webapp.exe）所在目录为工作目录。
 
-##### UseDefaultConfiguration() 
+### UseDefaultConfiguration() 
 - 这个扩展方法使得我们在IWebHostBuilder 建立可以传入一些参数，比如 application key, environment name, server factory location, content root path 等等．因此，当我们在运行 WebApp.exe 的时候，同时可以带入我们需要用到的hosting参数（PS：这样的做法就像运行命令行程序时带入参数，多好玩）。这些参数也可以写在appsettings.json里面通过Configuration来读取。
 所以，UseDefaultConfiguration() 也不一定非要存在于 Main() 之中。（？？？个人不是很理解）
 
 PS：原作者原话，"如果我沒记错的话，在写这个文章的时候，UseDefaultConfiguration() 已经被改为成了UseDefaultHostingConfiguration()．显然这个名称更能清楚明白．"(？？？个人还没实践)
 
 
-##### UseIISPlatofmrHandleUrl() 
+### UseIISPlatofmrHandleUrl() 
 - 这个 IWebHostBuilder 的 扩展方法比较特殊。如果你要把 ASP.NET Core 放在 IIS 下，这个扩展方法会读取 IIS http platform handler 的 server port 和 application path，用于作为 ASP.NET Core 的启动位置，如 http://localhost:5000/start．如果你沒用 IIS，这个扩展方法对你来说基本是用不上的．
 
-##### UseStartup<>()
+### UseStartup<>()
 
 - 这是 WebHostBuilder 里相当重要的一个扩展方法。它的方法签名如下：
 
@@ -155,10 +155,10 @@ Configure() 主要是定义了中间件（middleware）以及它们的顺序．
 最后，在IHostWebBuilder里最后的两个动作便是：Build and Run. 
 
 
-##### Build() 
+### Build() 
 - 这个方法做的工作便是建立 hosting service，把 Startup 中定义的的 services 和 middleware 接收过来，然后确定content root path 和 application name，接着一句前面这些资料再加上Configuration过来的数据来初始化host engine (WebHost.cs)．
 
-##### Run() 
+### Run() 
 - 这个是启动 host engine 的 扩展方法，它在启动之前加入了一个 CancelKeyPress 的事件．因为在 Run() 方法 中传入入了 CancellationTokenSource() ，让我们有一个方法可以随时中断host engine的执行。
 
 目前的做法就用是 CancelKeyPress 事件，所以你可以按下 Ctrl+C  來中止 host engine 的执行．
