@@ -1,7 +1,7 @@
 ---
 layout: post
 title: bytes to string
-category: .neta
+category: .net
 date: 2016-01-20 00:00:00
 tags:
 - 加密编码

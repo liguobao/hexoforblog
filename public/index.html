@@ -260,6 +260,217 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/04/58CityHouseSearch_move_to_aspnetcore/" itemprop="url">
+                  58HouseSearch项目迁移到asp.net core
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-04T00:00:00+08:00" content="2016-10-04">
+              2016-10-04
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/asp-net-core/" itemprop="url" rel="index">
+                    <span itemprop="name">asp.net core</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/04/58CityHouseSearch_move_to_aspnetcore/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/04/58CityHouseSearch_move_to_aspnetcore/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h3><p><a href="https://github.com/liguobao/58HouseSearch" target="_blank" rel="external">58HouseSearch</a>这个项目原本是基于ASP.NET MVC 4写的，开发环境是Windows+VS2015，发布平台是linux+mono+jexus，这样看来整个项目基本已经满足跨平台的需求。</p>
+<p>这样一来，本来我是没什么动力去做迁移的，好好的东西闲着没事干才迁移呢。</p>
+<p>不过，这不国庆了么？穷人不是在家穷游天下么？所以…真的有点闲着没事干了。</p>
+<h3 id="迁移可行性探讨"><a href="#迁移可行性探讨" class="headerlink" title="迁移可行性探讨"></a>迁移可行性探讨</h3><p>项目迁移前，我们还是先来讨论一下迁移可行性。为嘛要进行可行性探讨呢？原因是.NET CORE是一个跨平台的框架，和上一代的.NET存在不兼容。</p>
+<p>个人总结一下，迁移的主要的问题在于：代码不兼容、类库不兼容、严重依赖Windows API或者COM组件等。</p>
+<h4 id="代码不兼容"><a href="#代码不兼容" class="headerlink" title="代码不兼容"></a>代码不兼容</h4><p>代码不兼容其实不算麻烦。毕竟代码是活的，你我也是活的，不就是一个改字罢了。花点时间慢慢改，总是能搞掂的。</p>
+<h4 id="类库不兼容"><a href="#类库不兼容" class="headerlink" title="类库不兼容"></a>类库不兼容</h4><p>要不就弃用，要不就找替代品。</p>
+<h4 id="严重依赖Windows-API或者COM组件"><a href="#严重依赖Windows-API或者COM组件" class="headerlink" title="严重依赖Windows API或者COM组件"></a>严重依赖Windows API或者COM组件</h4><p>额？找替代品，找不到可用替代品的话。放弃吧，这个项目别考虑迁移了。</p>
+<p>这个故事告诉我们，做跨平台项目的时候，少点用系统API或者组建。</p>
+<p>回到58HouseSearch项目上面。</p>
+<p>这个项目的代码基本都是我写的，所以重写代码没什么问题。<br>依赖的类库有下面几个:</p>
+<ul>
+<li><p><a href="https://github.com/FlorianRappl/AngleSharp" target="_blank" rel="external">AngleSharp</a></p>
+</li>
+<li><p><a href="http://www.newtonsoft.com/json" target="_blank" rel="external">Newtonsoft.Json</a></p>
+</li>
+<li><p><a href="http://logging.apache.org/log4net/" target="_blank" rel="external">log4net</a></p>
+</li>
+</ul>
+<p>AngleSharp是用来解析HTML的类库，用linq的方式来操作HTML，用起来实在爽快。</p>
+<p>如果这货在.net core上不能跑，我应该立马放弃了。<br>不过，这个实在给力…</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/1a950803-3d38-4b16-9761-6c9cd806b0b9" alt="AngleSharp支持平台"></p>
+<p>Newtonsoft.Json</p>
+<p>在这个项目里面主要是用来记录PV数据的，非核心功能，可有可无。不过看了下nuget上的介绍，也是支持.net core的。</p>
+<p>剩下log4net…嗯，并不支持log4net。不过这个就更加是非核心内容了，直接丢了。<br>PS:考虑后期加入Nlog替代log4net。</p>
+<p>至于依赖Windows API之类的，在这个项目里面基本没有，所以略过…</p>
+<h3 id="准备工作"><a href="#准备工作" class="headerlink" title="准备工作"></a>准备工作</h3><ul>
+<li><a href="https://www.visualstudio.com/downloads/" target="_blank" rel="external">Visual Studio Community 2015 with Update 3 – Free</a></li>
+<li><a href="https://www.microsoft.com/net/download" target="_blank" rel="external">.NET Core SDK</a></li>
+<li><a href="https://www.microsoft.com/net/download" target="_blank" rel="external">.NET Core</a></li>
+<li><a href="https://go.microsoft.com/fwlink/?LinkId=827546" target="_blank" rel="external">.NET Core 1.0.1 - VS 2015 Tooling Preview 2</a></li>
+</ul>
+<p>友情提示：</p>
+<ol>
+<li>Visual Studio Community 2015 with Update 3 下载镜像来安装。</li>
+</ol>
+<p>错误操作如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/1e723e08-b3d5-4dab-b4a6-1de70799c4c8" alt="错误操作"></p>
+<p>正确打开方式：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/706771d8-d3f2-4122-a61d-5e961887121a" alt="正确的打开方式-1"></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/455ec5cc-b429-4563-a4fb-3a0c18608969" alt="正确的打开方式-2"></p>
+<ol>
+<li><p>安装.NET Core SDK和.NET Core之后再安装.NET Core 1.0.1 - VS 2015 Tooling Preview 2</p>
+</li>
+<li><p>安装.NET Core 1.0.1 - VS 2015 Tooling Preview 2 这货的可能会报错0x80072f8a未指定的错误</p>
+</li>
+</ol>
+<p>解决方案见下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/47c517d1-4b48-4088-be4a-a0768413e768" alt="图片描述"></p>
+<p>详细见链接：<a href="http://www.cnblogs.com/JiaoWoWeiZai/p/5892255.html" target="_blank" rel="external">安装DotNetCore.1.0.1-VS2015Tools.Preview2.0.2出现0x80072f8a未指定的错误</a></p>
+<p>上面都弄好之后，理论上在VS2O15-新建项目里面可以看到ASP.NET CORE的模板了。如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/3364e7c9-a41e-47f2-8d08-60345e4efa35" alt="ASP.NET CORE的模板"></p>
+<h3 id="项目迁移"><a href="#项目迁移" class="headerlink" title="项目迁移"></a>项目迁移</h3><h4 id="新建空白ASP-NET-CORE项目"><a href="#新建空白ASP-NET-CORE项目" class="headerlink" title="新建空白ASP.NET CORE项目"></a>新建空白ASP.NET CORE项目</h4><p>新建好了之后如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/e047d81d-56f1-4e51-9d72-7989e1fc6225" alt="空白ASP.NET CORE项目"></p>
+<h4 id="Nuget获取引用"><a href="#Nuget获取引用" class="headerlink" title="Nuget获取引用"></a>Nuget获取引用</h4><p><a href="https://www.nuget.org/packages/AngleSharp/" target="_blank" rel="external">https://www.nuget.org/packages/AngleSharp/</a></p>
+<p><a href="https://www.nuget.org/packages/Newtonsoft.Json" target="_blank" rel="external">https://www.nuget.org/packages/Newtonsoft.Json</a></p>
+<h4 id="添加Controllers文件夹"><a href="#添加Controllers文件夹" class="headerlink" title="添加Controllers文件夹"></a>添加Controllers文件夹</h4><p>然后把之前项目的Controllers拷贝过来，改掉命名空间，去掉无用代码，添加相应引用。</p>
+<h4 id="添加Views文件夹"><a href="#添加Views文件夹" class="headerlink" title="添加Views文件夹"></a>添加Views文件夹</h4><p>本项目直接把之前项目的Views拷贝过来是完全没有问题的。</p>
+<h4 id="静态文件处理"><a href="#静态文件处理" class="headerlink" title="静态文件处理"></a>静态文件处理</h4><p>asp.net core MVC中的文件结构和asp.net mvc的文件结构略有不同。</p>
+<p>asp.net core MVC在view中“IMG/Little/PaleGreen.png”对应的文件对应于“项目路径/webroot/IMG/Little/PaleGreen.png”；</p>
+<p>而asp.net mvc中，对应路径为“项目/IMG/Little/PaleGreen.png”。</p>
+<p>因而，我们的所有静态文件都应该放到：webroot文件夹下。</p>
+<p>上面的都做完了之后，项目结构如下：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/2fee156b-2505-4953-bfe9-1d2521f13565" alt="项目结构"></p>
+<p>接下来就是改代码了。</p>
+<h3 id="代码迁移"><a href="#代码迁移" class="headerlink" title="代码迁移"></a>代码迁移</h3><h4 id="Startup-cs添加MVC"><a href="#Startup-cs添加MVC" class="headerlink" title="Startup.cs添加MVC"></a>Startup.cs添加MVC</h4><figure class="highlight less"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line"><span class="selector-tag">public</span> <span class="selector-tag">class</span> <span class="selector-tag">Startup</span></div><div class="line">&#123;</div><div class="line">    <span class="comment">// This method gets called by the runtime. Use this method to add services to the container.</span></div><div class="line">    <span class="comment">// For more information on how to configure your application, visit http://go.microsoft.com/fwlink/?LinkID=398940</span></div><div class="line">    <span class="selector-tag">public</span> <span class="selector-tag">void</span> <span class="selector-tag">ConfigureServices</span>(IServiceCollection services)</div><div class="line">    &#123;</div><div class="line">        <span class="comment">//添加MVC框架</span></div><div class="line">        services<span class="selector-class">.AddMvc</span>();</div><div class="line">        </div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="comment">// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.</span></div><div class="line">    <span class="selector-tag">public</span> <span class="selector-tag">void</span> <span class="selector-tag">Configure</span>(IApplicationBuilder app, IHostingEnvironment env,</div><div class="line">    ILoggerFactory loggerFactory)</div><div class="line">    &#123;</div><div class="line">        loggerFactory<span class="selector-class">.AddConsole</span>();</div><div class="line"></div><div class="line">        <span class="selector-tag">if</span> (env.IsDevelopment())</div><div class="line">        &#123;</div><div class="line">            app<span class="selector-class">.UseDeveloperExceptionPage</span>();</div><div class="line">        &#125;</div><div class="line">        <span class="comment">//启用静态文件中间件</span></div><div class="line">        app<span class="selector-class">.UseStaticFiles</span>();</div><div class="line">        <span class="comment">//启动MVC路由</span></div><div class="line">        app<span class="selector-class">.UseMvcWithDefaultRoute</span>();</div><div class="line">        <span class="comment">//设置默认页面</span></div><div class="line">        <span class="selector-tag">app</span><span class="selector-class">.UseMvc</span>(routes =&gt;</div><div class="line">        &#123;</div><div class="line">            <span class="selector-tag">routes</span><span class="selector-class">.MapRoute</span>(</div><div class="line">                <span class="attribute">name</span>: <span class="string">"default"</span>,</div><div class="line">                <span class="attribute">template</span>: <span class="string">"&#123;controller=House&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>); </div><div class="line">        &#125;);</div><div class="line"></div><div class="line">      </div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="改写GetHTMLByURL方法"><a href="#改写GetHTMLByURL方法" class="headerlink" title="改写GetHTMLByURL方法"></a>改写GetHTMLByURL方法</h4><p>之前的方法：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/d005a100-e3e6-423b-b34c-3eae11b2ab63" alt="old GetHTMLByURL"></p>
+<p>.net core重写了HttpWebRequest，变成了WebRequest,所以上面的代码废了。</p>
+<p>重写如下：</p>
+<figure class="highlight gauss"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div></pre></td><td class="code"><pre><div class="line">public static <span class="keyword">string</span> GetHTMLByURL(<span class="keyword">string</span> Url, <span class="keyword">string</span> <span class="built_in">type</span> = <span class="string">"UTF-8"</span>)</div><div class="line">&#123;</div><div class="line">    try</div><div class="line">    &#123;</div><div class="line">        Url = Url.ToLower();</div><div class="line"></div><div class="line">        <span class="keyword">System</span>.Net.WebRequest wReq = <span class="keyword">System</span>.Net.WebRequest.<span class="keyword">Create</span>(Url);</div><div class="line">        <span class="comment">// Get the response instance.</span></div><div class="line">        <span class="keyword">System</span>.Net.WebResponse wResp = wReq.GetResponseAsync().Result;</div><div class="line">        <span class="keyword">System</span>.IO.Stream respStream = wResp.GetResponseStream();</div><div class="line">        using (<span class="keyword">System</span>.IO.StreamReader reader = <span class="keyword">new</span> <span class="keyword">System</span>.IO.</div><div class="line">        StreamReader(respStream, Encoding.GetEncoding(<span class="built_in">type</span>)))</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">return</span> reader.ReadToEnd();</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">    catch (<span class="keyword">System</span>.Exception ex)</div><div class="line">    &#123;</div><div class="line"></div><div class="line">        <span class="keyword">return</span> <span class="keyword">string</span>.Empty;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<h4 id="改写Controller代码"><a href="#改写Controller代码" class="headerlink" title="改写Controller代码"></a>改写Controller代码</h4><p>嗯，换了命名空间，别的一句都没改直接拉过来了…略过。</p>
+<h3 id="发布到ubuntu"><a href="#发布到ubuntu" class="headerlink" title="发布到ubuntu"></a>发布到ubuntu</h3><p><a href="https://www.microsoft.com/net/core#ubuntu" target="_blank" rel="external">Install for Ubuntu 14.04, 16.04 &amp; Linux Mint 17</a></p>
+<p>第一步<br><figure class="highlight stata"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//Ubuntu 14.04 / Linux Mint 17</span></div><div class="line">sudo <span class="keyword">sh</span> -c 'echo <span class="string">"deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ trusty main"</span> &gt; /etc/apt/sources.<span class="keyword">list</span>.<span class="keyword">d</span>/dotnetdev.<span class="keyword">list</span>'</div><div class="line">sudo apt-key adv --keyserver apt-mo.trafficmanager.<span class="keyword">net</span> --recv-keys 417A0893</div><div class="line">sudo apt-get <span class="keyword">update</span></div><div class="line"></div><div class="line"></div><div class="line"><span class="comment">//Ubuntu 16.04</span></div><div class="line">sudo <span class="keyword">sh</span> -c 'echo <span class="string">"deb [arch=amd64] https://apt-mo.trafficmanager.net/repos/dotnet-release/ xenial main"</span> &gt; /etc/apt/sources.<span class="keyword">list</span>.<span class="keyword">d</span>/dotnetdev.<span class="keyword">list</span>'</div><div class="line">sudo apt-key adv --keyserver apt-mo.trafficmanager.<span class="keyword">net</span> --recv-keys 417A0893</div><div class="line">sudo apt-get <span class="keyword">update</span></div></pre></td></tr></table></figure></p>
+<p>第二步<br><figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install dotnet-dev<span class="number">-1.0</span><span class="number">.0</span>-preview2<span class="number">-003131</span></div></pre></td></tr></table></figure></p>
+<p>安装好了之后，输入 dotnet -v 应该能看到版本信息，如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/6ebca12e-2be9-487e-b230-d22562a5aabe" alt="dotnet -v "></p>
+<p>这样的下，一句完成了ubuntu 运行asp.net core的环境搭建了。</p>
+<h3 id="project-json里面隐藏的坑"><a href="#project-json里面隐藏的坑" class="headerlink" title="project.json里面隐藏的坑"></a>project.json里面隐藏的坑</h3><h4 id="dependencies"><a href="#dependencies" class="headerlink" title="dependencies"></a>dependencies</h4><p>NET Core 1.0.1 - VS 2015 Tooling Preview 2模板的asp.net core 版本和ubuntu 的asp.net core 版本不一致。</p>
+<p>根据微软爸给的教程，我们在ubuntu上安装的.NET Core 1.0.0，见上图。</p>
+<p>然而我们创建项目的模板是.NET Core 1.0.1，见下图:</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/a3192bdf-f548-4fad-868a-4865632acd29" alt=".NET Core 1.0.1"></p>
+<p>怎么办？要不升级ubuntu的asp.net core，要不降级。</p>
+<p>由于没找到.NET Core 1.0.1 ubuntu的安装包，所以我选择了降级到.NET Core 1.0.0.</p>
+<p>其中需要把Microsoft.NETCore.App version 、Microsoft.AspNetCore.Server.Kestrel、Microsoft.AspNetCore.Mvc 这三个节点都改成“1.0.0”。如下：</p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line"><span class="string">"dependencies"</span>: &#123;</div><div class="line">  <span class="string">"Microsoft.NETCore.App"</span>: &#123;</div><div class="line">    <span class="string">"version"</span>: <span class="string">"1.0.1"</span>,</div><div class="line">    <span class="string">"type"</span>: <span class="string">"platform"</span></div><div class="line">  &#125;,</div><div class="line">  <span class="string">"Microsoft.AspNetCore.Diagnostics"</span>: <span class="string">"1.0.0"</span>,</div><div class="line">  <span class="string">"Microsoft.AspNetCore.Server.IISIntegration"</span>: <span class="string">"1.0.0"</span>,</div><div class="line">  <span class="string">"Microsoft.AspNetCore.Server.Kestrel"</span>: <span class="string">"1.0.1"</span>,</div><div class="line">  <span class="string">"Microsoft.Extensions.Logging.Console"</span>: <span class="string">"1.0.0"</span>,</div><div class="line">  <span class="string">"Microsoft.AspNetCore.Mvc"</span>: <span class="string">"1.0.1"</span>,</div><div class="line">  <span class="string">"Microsoft.AspNetCore.StaticFiles"</span>: <span class="string">"1.0.0"</span>,</div><div class="line">  <span class="string">"Newtonsoft.Json"</span>: <span class="string">"9.0.1"</span>,</div><div class="line">  <span class="string">"AngleSharp"</span>: <span class="string">"0.9.8.1"</span></div><div class="line">&#125;,</div></pre></td></tr></table></figure>
+<h4 id="publishOptions"><a href="#publishOptions" class="headerlink" title="publishOptions"></a>publishOptions</h4><p>发布输出包括Views文件夹<br><figure class="highlight prolog"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"><span class="string">"publishOptions"</span>: &#123;</div><div class="line">  <span class="string">"include"</span>: [</div><div class="line">    <span class="string">"wwwroot"</span>,</div><div class="line">    <span class="string">"web.config"</span>,</div><div class="line">    <span class="string">"Views"</span></div><div class="line">  ]</div><div class="line">&#125;,</div></pre></td></tr></table></figure></p>
+<h4 id="runtimes"><a href="#runtimes" class="headerlink" title="runtimes"></a>runtimes</h4><p>runtimes 配置为模板运行平台。<br>详细见链接：<a href="https://docs.nuget.org/ndocs/schema/project.json" target="_blank" rel="external">https://docs.nuget.org/ndocs/schema/project.json</a></p>
+<figure class="highlight xquery"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="string">"runtimes"</span>: &#123; <span class="string">"ubuntu.14.04-x64"</span>: &#123;&#125; &#125;</div></pre></td></tr></table></figure>
+<p>上面都弄好之后，跑一下看,如下图：</p>
+<figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">dotnet <span class="keyword">restore</span></div><div class="line"></div><div class="line"><span class="keyword">dotnet</span> run</div></pre></td></tr></table></figure>
+<p>来个请求看看：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/b1191226-c33b-45c7-98cc-f62bb3ea73b4" alt="请求log"></p>
+<h3 id="jexus转发-反向代理"><a href="#jexus转发-反向代理" class="headerlink" title="jexus转发/反向代理"></a>jexus转发/反向代理</h3><p><a href="http://www.cnblogs.com/gaobing/p/5663012.html" target="_blank" rel="external">ASP.NET Core “完整发布,自带运行时” 到jexus</a></p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/08/13/58City-House-Crawler-JS/" itemprop="url">
                   58同城高德搜房项目JS相关知识
                 </a>
@@ -1041,6 +1252,135 @@
             
               
                 
+                <a class="post-title-link" href="/2016/05/30/the_first_aspnetcore/" itemprop="url">
+                  ASP.NET core 初体验
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-05-30T00:00:00+08:00" content="2016-05-30">
+              2016-05-30
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/net/" itemprop="url" rel="index">
+                    <span itemprop="name">.net</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/05/30/the_first_aspnetcore/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/30/the_first_aspnetcore/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在大神的带领下体验了一下asp.net core，感觉很不错，简单写个手把手教程。</p>
+<p>环境要求：VS2015 update2，版本不限。</p>
+<p>首先到这里：<a href="https://www.microsoft.com/net/download" target="_blank" rel="external">https://www.microsoft.com/net/download</a></p>
+<p>下载.NET Core Install 和SDK Install。</p>
+<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/5f4576e6-6fa0-4fbb-83c9-009428480e83" alt="图一"></p>
+<p>接着无脑安装。<br><img src="http://7xread.com1.z0.glb.clouddn.com/a996d00e-5aa5-4034-96ae-548e35c2ba95" alt="图二"></p>
+<p>两个都装完之后环境已经搭好了。不过在VS中还没对应的.NET Core模板。<br>我们还需要去下载一个<br><a href="https://go.microsoft.com/fwlink/?LinkId=798481" target="_blank" rel="external">.NET Core Tooling Preview 1 for Visual Studio 2015</a></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/07ec4ff1-64ea-486b-8cb8-99dc400c279a" alt="图三"></p>
+<p>这个安装略慢，稍等。</p>
+<p>上面的都安装好了之后，打开VS，新建项目，选中web，即可看到asp.net core.<br>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/aa3a9677-701e-45f0-90ea-b47b57dcb85e" alt="图五"><br>完事….<br>下次再来聊asp.net core项目…</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/04/20/CodeSmith-connect-MySQL-throw“can‘t find .Net Framework Data Provider”/" itemprop="url">
                   CodeSmith 连接MySQL数据库报“can't find .net framework data provider”
                 </a>
@@ -1452,339 +1792,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/04/07/ubuntu-jexus-mywebsql/" itemprop="url">
-                  ubuntu使用Jexus搭建MyWebSQL
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-04-07T00:00:00+08:00" content="2016-04-07">
-              2016-04-07
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/ubuntu/" itemprop="url" rel="index">
-                    <span itemprop="name">ubuntu</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/04/07/ubuntu-jexus-mywebsql/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/07/ubuntu-jexus-mywebsql/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>之前在阿里云上装了一个ubuntu，后来也没怎么用力，就挂这一个mysql数据库。最近在家里用MySQL Workbench 连接阿里云上面的MySQL的时候，连着过了一会就中断了。后来看了一圈回来才发现，目测是家里电信宽带的锅，不断给我动态分配IP地址….后来群里面的小伙伴说，搭个websql了事啦。听起来不错的想法，于是昨天就试了一下。</p>
-<p>之前在ubuntu上装过apache，后来为了跑asp.net，把apache停了，换成了jexus。<br>Jexus是国内.NET 跨平台大牛们写的一个web服务器，使用方便，很稳定，也在不断加入新特性。相关资料直接访问<a href="http://www.jexus.org/" target="_blank" rel="external">www.jexus.org</a>。</p>
-<p>jexus是以mono为基础的，其实首先应该先配置mono的运行环境。</p>
-<p>###第一步 安装mono<br>相关资料链接：</p>
-<p><a href="http://www.linuxdot.net/bbsfile-3090" target="_blank" rel="external">在Ubuntu操作系统上安装mono的具体方法</a></p>
-<p><a href="http://www.isvee.com/archives/763" target="_blank" rel="external">Ubuntu 14.04 安装 Mono</a></p>
-<p>我的ubuntu老早之前就安装好了mono，这个就此瞥过咯。</p>
-<p>###第二步 安装jexus</p>
-<p><a href="http://www.linuxdot.net/bbsfile-3084" target="_blank" rel="external">Jexus web server V5.1 安装配置要点</a></p>
-<p><a href="http://www.jexus.org/" target="_blank" rel="external">jexus首页</a></p>
-<figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">A、安装：</div><div class="line">cd /tmp</div><div class="line">wget linuxdot.net/down/jexus<span class="number">-5.8</span><span class="number">.1</span>.tar.gz </div><div class="line">tar -zxvf jexus<span class="number">-5.8</span><span class="number">.1</span>.tar.gz </div><div class="line">cd jexus<span class="number">-5.8</span><span class="number">.1</span> </div><div class="line">sudo ./install </div><div class="line"></div><div class="line">B、更新</div><div class="line">cd /tmp</div><div class="line">sudo /usr/jexus/jws stop</div><div class="line">wget linuxdot.net/down/jexus<span class="number">-5.8</span><span class="number">.1</span>.tar.gz</div><div class="line">tar -zxvf jexus<span class="number">-5.8</span><span class="number">.1</span>.tar.gz</div><div class="line">cd jexus<span class="number">-5.8</span><span class="number">.1</span></div><div class="line">sudo ./upgrade</div></pre></td></tr></table></figure>
-<p>5.8.1差不多是现在最新版本了。</p>
-<p>###第三步 jexus 支持PHP</p>
-<p>先在ubuntu上安装一下PHP5-CGI.</p>
-<p><a href="http://www.linuxidc.com/Linux/2012-05/60172.htm" target="_blank" rel="external">用 Jexus ASP.NET WEB服务器搭建 PHP 网站的具体方法</a></p>
-<p>总结来说就是下面两句：<br><figure class="highlight q"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt-<span class="built_in">get</span> <span class="keyword">update</span></div><div class="line"></div><div class="line">sudo apt-<span class="built_in">get</span> install php5-cgi</div></pre></td></tr></table></figure></p>
-<p>接着：</p>
-<figure class="highlight groovy"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line"><span class="number">1</span>)修改“<span class="regexp">/etc/</span>php.ini”文件:</div><div class="line"></div><div class="line">找到cgi.force_redirect=<span class="number">1</span>一行，把前边的<span class="string">"#"</span>号去掉，把值从<span class="number">1</span>改为<span class="number">0</span>，如：</div><div class="line"></div><div class="line">cgi.force_redirect=<span class="number">0</span></div><div class="line"></div><div class="line"><span class="number">2</span>)修改jws.conf。打开jexus文件夹中的jws.conf，作如下配置：</div><div class="line"></div><div class="line">填写PHP-CGI程序路径和工作进程数。如：“php-fcgi.set=<span class="regexp">/usr/</span>bin/php-cgi,<span class="number">6</span>”。</div><div class="line"></div><div class="line"><span class="number">3</span>)修改网站配置。在需要使用PHP的网站的配置文件中添加:</div><div class="line"></div><div class="line">fastcgi.add=php|<span class="string">socket:</span><span class="regexp">/var/</span>run<span class="regexp">/jexus/</span>phpsvr</div></pre></td></tr></table></figure>
-<p><a href="http://www.cnblogs.com/shanyou/p/3369322.html" target="_blank" rel="external">Jexus 支持PHP的三种方式-张善友</a></p>
-<p>搞完上面这些，理论上你的jexus已经能跑PHP网站了。</p>
-<p>###第四步 安装mywebsql</p>
-<p><a href="http://mywebsql.net/" target="_blank" rel="external">mywebsql首页</a></p>
-<p>mywebsql跑起来应该是下图的：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7d902b94-f132-4041-84fa-78f044f91358" alt="mywebsql效果图"></p>
-<p><a href="https://sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip/download" target="_blank" rel="external">下载地址</a></p>
-<figure class="highlight stata"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">cd</span> /tmp</div><div class="line"></div><div class="line">wget https:<span class="comment">//sourceforge.net/projects/mywebsql/files/stable/mywebsql-3.6.zip</span></div><div class="line"></div><div class="line">cp mywebsql-3.6.<span class="keyword">zip</span> /<span class="keyword">var</span>/www </div><div class="line"></div><div class="line"><span class="keyword">cd</span> /<span class="keyword">var</span>/www</div><div class="line"></div><div class="line">tar -zxvf mywebsql-3.6.<span class="keyword">zip</span></div></pre></td></tr></table></figure>
-<p>把mywebsql网站文件弄好之后，就可以去看jexus配置php网站了。</p>
-<p>jexus的网站配置文件夹一般路径就是/usr/jexus/siteconf/</p>
-<figure class="highlight awk"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">cd <span class="regexp">/usr/</span>jexus<span class="regexp">/siteconf/</span></div><div class="line"></div><div class="line">vi mywebSQL <span class="comment">#创建网站配置文件</span></div><div class="line"></div><div class="line">cd .. </div><div class="line"></div><div class="line">.<span class="regexp">/jexus restart</span></div></pre></td></tr></table></figure>
-<p>上面的mywebSQL里面就写网站配置了，主要是端口号/运行环境之类的配置。</p>
-<p>贴一下我的配置：</p>
-<figure class="highlight coffeescript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line"><span class="comment">#仅供参考</span></div><div class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">####</span></div><div class="line"># Web Site: Default</div><div class="line">###<span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></div><div class="line"></div><div class="line">port=<span class="number">2016</span></div><div class="line">root=/ /var/www/mywebsql</div><div class="line">hosts=*    <span class="comment">#OR your.com,*.your.com</span></div><div class="line">usephp =<span class="literal">true</span></div><div class="line">fastcgi.add=php|socket:/var/run/jexus/phpsvr</div><div class="line"></div><div class="line"><span class="comment"># addr=0.0.0.0</span></div><div class="line"><span class="comment"># CheckQuery=false</span></div><div class="line"><span class="comment"># NoLog=true</span></div><div class="line"><span class="comment"># NoFile=/index.aspx</span></div><div class="line"><span class="comment"># Keep_Alive=false</span></div><div class="line"><span class="comment"># UseGZIP=true</span></div><div class="line"><span class="comment"># UseHttps=true</span></div><div class="line"><span class="comment"># DenyFrom=192.168.0.233, 192.168.1.*, 192.168.2.0/24</span></div><div class="line"><span class="comment"># AllowFrom=192.168.*.*</span></div><div class="line"><span class="comment"># DenyDirs=~/cgi, ~/upfiles</span></div><div class="line"><span class="comment"># indexes=myindex.aspx</span></div><div class="line"><span class="comment"># rewrite=^/.+?\.(asp|php|cgi|pl|sh)$ /index.aspx</span></div><div class="line"></div><div class="line"><span class="comment"># reproxy=/bbs/ http://192.168.1.112/bbs/</span></div><div class="line"></div><div class="line"><span class="comment"># Jexus php fastcgi address is '/var/run/jexus/phpsvr'</span></div><div class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">#</span></div><div class="line"><span class="comment"># fastcgi.add=php|socket:/var/run/jexus/phpsvr</span></div><div class="line"></div><div class="line"><span class="comment"># php-fpm listen address is '127.0.0.1:9000'</span></div><div class="line"><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">######</span><span class="comment">##</span></div><div class="line"><span class="comment"># fastcgi.add=php|tcp:127.0.0.1:9000</span></div></pre></td></tr></table></figure>
-<p>到这里，访问<a href="http://你的主机IP:上面配置的端口号" target="_blank" rel="external">http://你的主机IP:上面配置的端口号</a> 就能看到下面的页面了。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/df3951c0-9d3d-4085-b577-743df68c1d98" alt="MywWebSQL登陆页"></p>
-<p>输入账号密码就能登陆。</p>
-<p>###然而….<br>我登陆的时候显示，系统提示：没有安装客户端库。</p>
-<p>###第五步 配置PHP MySQL库</p>
-<p>于是又跑去看了一下MyWebSQL的说明，文档上说可以在/install.php上面看配置。</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/cf8d88d8-fb5d-42f0-81cc-e0fbb566ebe5" alt="这是配置好的效果图"></p>
-<p>显示：</p>
-<p>MySQL Client Library    client library is not installed<br>MySQL improved functionality    client library is not installed</p>
-<p>好吧，PHP MySQL客户端库没有安装….</p>
-<p>那就安装咯。<br>于是找到了下面一个文章：<br><a href="http://www.cnblogs.com/CheeseZH/p/4694135.html" target="_blank" rel="external">ZH奶酪：Ubuntu 14.04安装LAMP(Linux，Apache，MySQL，PHP)</a></p>
-<p>安装一下基础库<br><figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install php5 libapache2-mod-php5 php5-mcrypt php5-curl php5-imagick php5-cli</div></pre></td></tr></table></figure></p>
-<p>搜索一下还有什么库可以安装。</p>
-<p>apt-cache search php5-</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7bac43bc-01ea-4ce0-ba4b-37a06a51fe3a" alt=""></p>
-<figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">sudo apt-get install php5 php5-mysqlnd </div><div class="line"></div><div class="line">sudo apt-get install php5 php5-mysqlnd-ms</div></pre></td></tr></table></figure>
-<p>接着重启一下jexus的网站，万事大吉。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/03/28/CodeSmith-to-MySQL/" itemprop="url">
-                  CodeSmith for MySQL template
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-03-28T00:00:00+08:00" content="2016-03-28">
-              2016-03-28
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/CodeSmith/" itemprop="url" rel="index">
-                    <span itemprop="name">CodeSmith</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/03/28/CodeSmith-to-MySQL/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/03/28/CodeSmith-to-MySQL/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>对于.NET平台上的代码生成器来说，codesmith是一个非常好的选择。</p>
-<p><br><br>以前在学院实验室用的都是SQL server数据库，老师给的一套codesmith模板用来生成model/DAL/BLL很是方便。<br><br><br>不过后来放弃SQL server 投入MySQL之后，刚开始都是手写SQL，还是很痛苦的。<br><br><br>再后来又去找MySQL codesmith模板,这个对应的资料就不多了。不过最后还是找到了一套不错的，凑合能用。起初也懒，codesmith语法不熟，就没想过去修改一下了。<br><br> 最近又要用到这套东西，于是决定还是去修改一番，更便于使用。</p>
-<p>这个文章就主要讲一下修改过程，顺便说一下codesmith的简单语法。</p>
-<p>先说一下操作步骤：</p>
-<p>把模板的文件夹扔到codesmith模板文件的路径下，接着打开Codesmith，找到刚扔过去的文件夹，选择Main.cst,右键-execute-选择对应的MySQL库-选中表。<br><br>（注：codesmith连接MySQL有问题的话，<br><br>移步这里解决 <a href="http://codelover.link/2016/02/25/CodeSmith%E8%BF%9E%E6%8E%A5MySQL%E6%8A%A5%E9%94%99%E2%80%9C%E6%89%BE%E4%B8%8D%E5%88%B0%E8%AF%B7%E6%B1%82%E7%9A%84%20.Net%20Framework%20Data%20Provider%E3%80%82%E5%8F%AF%E8%83%BD%E6%B2%A1%E6%9C%89%E5%AE%89%E8%A3%85%E3%80%82%E2%80%9D%E8%A7%A3%E5%86%B3%E6%96%B9%E6%B3%95/">CodeSmith 连接MySQL数据库报“can’t find .net framework data provider”</a></p>
-<p>如下图：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-1.png" alt="1"></p>
-<p>然后点击Generate就能顺利生成model/dal/bll了。</p>
-<p>生成代码结构如下：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-2.png" alt="2"></p>
-<p></p><p>这样操作没什么问题，顺利生成了我们要的model/dal/bll了，然后….我懒嘛。<br>每次都要把表一个个选一次，麻不麻烦啊。然后就想了，能不能改一下模板呢。于是便开始google相关资料了。找到了几个相关文章，参考这就开始改造了。<br>先看看原来的Main.cst里面写了撒。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div></pre></td><td class="code"><pre><div class="line">&lt;%@ CodeTemplate Language=<span class="string">"C#"</span> ResponseEncoding=<span class="string">"UTF-8"</span> </div><div class="line">TargetLanguage=<span class="string">"Text"</span> Src=<span class="string">""</span> Inherits=<span class="string">""</span> Debug=<span class="string">"False"</span> </div><div class="line">Description=<span class="string">"Template description here."</span> </div><div class="line"> Output=<span class="string">"None"</span>%&gt;</div><div class="line">&lt;%@ Register Name=<span class="string">"Models"</span> Template=<span class="string">"DBMad.Models.cst"</span> </div><div class="line">	MergeProperties=<span class="string">"False"</span> ExcludeProperties=<span class="string">""</span> %&gt;	</div><div class="line">&lt;%@ Register Name=<span class="string">"DAL"</span> Template=<span class="string">"DBMad.DAL.cst"</span> </div><div class="line">MergeProperties=<span class="string">"False"</span> ExcludeProperties=<span class="string">""</span> %&gt; </div><div class="line">&lt;%@ Register Name=<span class="string">"BLL"</span> Template=<span class="string">"DBMad.BLL.cst"</span> </div><div class="line">MergeProperties=<span class="string">"False"</span> ExcludeProperties=<span class="string">""</span> %&gt;</div><div class="line"></div><div class="line">&lt;%@ Property Name=<span class="string">"SourceTable"</span> </div><div class="line">Type=<span class="string">"SchemaExplorer.TableSchema"</span> Optional=<span class="string">"False"</span>%&gt;</div><div class="line">&lt;%@ Property Name=<span class="string">"RootNamespace"</span> Default=<span class="string">"Net.Itcast.CN"</span> </div><div class="line">Type=<span class="string">"System.String"</span> Optional=<span class="string">"False"</span>%&gt;</div><div class="line"></div><div class="line">&lt;%@ Assembly Name=<span class="string">"SchemaExplorer"</span> %&gt;</div><div class="line">&lt;%@ Assembly Name=<span class="string">"System.Data"</span> %&gt;</div><div class="line">&lt;%@ Import Namespace=<span class="string">"SchemaExplorer"</span> %&gt;</div><div class="line">&lt;%@ Import Namespace=<span class="string">"System.Data"</span> %&gt;</div><div class="line">&lt;script runat=<span class="string">"template"</span>&gt;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">string</span> _outputDirectory = String.Empty;</div><div class="line">	[Editor(<span class="keyword">typeof</span>(System.Windows.Forms.Design.FolderNameEditor), </div><div class="line">	<span class="keyword">typeof</span>(System.Drawing.Design.UITypeEditor))] </div><div class="line">	[Description(<span class="string">"The directory to output the results to."</span>)]</div><div class="line">	<span class="keyword">public</span> <span class="keyword">string</span> OutputDirectory </div><div class="line">	&#123;</div><div class="line">		<span class="keyword">get</span></div><div class="line">		&#123;		</div><div class="line">			<span class="keyword">return</span> _outputDirectory;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">set</span></div><div class="line">		&#123;</div><div class="line">			<span class="keyword">if</span> (<span class="keyword">value</span> != <span class="literal">null</span> &amp;&amp; !<span class="keyword">value</span>.EndsWith(<span class="string">"\\"</span>))</div><div class="line">			&#123;</div><div class="line">				<span class="keyword">value</span> += <span class="string">"\\"</span>;</div><div class="line">		    &#125;</div><div class="line">			_outputDirectory = <span class="keyword">value</span>;</div><div class="line">		&#125; </div><div class="line">	&#125;</div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
-<p>这一段基本就是在声明选项以及引用命名空间，表现出来的便是我们看到的下图：</p>
-<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-1.png" alt="1"></p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">&lt;%</div><div class="line">    Models model = <span class="keyword">this</span>.Create&lt;Models&gt;();</div><div class="line">	model.ModelsNamespace = <span class="keyword">this</span>.RootNamespace+<span class="string">".Model"</span>;</div><div class="line">	model.TargetTable = <span class="keyword">this</span>.SourceTable;</div><div class="line">	model.RenderToFile(<span class="keyword">this</span>.OutputDirectory+<span class="string">"Model/"</span>+model.GetFileName(),<span class="literal">true</span>);</div><div class="line">	</div><div class="line"></div><div class="line">   DAL dal = <span class="keyword">this</span>.Create&lt;DAL&gt;();</div><div class="line">   dal.TargetTable = <span class="keyword">this</span>.SourceTable;</div><div class="line">   dal.ModelsNamespace = model.ModelsNamespace;</div><div class="line">   dal.DALClassNameSurfix = <span class="string">"DAL"</span>;</div><div class="line">   dal.DALNamespace =<span class="keyword">this</span>.RootNamespace+<span class="string">".DAL"</span>;</div><div class="line">   dal.RenderToFile(<span class="keyword">this</span>.OutputDirectory+<span class="string">"DAL/"</span></div><div class="line">   +dal.GetFileName(),<span class="literal">true</span>);</div><div class="line"></div><div class="line">   BLL bll = <span class="keyword">this</span>.Create&lt;BLL&gt;();</div><div class="line">   bll.ModelsNamespace = model.ModelsNamespace;</div><div class="line">   bll.DALClassNameSurfix = dal.DALClassNameSurfix;</div><div class="line">   bll.DALNamespace = dal.DALNamespace;</div><div class="line">   bll.BLLClassNameSurfix = <span class="string">"BLL"</span>;</div><div class="line">   bll.BLLNamespace = <span class="keyword">this</span>.RootNamespace+<span class="string">".BLL"</span>;</div><div class="line">   bll.TargetTable = <span class="keyword">this</span>.SourceTable;</div><div class="line">   bll.RenderToFile(<span class="keyword">this</span>.OutputDirectory+<span class="string">"BLL/"</span></div><div class="line">   +bll.GetFileName(),<span class="literal">true</span>);</div><div class="line"></div><div class="line">   Response.Write(<span class="string">"ok,see "</span>+<span class="keyword">this</span>.OutputDirectory);</div><div class="line">%&gt;</div></pre></td></tr></table></figure>
-<p>这一段就是我们点击Generate之后执行的代码，基本功能就是调用<br>DBMad.Models.cst,DBMad.DAL.cst,DBMad.BLL.cst。<br>因为在上面声明数据源的时候，使用了SchemaExplorer.TableSchema，导致我们选择表的时候不能多选。代码如下：</p>
-<p>&lt;%@ Property Name=”SourceTable” Type=”SchemaExplorer.TableSchema” Optional=”False”%&gt;</p>
-<p>这样一想，这个Main.cst就是一个可以处理单表的生成模板了，我们只要自己写一个可以多选表的模板，然后循环调用这个模板去生成，不就完事了？</p>
-<p>找了一下资料，发现只需要把上面的选项Type改一下，便可以多选表了。</p>
-<p>如下：</p>
-<p>&lt;%@ Property Name=”SourceTables” Type=”SchemaExplorer.TableSchemaCollection” Default=”” Optional=”False” Category=””%&gt; </p>
-<p>整体代码如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div></pre></td><td class="code"><pre><div class="line">&lt;%@ CodeTemplate Language=<span class="string">"C#"</span> ResponseEncoding=<span class="string">"UTF-8"</span> </div><div class="line">TargetLanguage=<span class="string">"Text"</span> Src=<span class="string">""</span> Inherits=<span class="string">""</span> Debug=<span class="string">"False"</span> </div><div class="line">Description=<span class="string">"Template description here."</span> Output=<span class="string">"None"</span>%&gt;</div><div class="line">&lt;%@ Property Name=<span class="string">"SourceTables"</span> </div><div class="line">Type=<span class="string">"SchemaExplorer.TableSchemaCollection"</span> Default=<span class="string">""</span> </div><div class="line">Optional=<span class="string">"False"</span> Category=<span class="string">""</span>%&gt; </div><div class="line">&lt;%@ Register Name=<span class="string">"SE"</span> Template=<span class="string">"CreatSingleTable.cst"</span> </div><div class="line">MergeProperties=<span class="string">"False"</span> ExcludeProperties=<span class="string">""</span> %&gt; </div><div class="line">&lt;%@ Property Name=<span class="string">"RootNamespace"</span> Default=<span class="string">"Net.Itcast.CN"</span> </div><div class="line">Type=<span class="string">"System.String"</span> Optional=<span class="string">"False"</span>%&gt;</div><div class="line">&lt;%@ Assembly Name=<span class="string">"SchemaExplorer"</span> %&gt; </div><div class="line">&lt;%@ Assembly Name=<span class="string">"System.Data"</span> %&gt;</div><div class="line">&lt;%@ Import Namespace=<span class="string">"SchemaExplorer"</span> %&gt; </div><div class="line">&lt;%@ Import Namespace=<span class="string">"System.Data"</span> %&gt; </div><div class="line">&lt;%@ Import Namespace=<span class="string">"System.Collections"</span> %&gt; </div><div class="line">&lt;script runat=<span class="string">"template"</span>&gt;</div><div class="line">	<span class="keyword">private</span> <span class="keyword">string</span> _outputDirectory = String.Empty;</div><div class="line">	[Editor(<span class="keyword">typeof</span>(System.Windows.Forms.Design.FolderNameEditor), </div><div class="line">	<span class="keyword">typeof</span>(System.Drawing.Design.UITypeEditor))] </div><div class="line">	[Description(<span class="string">"The directory to output the results to."</span>)]</div><div class="line">	<span class="keyword">public</span> <span class="keyword">string</span> OutputDirectory </div><div class="line">	&#123;</div><div class="line">		<span class="keyword">get</span></div><div class="line">		&#123;		</div><div class="line">			<span class="keyword">return</span> _outputDirectory;</div><div class="line">		&#125;</div><div class="line">		<span class="keyword">set</span></div><div class="line">		&#123;</div><div class="line">			<span class="keyword">if</span> (<span class="keyword">value</span> != <span class="literal">null</span> &amp;&amp; !<span class="keyword">value</span>.EndsWith(<span class="string">"\\"</span>))</div><div class="line">			&#123;</div><div class="line">				<span class="keyword">value</span> += <span class="string">"\\"</span>;</div><div class="line">		    &#125;</div><div class="line">			_outputDirectory = <span class="keyword">value</span>;</div><div class="line">		&#125; </div><div class="line">	&#125;</div><div class="line">&lt;/script&gt;</div><div class="line"></div><div class="line">&lt;% </div><div class="line"><span class="keyword">foreach</span>(TableSchema ts <span class="keyword">in</span> SourceTables) </div><div class="line">&#123; </div><div class="line">SE s = <span class="keyword">new</span> SE(); </div><div class="line">   s.SourceTable = ts; </div><div class="line">   s.RootNamespace = RootNamespace;</div><div class="line">   s.OutputDirectory = OutputDirectory;</div><div class="line">   s.Render(<span class="keyword">this</span>.Response); </div><div class="line">&#125; </div><div class="line">%&gt; </div><div class="line">&lt;script runat=<span class="string">"template"</span>&gt; </div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
-<p>前面一部分还是一样的声明，</p>
-<p>&lt;%@ Property Name=”SourceTables” Type=”SchemaExplorer.TableSchemaCollection” Default=”” Optional=”False” Category=””%&gt; </p>
-<p>这一句把选项类型修改成可多选的（既 集合）。<br>效果如下图：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/20160228-4.png" alt="3"></p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">&lt;% </div><div class="line"><span class="keyword">foreach</span>(TableSchema ts <span class="keyword">in</span> SourceTables) </div><div class="line">&#123; </div><div class="line">SE s = <span class="keyword">new</span> SE(); </div><div class="line">   s.SourceTable = ts; </div><div class="line">   s.RootNamespace = RootNamespace;</div><div class="line">   s.OutputDirectory = OutputDirectory;</div><div class="line">   s.Render(<span class="keyword">this</span>.Response); </div><div class="line">&#125; </div><div class="line">%&gt; </div><div class="line">&lt;script runat=<span class="string">"template"</span>&gt; </div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
-<p>这一段代码便是获取刚得到的表集合，遍历集合然后依次调用之前的单表生成模板。</p>
-<p>到这里差不多已经完成了我要的效果，选择多表，实现一次生成所有的表对应的model/dal/bll。</p>
-<p>这个效果基本就是我要的了，但是后来又发现，model里面的字段居然没有注释，我在建表的时候写了字段注释的呀。</p>
-<p>打开model的cst文件之后发现，模板并没有做注释这个工作。<br>代码如下：</p>
-<figure class="highlight"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">&lt;%@ CodeTemplate Language="C#" TargetLanguage="C#" </div><div class="line">Src="ToolsCodeTemplate.cs" Inherits="ToolsCodeTemplate"%&gt;</div><div class="line">&lt;%@ Property Name="TargetTable" Type="SchemaExplorer.TableSchema" </div><div class="line">Category="Context" Description="TargetTable that the object is </div><div class="line">based on." %&gt;</div><div class="line">&lt;%@ Property Name="ModelsNamespace" Default="Model" </div><div class="line">Type="System.String" Category="Context" Description="TargetTable </div><div class="line">that the object is based on." %&gt;</div><div class="line">&lt;%@ Assembly Name="SchemaExplorer" %&gt;</div><div class="line">&lt;%@ Assembly Name="System.Data" %&gt;</div><div class="line">&lt;%@ Import Namespace="SchemaExplorer" %&gt;</div><div class="line">&lt;%@ Import Namespace="System.Data" %&gt;</div><div class="line">&lt;% PrintHeader(); %&gt;</div><div class="line">using System;</div><div class="line">using System.Collections.Generic;</div><div class="line">using System.Text;</div><div class="line"></div><div class="line">namespace &lt;%= ModelsNamespace %&gt;</div><div class="line">&#123;	</div><div class="line">	[Serializable()]</div><div class="line">	public class &lt;%= GetModelClassName() %&gt;</div><div class="line">	&#123;</div><div class="line">	    &lt;% </div><div class="line">		foreach (ColumnSchema column in TargetTable.Columns)</div><div class="line">	   &#123;</div><div class="line">		%&gt;</div><div class="line">			private &lt;%= GetPropertyType(column) %&gt;  _&lt;%= </div><div class="line">			GetPropertyName(column) %&gt;;			</div><div class="line">		&lt;%</div><div class="line">		&#125;</div><div class="line">		%&gt;</div><div class="line">	    </div><div class="line">		&lt;% </div><div class="line">		foreach (ColumnSchema column in TargetTable.Columns)</div><div class="line">		&#123;</div><div class="line">		%&gt;</div><div class="line">			public &lt;%= GetPropertyType(column) %&gt; &lt;%= </div><div class="line">			GetPropertyName(column) %&gt;</div><div class="line">			&#123;</div><div class="line">				 get &#123; return _&lt;%= GetPropertyName(column) %&gt;; &#125;</div><div class="line">	             set &#123; _&lt;%= GetPropertyName(column) %&gt; = value; &#125;</div><div class="line">			&#125;</div><div class="line">		&lt;%</div><div class="line">		&#125;</div><div class="line">		%&gt;	</div><div class="line">	&#125;</div><div class="line">&#125;</div><div class="line">&lt;script runat="template"&gt;</div><div class="line">public string GetModelClassName()</div><div class="line">&#123;</div><div class="line">	return GetModelClassName(TargetTable);</div><div class="line">&#125;</div><div class="line"></div><div class="line">public override string GetFileName()</div><div class="line">&#123;</div><div class="line">	return this.GetModelClassName(this.TargetTable) + ".cs";</div><div class="line">&#125;</div><div class="line"></div><div class="line">&lt;/script&gt;</div></pre></td></tr></table></figure>
-<p>获取表中字段名使用的是GetPropertyName(column)，咦，在哪实现了这个东西呢？回去翻一下文件，哦，还有一个ToolsCodeTemplate.cs文一直没管呢。</p>
-<p>果然，GetPropertyName(column)在这里。</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">GetPropertyName</span>(<span class="params">ColumnSchema column</span>)</span></div><div class="line">&#123;</div><div class="line">   <span class="keyword">return</span> GetNameFromDBFieldName(column);</div><div class="line">&#125;</div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">GetNameFromDBFieldName</span>(<span class="params">ColumnSchema column</span>)</span></div><div class="line">&#123;</div><div class="line">	<span class="keyword">return</span> column.Name;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>读取列名就是这么简单，那么我们对应写一个函数读取一下列注释，然后再model里面调用一下不好了。</p>
-<p>又查了一下资料，</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">string</span> <span class="title">GetColumnComment</span>(<span class="params">ColumnSchema column</span>)</span></div><div class="line">&#123;</div><div class="line">     <span class="keyword">return</span> column.Description;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>嗯，理论上这样是可以的…<br>然而，我想多了。倒腾了好久，这个属性值都是空的…<br>google了一圈之后发现，原来是SchemaExplorer.MySQLSchemaProvider.dll 里面压根没实现读取列注释的实现….</p>
-<p>不过也有对应的解决方法：</p>
-<p><a href="http://www.cnblogs.com/LonelyShadow/p/4147743.html" target="_blank" rel="external">完美解决CodeSmith无法获取MySQL表及列Description说明注释的方案</a></p>
-<p>把DLL替换一下就好了。</p>
-<p>最后附上模板连接:<a href="https://github.com/liguobao/CodeSmith-for-MySQL-Template" target="_blank" rel="external">CodeSmith-for-MySQL-Template</a></p>
-<p>注：</p>
-<ol>
-<li>模板会把MySQL的表名前三个字符截取掉，建议把表明设置为tbl开头，或者自行修改模板文件。</li>
-<li>想让字段注释生效记得替换SchemaExplorer.MySQLSchemaProvider.dll(替换前记得备份！)</li>
-</ol>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1830,7 +1837,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">18</span>
+              <span class="site-state-item-count">20</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1847,7 +1854,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">6</span>
+                <span class="site-state-item-count">7</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
