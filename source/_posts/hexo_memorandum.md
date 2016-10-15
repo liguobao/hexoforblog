@@ -8,12 +8,12 @@ tags:
 ---
 
 
-##[Markdown 语法说明 (简体中文版)](http://wowubuntu.com/markdown/)
+## [Markdown 语法说明 (简体中文版)](http://wowubuntu.com/markdown/)
 
-##[Markdown: Basics （快速入门）](http://wowubuntu.com/markdown/basic.html)
+## [Markdown: Basics （快速入门）](http://wowubuntu.com/markdown/basic.html)
 
-##[使用GitHub和Hexo搭建免费静态Blog(本博客案例)](http://wsgzao.github.io/post/hexo-guide/)
-###安装Hexo
+## [使用GitHub和Hexo搭建免费静态Blog(本博客案例)](http://wsgzao.github.io/post/hexo-guide/)
+### 安装Hexo
 ```javascript
 npm install hexo-cli -g
 npm install hexo --save
@@ -22,7 +22,7 @@ npm install hexo --save
 npm install -g cnpm --registry=https://registry.npm.taobao.org
 ```
 
-###安装Hexo插件
+### 安装Hexo插件
 ```javascript
 npm install hexo-generator-index --save
 npm install hexo-generator-archive --save
@@ -40,12 +40,12 @@ npm install hexo-generator-sitemap@1 --save
 
 ```
 
-##[win下面的git客户端提示FIlename too long解决方法](https://www.mxgw.info/t/filename-too-long-in-git.html)
+## [win下面的git客户端提示FIlename too long解决方法](https://www.mxgw.info/t/filename-too-long-in-git.html)
 ```javascript
 git config --global core.longpaths true
 ```
 
-##[git-ssh 配置和使用](https://segmentfault.com/a/1190000002645623)
+## [git-ssh 配置和使用](https://segmentfault.com/a/1190000002645623)
 
 
 

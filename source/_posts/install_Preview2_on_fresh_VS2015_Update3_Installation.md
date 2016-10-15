@@ -17,7 +17,9 @@ category: .net core
 
 这个还能用迅雷或者命令行下载回来，但是DotNetCore.1.0.1-SDK.1.0.0.Preview2这货安装过程中需要的一下msi安装包，就死活下不回来了。
 
-安装过程报错：0x80070003 系统找不到需要的文件。此处已确认是微软爸爸的不过。[issue在这里](https://github.com/aspnet/Tooling/issues/655)看安装错误log的话。
+#### 安装过程报错：0x80070003 系统找不到需要的文件。
+
+此处已确认是微软爸爸的bug了。[issue在这里](https://github.com/aspnet/Tooling/issues/655)
 
 我们去看安装失败的log，能看到类似下面的log：
 
