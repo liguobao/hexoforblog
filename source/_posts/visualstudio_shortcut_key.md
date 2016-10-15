@@ -1,11 +1,12 @@
 ---
 layout: post
-title: VS快捷键
+title: VS快捷键（转载）
 category: memorandum
 date: 2016-10-14 00:00:00
 tags:
 - Visual Studio
 ---
+原文：[http://www.cnblogs.com/xiaofeixiang/p/3785167.html](http://www.cnblogs.com/xiaofeixiang/p/3785167.html)
 
 ctrl+s         保存（这个确实很简单，要说常用，这玩意绝对排名第一）
 
