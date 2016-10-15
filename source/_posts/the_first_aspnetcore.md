@@ -1,7 +1,7 @@
 ---
 layout: post
 title: ASP.NET core 初体验
-category: .net
+category: .net core
 date: 2016-05-30 00:00:00
 ---
 

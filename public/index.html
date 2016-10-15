@@ -260,6 +260,299 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/15/install_Preview2_on_fresh_VS2015_Update3_Installation/" itemprop="url">
+                  Microsoft .NET Core 1.0.0 VS 2015 Tooling Preview 2 0x80070003
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-15T13:53:38+08:00" content="2016-10-15">
+              2016-10-15
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/net-core/" itemprop="url" rel="index">
+                    <span itemprop="name">.net core</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/15/install_Preview2_on_fresh_VS2015_Update3_Installation/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/15/install_Preview2_on_fresh_VS2015_Update3_Installation/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>最近安装Microsoft .NET Core 1.0.0 VS 2015 Tooling Preview 2实在有点曲折，忍不住写个文章来讲这货的坑爹之旅了。</p>
+<p>一般我们在<a href="https://www.microsoft.com/net/download" target="_blank" rel="external">.NET Downloads</a> 下载回来的Microsoft .NET Core 1.0.0 VS 2015 Tooling Preview 2是一个简易安装包。</p>
+<p>它在安装过程中会不断去网络请求需要的msi文件，美名曰：在线安装。</p>
+<p>然而在我国的国情以及我国网络运营商的衬托下，在线安装这种东西实在不可恭维。</p>
+<p>本来网络稳定，在线安装 这种鬼也还算能用，不过最近微软爸爸不知道为嘛了，.net core相关安装包的下载地址全线失效。<br>如<a href="https://download.microsoft.com/download/0/A/3/0A372822-205D-4A86-BFA7-084D2CBE9EDF/DotNetCore.1.0.1-SDK.1.0.0.Preview2-003133-x64.exe" target="_blank" rel="external">DotNetCore.1.0.1-SDK.1.0.0.Preview2-003133-x64.exe</a>，直接出502 Bad Gateway。</p>
+<p>这个还能用迅雷或者命令行下载回来，但是DotNetCore.1.0.1-SDK.1.0.0.Preview2这货安装过程中需要的一下msi安装包，就死活下不回来了。</p>
+<p>安装过程报错：0x80070003 系统找不到需要的文件。此处已确认是微软爸爸的不过。<a href="https://github.com/aspnet/Tooling/issues/655" target="_blank" rel="external">issue在这里</a>看安装错误log的话。</p>
+<p>我们去看安装失败的log，能看到类似下面的log：</p>
+<p>Error 0x80072efd: Failed attempt to download URL: ‘<a href="https://download.microsoft.com/download/A/3/8/A38489F3-9777-41DD-83F8-2CBDFAB2520C/packages/ancm_iis_express_x64_en_rc2_39.msi" target="_blank" rel="external">https://download.microsoft.com/download/A/3/8/A38489F3-9777-41DD-83F8-2CBDFAB2520C/packages/ancm_iis_express_x64_en_rc2_39.msi</a>‘ to: ‘C:\Users\cneuss\AppData\Local\Temp{C307771D-8D9A-45B5-B514-B6CA69C0C6E2}\ANCM_IISExpress_x64’</p>
+<p>很明显这个操作从<a href="https://download.microsoft.com/download/A/3/8/A38489F3-9777-41DD-83F8-2CBDFAB2520C/packages/ancm_iis_express_x64_en_rc2_39.msi" target="_blank" rel="external">https://download.microsoft.com/download/A/3/8/A38489F3-9777-41DD-83F8-2CBDFAB2520C/packages/ancm_iis_express_x64_en_rc2_39.msi</a>上面下载ancm_iis_express_x64_en_rc2_39.msi文件。<br>然而我们点击进去，看到这个同样的问题：502 Bad Gateway。</p>
+<p>安装到这里，已经GG了。</p>
+<p>不过既然知道是因为下载文件的问题了，那么解决办法也应运而生了。</p>
+<p>我们完全手动下载文件（用迅雷或者别的下载工具），发布在本地，改hosts地址让下载请求直接从本地下载文件。</p>
+<p>这个方案听起来是没有任何的问题的，我也成功使用迅雷把无法下载的文件下载到本地了。然而在改host地址这里卡住了。</p>
+<p>不知道为嘛，无论我把<a href="download.microsoft.com">download.microsoft.com</a>指向怎么改，也无法把请求重定向到本地。</p>
+<p>后来认真看了下安装log，发现所以的下载操作都是把文件下载到 C:\Users\cneuss\AppData\Local\Temp 目录（具体目录看log文件内容）下的临时路径，报错是系统找不到需要的文件。</p>
+<p>那么，我们手动把需要的文件放到对应的位置，问题也就解决了。</p>
+<p>所以，为了清晰找到临时路径，安装之前先把“C:\Users\cneuss\AppData\Local\Temp”的文件清空，然后点击安装包。</p>
+<p>很快可以在temp路径下看到冒出来的{xxxxxxxxxxxxx}文件夹，然后迅速把我们通过迅雷下载回来的文件仍到这个目录底下。</p>
+<p>迅速操作的原因是，在线安装包正在下载所需要的文件，如：ancm_iis_express_x64_en_rc2_39.msi，我们要在下载超时之前把文件应该在的位置，这样的话即使下载没拿到文件，安装程序还是可以拿我们的文件去执行安装。</p>
+<p>别的就是不断尝试，看缺少那个msi手动下哪个msi的事情了。</p>
+<h4 id="最终方案"><a href="#最终方案" class="headerlink" title="最终方案"></a>最终方案</h4><p>最后，根据log文件，还发现了一个更简单的方法：</p>
+<p>在DotNetCore.1.0.1-SDK.1.0.0.Preview2-003133-x64.exe的同级目录下新建packages文件夹，把上面无法在线下载到的msi仍进去，然后就一路绿灯了。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/10/14/visualstudio_shortcut_key/" itemprop="url">
+                  VS快捷键
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-14T00:00:00+08:00" content="2016-10-14">
+              2016-10-14
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/memorandum/" itemprop="url" rel="index">
+                    <span itemprop="name">memorandum</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/14/visualstudio_shortcut_key/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/14/visualstudio_shortcut_key/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>ctrl+s         保存（这个确实很简单，要说常用，这玩意绝对排名第一）</p>
+<p>ctrl+Shift+S   保存所有VS中打开的所有文件</p>
+<p>ctrl+O         打开新文件</p>
+<p>ctrl+Shift+O   打开项目</p>
+<p>ctrl+Shift+A   当前项目中添加新建项</p>
+<p>ctrl+F4        关闭当前打开页</p>
+<p>ctrl+F6        跳到下一个窗口</p>
+<p>ctrl+Shift+F6  跳到前一个打开的窗口</p>
+<p>F12            转到函数定义实现处，或者转到变量定义处（一堆代码中使用这个键确实逻辑会更清晰一点）</p>
+<p>ctrl+-         这个相对来说跟F12是配套使用的，F12到函数定义，然后返回原代码中继续查看</p>
+<p>shift+ctrl+-   相对于上一个步骤，这个可以再次转到函数定义的地方</p>
+<p>ctrl+tab       页面切换，打开页面过多的话，切换用的还是比较多的</p>
+<p>ctrl+F         搜索，查找，功能简单粗暴有的时候比很高效</p>
+<p>ctrl+F3        在选中区域搜索</p>
+<p>ctrl+K，ctrl+D 整个文档格式化</p>
+<p>ctrl+K,ctrl+F  格式化选中部分代码</p>
+<p>ctrl+K，ctrl+C  代码注释</p>
+<p>ctrl+K，ctrl+U  取消代码注释</p>
+<p>ctrl+L          删除，删除当前行或者删除选中行</p>
+<p>Shift+Alt+Enter 当前代码区域全屏，再按一次取消全屏</p>
+<p>ctrl+M，ctrl+M  写代码都喜欢折叠，折叠之后还是还要打开的，可以试试这个快捷键</p>
+<p>ctrl+space      代码补全</p>
+<p>ctrl+Enter      假如现在当前行上面添加代码光标跳到当前行的上一行</p>
+<p>ctrl+Shift+Enter假如现在当前行下面添加代码光标跳到当前行的下一行</p>
+<p>Shift+F12       查找函数或者变量的所有引用</p>
+<p>ctrl+g          查找行，跳转到你想要跳转的行数</p>
+<p>ctrl+Shift+↑    向上查找引用</p>
+<p>ctrl+Shift+↓    向下查找引用</p>
+<p>Shift+Alt+↑    向上画一条直线，通常如果拷贝代码的时候有行号可以这样去除</p>
+<p>Shift+Alt+↓    向下画一条直线，同上</p>
+<p>Shift+↑         向上选中代码区域</p>
+<p>Shift+↓         向下选中代码区域</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/04/58CityHouseSearch_move_to_aspnetcore/" itemprop="url">
                   58HouseSearch项目迁移到asp.net core
                 </a>
@@ -1280,8 +1573,8 @@
               <span class="post-meta-item-text">分类于</span>
               
                 <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/net/" itemprop="url" rel="index">
-                    <span itemprop="name">.net</span>
+                  <a href="/categories/net-core/" itemprop="url" rel="index">
+                    <span itemprop="name">.net core</span>
                   </a>
                 </span>
 
@@ -1332,134 +1625,6 @@
 <p><img src="http://7xread.com1.z0.glb.clouddn.com/07ec4ff1-64ea-486b-8cb8-99dc400c279a" alt="图三"></p>
 <p>这个安装略慢，稍等。</p>
 <p>上面的都安装好了之后，打开VS，新建项目，选中web，即可看到asp.net core.<br>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/aa3a9677-701e-45f0-90ea-b47b57dcb85e" alt="图五"><br>完事….<br>下次再来聊asp.net core项目…</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/04/20/CodeSmith-connect-MySQL-throw“can‘t find .Net Framework Data Provider”/" itemprop="url">
-                  CodeSmith 连接MySQL数据库报“can't find .net framework data provider”
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-04-20T00:00:00+08:00" content="2016-04-20">
-              2016-04-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/CodeSmith/" itemprop="url" rel="index">
-                    <span itemprop="name">CodeSmith</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/04/20/CodeSmith-connect-MySQL-throw“can‘t find .Net Framework Data Provider”/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/20/CodeSmith-connect-MySQL-throw“can‘t find .Net Framework Data Provider”/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>1、下载 mysql-connector-net 安装</p>
-<p><a href="https://dev.mysql.com/downloads/connector/net/6.9.html" target="_blank" rel="external">mysql-connector-net</a></p>
-<p>2、mysql-connector-net 安装完毕之后，到对应的安装目录下，把对应的MySQL .NET dll拷贝到 CodeSmith的bin目录和SchemaProviders目录。</p>
-<p>一般DLL所在目录是：</p>
-<p>C:\Program Files (x86)\MySQL\MySQL Connector Net 6.9.8\Assemblies\v4.0</p>
-<p>3、重启CodeSmith生效</p>
-<p><br><br><br></p>
-<p>其余解决方案：<br><br><br><a href="http://blog.csdn.net/joke01/article/details/9469515" target="_blank" rel="external">codesmith无法连接Mysql的解决方法</a></p>
-<p><a href="http://www.cnblogs.com/tim190/archive/2013/01/18/2866161.html" target="_blank" rel="external">codesmith6.5连接Mysql提示“找不到请求的 .Net Framework Data Provider。可能没有安装。”解决方法</a></p>
 
           
         
@@ -1646,157 +1811,11 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/04/10/mono-webreques-https-exception/" itemprop="url">
-                  mono webreques https exception
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-04-10T12:39:04+08:00" content="2016-04-10">
-              2016-04-10
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/net/" itemprop="url" rel="index">
-                    <span itemprop="name">.net</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/04/10/mono-webreques-https-exception/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/10/mono-webreques-https-exception/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>前几天在做一个使用URL通过WebRequest请求HTML页面的功能的时候遇到了点坑，程序在开发环境没有任何的问题，部署到linux mono上之后就跪了。代码如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetHTML</span>(<span class="params"><span class="keyword">string</span> url</span>)</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">string</span> htmlCode;</div><div class="line">    <span class="keyword">try</span></div><div class="line">    &#123;</div><div class="line">        HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);</div><div class="line">        webRequest.Timeout = <span class="number">30000</span>;</div><div class="line">        webRequest.Method = <span class="string">"GET"</span>;</div><div class="line">        webRequest.UserAgent = <span class="string">"Mozilla/4.0"</span>;</div><div class="line">        webRequest.Headers.Add(<span class="string">"Accept-Encoding"</span>, <span class="string">"gzip, deflate"</span>);</div><div class="line"></div><div class="line">        HttpWebResponse webResponse = (System.Net.HttpWebResponse)webRequest.GetResponse();</div><div class="line">        <span class="comment">//获取目标网站的编码格式</span></div><div class="line">        <span class="keyword">string</span> contentype = webResponse.Headers[<span class="string">"Content-Type"</span>];</div><div class="line">        Regex regex = <span class="keyword">new</span> Regex(<span class="string">"charset\\s*=\\s*[\\W]?\\s*([\\w-]+)"</span>, RegexOptions.IgnoreCase);</div><div class="line">        <span class="keyword">if</span> (webResponse.ContentEncoding.ToLower() == <span class="string">"gzip"</span>)<span class="comment">//如果使用了GZip则先解压</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">using</span> (<span class="keyword">var</span> zipStream = <span class="keyword">new</span> System.IO.Compression.GZipStream(streamReceive, </div><div class="line">                System.IO.Compression.CompressionMode.Decompress))</div><div class="line">                &#123;</div><div class="line">                    <span class="comment">//匹配编码格式</span></div><div class="line">                    <span class="keyword">if</span> (regex.IsMatch(contentype))</div><div class="line">                    &#123;</div><div class="line">                        Encoding ending = Encoding.GetEncoding(regex.Match(contentype).Groups[<span class="number">1</span>].Value.Trim());</div><div class="line">                        <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, ending))</div><div class="line">                        &#123;</div><div class="line">                            htmlCode = sr.ReadToEnd();</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                    <span class="keyword">else</span></div><div class="line">                    &#123;</div><div class="line">                        <span class="keyword">using</span> (StreamReader sr = </div><div class="line">                        <span class="keyword">new</span> System.IO.StreamReader(zipStream, Encoding.UTF8))</div><div class="line">                        &#123;</div><div class="line">                            htmlCode = sr.ReadToEnd();</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">using</span> (System.IO.StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(streamReceive, Encoding.Default))</div><div class="line">                &#123;</div><div class="line">                    htmlCode = sr.ReadToEnd();</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">return</span> htmlCode;</div><div class="line"></div><div class="line">    &#125;<span class="keyword">catch</span>(Exception ex)</div><div class="line">    &#123;</div><div class="line">        LogHelper.WriteException(<span class="string">"GetHTML"</span>, ex, <span class="keyword">new</span> &#123; Url = url &#125;);</div><div class="line">        <span class="keyword">return</span> <span class="string">""</span>;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<p>开发环境在Windows10 + VS2013,整个代码跑起来没什么问题。</p>
-<p>无论是HTTP还是HTTPS协议，网页HTML一样能获取得到。</p>
-<p>网站部署到linux Jexus之后HTTP协议的网站同样可以获取到HTML，遇到HTTPS协议的网站的时候就跪了。</p>
-<p>抓到的异常信息如下：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div></pre></td><td class="code"><pre><div class="line">System.Net.WebException: Error: TrustFailure (The authentication or decryption has failed.) </div><div class="line">---&gt; System.IO.IOException: The authentication or decryption has failed.</div><div class="line">---&gt; System.IO.IOException: The authentication or decryption has failed. </div><div class="line">---&gt; Mono.Security.Protocol.Tls.TlsException:</div><div class="line">Invalid certificate received <span class="keyword">from</span> server. Error code: <span class="number">0xffffffff800b0109</span></div><div class="line">at Mono.Security.Protocol.Tls.RecordProtocol.EndReceiveRecord </div><div class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b58d80</span> + <span class="number">0x0013e</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Security.Protocol.Tls.SslClientStream.SafeEndReceiveRecord</div><div class="line">(IAsyncResult ar, Boolean ignoreEmpty) &lt;<span class="number">0x41b58cb0</span> + <span class="number">0x00031</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Security.Protocol.Tls.SslClientStream.NegotiateAsyncWorker</div><div class="line">(IAsyncResult result) &lt;<span class="number">0x41b72a40</span> + <span class="number">0x0023f</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">--- End of inner exception stack trace ---</div><div class="line">at Mono.Security.Protocol.Tls.SslClientStream.EndNegotiateHandshake </div><div class="line">(IAsyncResult result) &lt;<span class="number">0x41ba07e0</span> + <span class="number">0x000f3</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Security.Protocol.Tls.SslStreamBase.AsyncHandshakeCallback </div><div class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41ba0540</span> + <span class="number">0x00086</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">--- End of inner exception stack trace ---</div><div class="line">at Mono.Security.Protocol.Tls.SslStreamBase.EndRead </div><div class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73fd0</span> + <span class="number">0x00199</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Net.Security.Private.LegacySslStream.EndAuthenticateAsClient </div><div class="line">(IAsyncResult asyncResult) &lt;<span class="number">0x41b73f30</span> + <span class="number">0x00042</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Net.Security.Private.LegacySslStream.AuthenticateAsClient (System.String targetHost, </div><div class="line">System.Security.Cryptography.X509Certificates.X509CertificateCollection</div><div class="line">clientCertificates, SslProtocols enabledSslProtocols,</div><div class="line">Boolean checkCertificateRevocation) &lt;<span class="number">0x41b6a660</span> + <span class="number">0x00055</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at Mono.Net.Security.MonoTlsStream.CreateStream (System.Byte[] buffer) </div><div class="line">&lt;<span class="number">0x41b69c30</span> + <span class="number">0x00159</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">--- End of inner exception stack trace ---</div><div class="line">at System.Net.HttpWebRequest.EndGetResponse (IAsyncResult asyncResult) </div><div class="line">&lt;<span class="number">0x41b67660</span> + <span class="number">0x001f9</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at System.Net.HttpWebRequest.GetResponse () &lt;<span class="number">0x41b60920</span> + <span class="number">0x0005a</span>&gt; <span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span> </div><div class="line">at WebBookmarkUI.Commom.HTTPHelper.GetHTML (System.String url) &lt;<span class="number">0x41b59b70</span> + <span class="number">0x00235</span>&gt; </div><div class="line"><span class="keyword">in</span> &lt;filename unknown&gt;:<span class="number">0</span></div></pre></td></tr></table></figure>
-<p>有用的信息基本就是：</p>
-<ol>
-<li>Invalid certificate received from server</li>
-<li>The authentication or decryption has failed</li>
-</ol>
-<p>一开始百思不得其解，为嘛好好的程序在开发环境跑得都好的，到了mono上就挂了，多疑的我还以为是mono的bug。<br>今天静下心来去找了一下资料，发现Mono的文档有这个问题的描述，认真读了一遍，又去请教了一番宇内流云大大，终于弄懂了是什么回事。</p>
-<p>先贴一下相关资料：</p>
-<ol>
-<li><p><a href="http://stackoverflow.com/questions/4926676/mono-webrequest-fails-with-https" target="_blank" rel="external">stackoverflow mono-webrequest-fails-with-https</a></p>
-</li>
-<li><p><a href="http://www.mono-project.com/docs/faq/security/" target="_blank" rel="external">mono doc security</a></p>
-</li>
-</ol>
-<p>这个问题是出现的原因是Windows自带了HTPPS的根证书，linux默认则是没有带有根证书的。我们的mono在调用WebRequest去请求HTTPS协议的网站的时候，找不到任何有效的根证书，所以抛出上面的异常了。</p>
-<p>解决方案也很简单，为linux导入一下HTTPS根证书就好。</p>
-<p>在linux服务器上面执行下面这条命令。<br><figure class="highlight brainfuck"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="comment">mozroots</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">import</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">ask</span><span class="literal">-</span><span class="comment">remove</span> <span class="literal">-</span><span class="literal">-</span><span class="comment">machine</span></div></pre></td></tr></table></figure></p>
-<p>然后在网站的Application_Start()里面添加下面代码：</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line"> System.Net.ServicePointManager.ServerCertificateValidationCallback +=</div><div class="line"> <span class="keyword">delegate</span>(<span class="keyword">object</span> sender, System.Security.Cryptography.X509Certificates.X509Certificate certificate,</div><div class="line"> System.Security.Cryptography.X509Certificates.X509Chain chain,</div><div class="line"> System.Net.Security.SslPolicyErrors sslPolicyErrors)</div><div class="line">&#123;</div><div class="line">    <span class="keyword">return</span> <span class="literal">true</span>; <span class="comment">// **** Always accept</span></div><div class="line">&#125;;</div></pre></td></tr></table></figure>
-<p>完事。</p>
-<p>这个故事告诉我们，linux干活都是要亲力亲为呀。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
   <nav class="pagination">
-    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
+    <span class="page-number current">1</span><a class="page-number" href="/page/2/">2</a><a class="page-number" href="/page/3/">3</a><a class="extend next" rel="next" href="/page/2/"><i class="fa fa-angle-right"></i></a>
   </nav>
 
 
@@ -1837,7 +1856,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">20</span>
+              <span class="site-state-item-count">22</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1845,7 +1864,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">9</span>
+                <span class="site-state-item-count">10</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1854,7 +1873,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">7</span>
+                <span class="site-state-item-count">9</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
