@@ -260,6 +260,176 @@
             
               
                 
+                <a class="post-title-link" href="/2016/10/22/javascript_requirejs_rf_code/" itemprop="url">
+                  使用requirejs编写模块化代码
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-10-22T00:00:00+08:00" content="2016-10-22">
+              2016-10-22
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/javascript/" itemprop="url" rel="index">
+                    <span itemprop="name">javascript</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/10/22/javascript_requirejs_rf_code/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/10/22/javascript_requirejs_rf_code/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>最早接触javascript的时候，javascript代码直接扔在script标签里面就完事了。</p>
+<p>反正代码不多，交互简单，逻辑不难，和HTML混在一起也未尝不可。</p>
+<p>后来交互越来越复杂，代码越多越多了，我们就开始把JS代码独立到了单独的JS文件中。</p>
+<p>公共的库引用在前，自己的逻辑代码引用在后，全局变量定义在HTML内部，在独立JS文件中直接使用变量就好。</p>
+<p>我们会经常看到下面这种代码：</p>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"1.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"2.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"3.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"4.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"5.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">　　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"6.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<p>通过script标签顺序去js管理依赖关系。</p>
+<p>阮一峰老师在<a href="http://www.ruanyifeng.com/blog/2012/11/require_js.html" target="_blank" rel="external">Javascript模块化编程（三）：require.js的用法</a><br>一文中总结了这样写法的缺点：</p>
+<p>首先，加载的时候，浏览器会停止网页渲染，加载文件越多，网页失去响应的时间就会越长；</p>
+<p>其次，由于js文件之间存在依赖关系，因此必须严格保证加载顺序（比如上例的1.js要在2.js的前面），依赖性最大的模块一定要放到最后加载.</p>
+<p>当依赖关系很复杂的时候，代码的编写和维护都会变得困难。</p>
+<p>而requirejs的诞生便是为了解决这个问题。</p>
+<h3 id="requirejs"><a href="#requirejs" class="headerlink" title="requirejs"></a><a href="http://requirejs.org/docs/download.html" target="_blank" rel="external">requirejs</a></h3><p>在<a href="http://requirejs.org/docs/download.html" target="_blank" rel="external">官网</a>把requirejs 下载回来之后。使用一般的方法引入：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/require.js"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure></p>
+<p>但是这样的方法，还是可能在加载require.js的时候导致网页失去响应。解决方案一般有两种：</p>
+<ol>
+<li><p>把上面的代码放到网页底部</p>
+</li>
+<li><p>使用异步的方法加载，如下：</p>
+</li>
+</ol>
+<figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line"><span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/require.js"</span> <span class="attr">defer</span> <span class="attr">async</span>=<span class="string">"true"</span> &gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div></pre></td></tr></table></figure>
+<p><a href="http://www.w3school.com.cn/html5/att_script_async.asp" target="_blank" rel="external">async属性</a> 表明这个文件需要异步加载，避免网页失去响应。</p>
+<p>不过IE下不支持这个属性，只支持defer，所以可以把defer也写上。</p>
+<h3 id="加载主模块"><a href="#加载主模块" class="headerlink" title="加载主模块"></a>加载主模块</h3><p>在上一步，我们已经引入了require了，那么require怎么知道我们究竟要加载什么东西呢？答案是使用data-main属性。<br>假设我们的主模块为js/home.js,引入代码应该如下：<br><figure class="highlight xml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">　<span class="tag">&lt;<span class="name">script</span> <span class="attr">src</span>=<span class="string">"js/require.js"</span> <span class="attr">data-main</span>=<span class="string">"js/home"</span>&gt;</span><span class="undefined"></span><span class="tag">&lt;/<span class="name">script</span>&gt;</span></div><div class="line">//require.js默认文件后缀为js，所以home.js可以写成home。</div></pre></td></tr></table></figure></p>
+<p>接下来我使用<a href="https://github.com/liguobao/58HouseSearch" target="_blank" rel="external">58HouseSearch</a> 的代码来讲解一下require的使用。</p>
+<p>在此项目里面，重构前大概就是JS变量漫天飞，js文件里面各种函数到处乱放。一开始用起来还没什么，后来加入了更多功能的时候，JS代码维护起来就疼不欲生了。因此托了个小伙伴帮忙使用模块化思想重构了一下JS代码。</p>
+<p>上面说了，我们首先需要创建我们的模块，在这个项目里面，主模块叫home.js。</p>
+<p>home.js中我们需要配置一下require.config.<br><figure class="highlight xquery"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">require.config(&#123;</div><div class="line">    baseUrl: <span class="string">'/DomainJS/'</span>,</div><div class="line">    paths: &#123;</div><div class="line">        jquery: <span class="string">"lib/jquery-1.11.3.min"</span>,</div><div class="line">        <span class="string">"AMUI"</span>: <span class="string">"lib/amazeui.2.7.1.min"</span>,</div><div class="line">        <span class="string">"jquery.range"</span>: <span class="string">"lib/jquery.range"</span>,</div><div class="line">        <span class="string">"es5"</span>: <span class="string">"lib/es5"</span>,</div><div class="line">        <span class="string">"mapController"</span>: <span class="string">"mapController"</span>,</div><div class="line">        <span class="string">"addToolbar"</span>: <span class="string">"addToolbar"</span>,</div><div class="line">    &#125;,</div><div class="line">    shim: &#123;</div><div class="line">        <span class="string">"addToolbar"</span>: &#123;</div><div class="line">            deps: [<span class="string">"jquery"</span>]</div><div class="line">        &#125;,</div><div class="line">        <span class="string">"jquery.range"</span>: &#123;</div><div class="line">            deps: [<span class="string">"jquery"</span>]</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>在这里我主要配置了一下baseURL(所有模块的查找根路径)，paths(名称映射)，shim(<br>为那些没有使用define()来声明依赖关系、设置模块的”浏览器全局变量注入”型脚本做依赖和导出配置。)</p>
+<p>关于require.config的详细内容可以看下下面这些文章：</p>
+<ol>
+<li><a href="https://segmentfault.com/a/1190000002401665" target="_blank" rel="external">RequireJS进阶:配置文件的学习</a> </li>
+<li><a href="https://segmentfault.com/a/1190000002403806" target="_blank" rel="external">RequireJS进阶:模块的优化及配置的详解</a></li>
+</ol>
+<p>配置做完了，我们也可以开始真正写我们的逻辑代码了,我们使用require来加载我们需要的库。<br>代码如下：</p>
+<figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div></pre></td><td class="code"><pre><div class="line">require(['domready!', 'jquery', 'AMUI', 'mapController', 'city', 'commuteGo'], </div><div class="line"></div><div class="line">function (<span class="name">doc</span>, $, AMUI, mapController, city, commuteGo) &#123;</div><div class="line">    city.initAllCityInfo()<span class="comment">;</span></div><div class="line">    mapController.init()<span class="comment">;</span></div><div class="line"></div><div class="line">    $(<span class="string">"input[name='locationType']"</span>).bind('click', </div><div class="line">    mapController.locationMethodOnChange)</div><div class="line"></div><div class="line">    $(<span class="string">"input[name='vehicle']"</span>).bind('click', commuteGo.go)</div><div class="line"></div><div class="line">    $('#Get58Data').bind('click', function(<span class="name">e</span>) &#123;</div><div class="line">        e.preventDefault()<span class="comment">;</span></div><div class="line">     </div><div class="line">        mapController.Get58DataClick()<span class="comment">;</span></div><div class="line">        e.stopPropagation()<span class="comment">;</span></div><div class="line">    &#125;)<span class="comment">;</span></div><div class="line"></div><div class="line"> </div><div class="line">    $.ajax(&#123;</div><div class="line">        type: <span class="string">"post"</span>,</div><div class="line">        url: <span class="string">"../Commom/GetPVCount"</span>,</div><div class="line">        data: &#123; &#125;,</div><div class="line">        success: function (<span class="name">result</span>)</div><div class="line">        &#123;</div><div class="line">            if (<span class="name">result</span>.IsSuccess)&#123;</div><div class="line">                $(<span class="string">"#lblPVCount"</span>).text(<span class="name">result</span>.PVCount)<span class="comment">;</span></div><div class="line">            &#125;else &#123;</div><div class="line">                $(<span class="string">"#lblPVCount"</span>).text(<span class="number">0</span>)<span class="comment">;</span></div><div class="line">                console.log(<span class="name">result</span>.Error)<span class="comment">;</span></div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;)<span class="comment">;</span></div><div class="line"></div><div class="line">    $('#search-offcanvas').offCanvas(&#123; effect: 'overlay' &#125;)<span class="comment">;</span></div><div class="line"></div><div class="line">    $(<span class="string">".amap-sug-result"</span>).css(<span class="string">"z-index"</span>, <span class="number">9999</span>)<span class="comment">;</span></div><div class="line">&#125;)</div></pre></td></tr></table></figure>
+<p>忽略function里面的具体逻辑，加载如下：<br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="built_in">require</span>([<span class="string">'domready!'</span>, <span class="string">'jquery'</span>, <span class="string">'AMUI'</span>, <span class="string">'mapController'</span>, <span class="string">'city'</span>, <span class="string">'commuteGo'</span>], </div><div class="line"><span class="function"><span class="keyword">function</span> (<span class="params">doc, $, AMUI, mapController, city, commuteGo</span>)</span>&#123;</div><div class="line"></div><div class="line"><span class="comment">//todo</span></div><div class="line"></div><div class="line">&#125;);</div></pre></td></tr></table></figure></p>
+<p>第一个参数为一个数组，表示所依赖的模块，此处为[‘domready!’, ‘jquery’, ‘AMUI’, ‘mapController’, ‘city’, ‘commuteGo’]；</p>
+<p>第二个参数为回调函数，当前面指定的模块都全部加载成功之后，便调用此函数。加载的模块会以参数形式传入此函数，从而在回调函数内部就可以使用这些模块啦。</p>
+<p>require()异步加载所需模块的时候，此时浏览器并不会失去响应；当前面的模块加载成功之后，执行回调函数才会运行我们的逻辑代码，因此解决了依赖性问题。</p>
+<p>讲完了模块加载，我们下面讲一下模块编写。</p>
+<h3 id="AMD模块编写"><a href="#AMD模块编写" class="headerlink" title="AMD模块编写"></a>AMD模块编写</h3><p>require.js加载的模块的采用的AMD规范。所以我们的模块必须按照AMD的规定来写。</p>
+<p>关于AMD规范详情可以看这个文章：<a href="http://www.ruanyifeng.com/blog/2012/10/asynchronous_module_definition.html" target="_blank" rel="external">Javascript模块化编程（二）：AMD规范</a></p>
+<p>模块有两个情况，不依赖其他模块和依赖其他模块。</p>
+<h4 id="不依赖其他模块"><a href="#不依赖其他模块" class="headerlink" title="不依赖其他模块"></a>不依赖其他模块</h4><p>直接define定义，使用function回调。</p>
+<p><a href="https://github.com/liguobao/58HouseSearch/blob/master/58HouseSearch/DomainJS/helper.js" target="_blank" rel="external">58HouseSearch/DomainJS/helper.js</a><br><figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">define(<span class="function"><span class="keyword">function</span> (<span class="params"></span>) </span>&#123;</div><div class="line"></div><div class="line">    <span class="comment">//获取URL中的参数</span></div><div class="line">    <span class="keyword">var</span> getQueryString=  <span class="function"><span class="keyword">function</span> (<span class="params">name</span>) </span>&#123;</div><div class="line">        <span class="keyword">var</span> reg = <span class="keyword">new</span> <span class="built_in">RegExp</span>(<span class="string">"(^|&amp;)"</span> + name + <span class="string">"=([^&amp;]*)(&amp;|$)"</span>);</div><div class="line">        <span class="keyword">var</span> r = <span class="built_in">window</span>.location.search.substr(<span class="number">1</span>).match(reg);</div><div class="line">        <span class="keyword">if</span> (r != <span class="literal">null</span>) <span class="keyword">return</span> <span class="built_in">unescape</span>(r[<span class="number">2</span>]); <span class="keyword">return</span> <span class="literal">null</span>;</div><div class="line">    &#125;</div><div class="line">    <span class="keyword">return</span> &#123;</div><div class="line">        getQueryString: getQueryString,</div><div class="line">    &#125;;</div><div class="line">&#125;)</div></pre></td></tr></table></figure></p>
+<h4 id="依赖其他模块"><a href="#依赖其他模块" class="headerlink" title="依赖其他模块"></a>依赖其他模块</h4><p>define中如同require一样，用数组表明需要加载的模块，function回调。</p>
+<p><a href="https://github.com/liguobao/58HouseSearch/blob/master/58HouseSearch/DomainJS/marker.js" target="_blank" rel="external">58HouseSearch/DomainJS/marker.js</a><br><figure class="highlight lisp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div></pre></td><td class="code"><pre><div class="line">define(['mapSignleton', 'city', 'transfer'], </div><div class="line">function(<span class="name">mapSignleton</span>, city, transfer) &#123;</div><div class="line">    var _map = mapSignleton.map<span class="comment">;</span></div><div class="line">    var _workMarker = null<span class="comment">;</span></div><div class="line">    var _markerArray = []<span class="comment">;</span></div><div class="line">    var load = function(<span class="name">x</span>, y, locationName) &#123;</div><div class="line">        _workMarker = new AMap.Marker(&#123;</div><div class="line">            map: _map,</div><div class="line">            title: locationName,</div><div class="line">            icon: 'http<span class="symbol">://webapi</span>.amap.com/theme/v1.<span class="number">3</span>/markers/n/mark_r.png',</div><div class="line">            position: [x, y]</div><div class="line">        &#125;)<span class="comment">;</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    var add = function(<span class="name">address</span>, rent, href, markBG) &#123;</div><div class="line">        new AMap.Geocoder(&#123;</div><div class="line">            city: city.name,</div><div class="line">            radius: <span class="number">1000</span></div><div class="line">        &#125;).getLocation(<span class="name">address</span>, function(<span class="name">status</span>, result) &#123;</div><div class="line"></div><div class="line">            if (<span class="name">status</span> === <span class="string">"complete"</span> <span class="symbol">&amp;&amp;</span> result.info === 'OK') &#123;</div><div class="line">                var geocode = result.geocodes[<span class="number">0</span>]<span class="comment">;</span></div><div class="line">                var rentMarker = new AMap.Marker(&#123;</div><div class="line">                    map: _map,</div><div class="line">                    title: address,</div><div class="line">                    icon: markBG ? 'IMG/Little/' +</div><div class="line">                    markBG : 'http<span class="symbol">://webapi</span>.amap.com/theme/v1.<span class="number">3</span>/markers/n/mark_b.png',</div><div class="line">                    position: [geocode.location.getLng(), geocode.location.getLat()]</div><div class="line">                &#125;)<span class="comment">;</span></div><div class="line">                _markerArray.push(<span class="name">rentMarker</span>)<span class="comment">;</span></div><div class="line"></div><div class="line">                rentMarker.content = <span class="string">"&lt;div&gt;&lt;a target = '_blank' href='"</span> </div><div class="line">                + href + <span class="string">"'&gt;房源："</span> + address + <span class="string">"  租金："</span> + rent + <span class="string">"&lt;/a&gt;&lt;div&gt;"</span></div><div class="line">                rentMarker.on('click', function(<span class="name">e</span>) &#123;</div><div class="line">                    transfer.add(<span class="name">e</span>, address)<span class="comment">;</span></div><div class="line">                &#125;)<span class="comment">;</span></div><div class="line">            &#125;</div><div class="line">        &#125;)</div><div class="line">    &#125;<span class="comment">;</span></div><div class="line"></div><div class="line">    var clearArray = function() &#123;</div><div class="line">        if (<span class="name">_markerArray</span> <span class="symbol">&amp;&amp;</span> _markerArray.length &gt; <span class="number">0</span>) </div><div class="line">        _map.remove(<span class="name">_markerArray</span>)<span class="comment">;</span></div><div class="line">        _markerArray = []<span class="comment">;</span></div><div class="line">    &#125;</div><div class="line"></div><div class="line">    var clear = function() &#123;</div><div class="line">        if (<span class="name">_workMarker</span>) &#123;</div><div class="line">            _map.remove(<span class="name">_workMarker</span>)<span class="comment">;</span></div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    return &#123;</div><div class="line">        load: load,</div><div class="line">        add: add,</div><div class="line">        clearArray: clearArray,</div><div class="line">        clear: clear</div><div class="line">    &#125;<span class="comment">;</span></div><div class="line">&#125;)<span class="comment">;</span></div></pre></td></tr></table></figure></p>
+<p>这样的话，一个供require调用的模块也就写好了。</p>
+<p>最后感谢小伙伴<a href="https://www.zhihu.com/people/piratf" target="_blank" rel="external">Larry Sean</a> 帮忙重构代码。</p>
+<p>全文完。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/15/install_Preview2_on_fresh_VS2015_Update3_Installation/" itemprop="url">
                   Microsoft .NET Core 1.0.0 VS 2015 Tooling Preview 2 0x80070003
                 </a>
@@ -1654,164 +1824,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/04/20/Jexus-support-HTTPS/" itemprop="url">
-                  Jexus支持HTTPS协议
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-04-20T00:00:00+08:00" content="2016-04-20">
-              2016-04-20
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/jexus/" itemprop="url" rel="index">
-                    <span itemprop="name">jexus</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/04/20/Jexus-support-HTTPS/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/04/20/Jexus-support-HTTPS/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>众所周知，在HTTPS页面请求HTTP资料的时候，现代浏览器会拦截，提示用户是否继续，或者直接拦截，提示都不出来。</p>
-<p>最近给自己做了个快速书签工具，点击书签就直接把书签发送到服务器地址，然后保存到我的网站中。</p>
-<p>一开始一切都挺正常的，不过遇到了https的网站的时候，就跪掉了。</p>
-<p>开始的时候看到HTTPS证书是收费的，想想还是算了，反正凑合能用就是。前几天偶尔看到有一个免费申请HTTPS的开源软件，喵了一下看起来还不错，这几天有空了立马开干。下面有一个教程，我申请证书差不多就是按照这个来处理的。</p>
-<p><a href="https://www.paulyang.cn/blog/archives/39?spm=5176.blog2666.yqblogcon1.12.Nu0TgL" target="_blank" rel="external">用Let’s Encrypt获取免费证书</a></p>
-<p>关于这个Let’s Encrypt，维基百科是这样介绍的：</p>
-<blockquote>
-<p>Let’s Encrypt 是一个将于2015年末推出的数字证书认证机构，将通过旨在消除当前手动创建和安装证书的复杂过程的自动化流程，为安全网站提供免费的SSL/TLS证书。  Let’s Encrypt 是由互联网安全研究小组（ISRG，一个公益组织）提供的服务。主要赞助商包括电子前哨基金会，Mozilla基金会，Akamai以及思科。2015年4月9日，ISRG与Linux基金会宣布合作。用以实现这一新的数字证书认证机构的协议被称为自动证书管理环境（ACME）。  GitHub上有这一规范的草案，且提案的一个版本已作为一个Internet草案发布。Let’s Encrypt 宣称这一过程将十分简单、自动化并且免费。  2015年8月7日，该服务更新其推出计划，预计将在2015年9月7日当周某时发布首个证书，随后向列入白名单的域名发行少量证书并逐渐扩大发行。若一切按计划进行，该服务预计将在2015年11月16日当周某时全面开始提供.</p>
-</blockquote>
-<p>整个项目在Github有代码，主要是通过客户端来为我们的网站生成https证书。<br>首先我们先下载客户端，如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">git clone https://github.com/letsencrypt/letsencrypt.git</div></pre></td></tr></table></figure></p>
-<p>接着进入这个仓库内，执行下面代码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">./letsencrypt-auto certonly -a </div><div class="line">webroot\ --webroot-path 网站所在路径(如：/var/www/web/) \ </div><div class="line">-d 你的域名(如：test.online) -d www.你的域名(如ww.test.online)</div></pre></td></tr></table></figure></p>
-<p>这里需要注意的事，我这里为了排版，给上面的命令加了换行，运行这个命令的时候记得把换行符去掉。<br>换行符在webroot、-d 前面各有一个。</p>
-<p>一切顺利的话，我们在<code>/etc/letsencrypt/live/域名/</code>这个目录下能看到四个文件，分别是：</p>
-<ol>
-<li>域名证书文件</li>
-<li>签发域名证书的证书链文件</li>
-<li>域名证书+证书链文件</li>
-<li>私钥文件</li>
-</ol>
-<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/60e4f29a-6da5-40e1-ae32-453a3bbf2455" alt="letsencrypt文件"></p>
-<p>接着就是为网站设置证书了。</p>
-<p>Jexus设置HTTPS要更改jws.conf文档以及网站的配置文档。</p>
-<p>操作步骤如下：</p>
-<ol>
-<li>修改jws.conf<br>进入Jexus文件夹中，打开 “jws.conf”，添加下面两句：</li>
-</ol>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">CertificateFile    = /etc/letsencrypt/live/域名/fullchain.pem</div><div class="line">CertificateKeyFile = /etc/letsencrypt/live/域名/privkey.pem</div></pre></td></tr></table></figure>
-<p>修改之后效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/d306d9c5-6391-421d-86fc-053b97d1b489" alt="图片描述"></p>
-<ol>
-<li>开启网站的HTTPS功能</li>
-</ol>
-<p>进入siteconf/文件夹，找到对应的网站conf文件，</p>
-<p>把网站服务端口改为443：<br>port=443</p>
-<p>启用https：<br>UseHttps=true</p>
-<p>修改之后的效果图如下：<br><img src="http://7xread.com1.z0.glb.clouddn.com/0800dc87-2500-42d2-a3c5-a75a2c819330" alt="图片描述"></p>
-<p>然后重启jexus即可。</p>
-<p>完了之后，通过HTTPS即可访问。</p>
-<p>最后上一个HTTPS证书的图证明一下这个是可行的。<br><img src="http://7xread.com1.z0.glb.clouddn.com/24842774-311e-4e55-a6b5-b88a89edc754" alt="图片描述"></p>
-<p>撒花，下次再见。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1857,7 +1869,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">23</span>
+              <span class="site-state-item-count">24</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1865,7 +1877,7 @@
           
             <div class="site-state-item site-state-categories">
               <a href="/categories">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">11</span>
                 <span class="site-state-item-name">分类</span>
               </a>
             </div>
@@ -1874,7 +1886,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">10</span>
+                <span class="site-state-item-count">12</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
