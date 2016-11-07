@@ -260,6 +260,163 @@
             
               
                 
+                <a class="post-title-link" href="/2016/11/01/webchat_JS_SDK/" itemprop="url">
+                  ASP.NET MVC 微信JS-SDK认证
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-11-01T00:00:00+08:00" content="2016-11-01">
+              2016-11-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/net/" itemprop="url" rel="index">
+                    <span itemprop="name">.net</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/11/01/webchat_JS_SDK/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/11/01/webchat_JS_SDK/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="写在前面"><a href="#写在前面" class="headerlink" title="写在前面"></a>写在前面</h3><p>前阵子因为有个项目需要做微信自定义分享功能，因而去研究了下微信JS-SDK相关知识。</p>
+<p>此文做个简单的记(tu)录(cao)…</p>
+<h3 id="开始"><a href="#开始" class="headerlink" title="开始"></a>开始</h3><p>所有的东西都从文档开始:<a href="http://mp.weixin.qq.com/wiki/11/74ad127cc054f6b80759c40f77ec03db.html" target="_blank" rel="external">微信JSSDK说明文档</a></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/44b1232e-9311-4abb-9200-6dd4936d7c47" alt="分享接口"></p>
+<p>项目需要用到的是<a href="http://mp.weixin.qq.com/wiki/11/74ad127cc054f6b80759c40f77ec03db.html#.E5.88.86.E4.BA.AB.E6.8E.A5.E5.8F.A3" target="_blank" rel="external">分享接口</a> 不过使用微信JS-SDK之前，需要做JS接口认证。</p>
+<p>认证如下：</p>
+<p>步骤一：绑定域名</p>
+<p>步骤二：引入JS文件</p>
+<p>步骤三：通过config接口注入权限验证配置</p>
+<p>步骤四：通过ready接口处理成功验证</p>
+<p>步骤五：通过error接口处理失败验证</p>
+<p>步骤一中允许使用域名/子域名，只要xx.com/xxx.txt或者xx.com/mp/xxx.txt能访问就好。域名认证通过之后，此域名下的所有端口的网站都可以使用JS-SDK。</p>
+<p>步骤二没什么问题，略过。</p>
+<p>步骤三最磨人，下面单独讲解。</p>
+<h3 id="config接口注入权限验证配置"><a href="#config接口注入权限验证配置" class="headerlink" title="config接口注入权限验证配置"></a>config接口注入权限验证配置</h3><p>先来一段说明：<br><figure class="highlight qml"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">所有需要使用JS-SDK的页面必须先注入配置信息，否则将无法调用</div><div class="line">（同一个<span class="built_in">url</span>仅需调用一次，对于变化<span class="built_in">url</span>的SPA的web app可在每次<span class="built_in">url</span>变化时进行调用,</div><div class="line">目前Android微信客户端不支持pushState的H5新特性，</div><div class="line">所以使用pushState来实现web app的页面会导致签名失败，此问题会在Android6<span class="number">.2</span>中修复）。</div></pre></td></tr></table></figure></p>
+<figure class="highlight javascript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line">wx.config(&#123;</div><div class="line">    debug: <span class="literal">true</span>, <span class="comment">// 开启调试模式,调用的所有api的返回值会在客户端alert出来，</span></div><div class="line">    <span class="comment">//若要查看传入的参数，可以在pc端打开，参数信息会通过log打出，仅在pc端时才会打印。</span></div><div class="line">    appId: <span class="string">''</span>, <span class="comment">// 必填，公众号的唯一标识</span></div><div class="line">    timestamp: , <span class="comment">// 必填，生成签名的时间戳</span></div><div class="line">    nonceStr: <span class="string">''</span>, <span class="comment">// 必填，生成签名的随机串</span></div><div class="line">    signature: <span class="string">''</span>,<span class="comment">// 必填，签名，见附录1</span></div><div class="line">    jsApiList: [] <span class="comment">// 必填，需要使用的JS接口列表，所有JS接口列表见附录2</span></div><div class="line">&#125;);</div></pre></td></tr></table></figure>
+<p>看到这里肯定懵逼了，这是都什么鬼…怎么玩啊。</p>
+<p>提示我们去看附录1…看完之后总结如下：</p>
+<ol>
+<li>使用config接口注入权限验证配置，重点是生成合法的signatrue</li>
+<li>生成signature需要通过appid和secret获取token</li>
+<li>时间戳和调用接口URL必不可少</li>
+<li>此操作需要服务端完成，不能使用客户端实现</li>
+</ol>
+<p>整个过程变成：</p>
+<ol>
+<li><p>通过appid和secret获取access_token，接着使用token获取jsapi_ticket；</p>
+</li>
+<li><p>拿到jsapi_ticket之后，把jsapi_ticket、时间戳、随机字符串、接口调用页面URL 拼接成完整字符串，使用sha1算法加密得到signature。</p>
+</li>
+<li><p>最后返回至页面，在wx.config里面填入appid，上一步的时间戳timestamp，上一部的随机字符串、sha1拿到的signature，想要使用的JS接口。</p>
+</li>
+</ol>
+<p>废话少说，直接上代码吧。</p>
+<h3 id="代码时间"><a href="#代码时间" class="headerlink" title="代码时间"></a>代码时间</h3><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div><div class="line">115</div><div class="line">116</div><div class="line">117</div><div class="line">118</div><div class="line">119</div><div class="line">120</div><div class="line">121</div><div class="line">122</div><div class="line">123</div><div class="line">124</div><div class="line">125</div><div class="line">126</div><div class="line">127</div><div class="line">128</div><div class="line">129</div><div class="line">130</div><div class="line">131</div><div class="line">132</div><div class="line">133</div><div class="line">134</div><div class="line">135</div><div class="line">136</div><div class="line">137</div><div class="line">138</div><div class="line">139</div><div class="line">140</div><div class="line">141</div><div class="line">142</div><div class="line">143</div><div class="line">144</div><div class="line">145</div><div class="line">146</div><div class="line">147</div><div class="line">148</div><div class="line">149</div><div class="line">150</div><div class="line">151</div><div class="line">152</div><div class="line">153</div><div class="line">154</div><div class="line">155</div><div class="line">156</div><div class="line">157</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">WeiXinController</span> : <span class="title">Controller</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">string</span> appid =</div><div class="line">    System.Web.Configuration.WebConfigurationManager.AppSettings[<span class="string">"wxappid"</span>];</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">string</span> secret =</div><div class="line">    System.Web.Configuration.WebConfigurationManager.AppSettings[<span class="string">"wxsecret"</span>];</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">readonly</span> <span class="keyword">bool</span> isDedug =</div><div class="line">    System.Web.Configuration.WebConfigurationManager.AppSettings[<span class="string">"IsDebug"</span>] ==<span class="string">"true"</span>;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> _ticket = <span class="string">""</span>;</div><div class="line"></div><div class="line">    <span class="keyword">public</span> <span class="keyword">static</span> DateTime _lastTimestamp;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> ActionResult <span class="title">Info</span>(<span class="params"><span class="keyword">string</span> url,<span class="keyword">string</span> noncestr</span>)</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(_ticket) || </div><div class="line">        _lastTimestamp == <span class="literal">null</span> || (_lastTimestamp - DateTime.Now).Milliseconds &gt; <span class="number">7200</span>)</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> resultString = HTTPHelper.GetHTMLByURL(<span class="string">"https://api.weixin.qq.com/cgi-bin/token?grant_type=client_credential&amp;appid="</span></div><div class="line">                + appid + <span class="string">"&amp;secret="</span> + secret);</div><div class="line">            <span class="keyword">dynamic</span> resultValue = JsonConvert.DeserializeObject&lt;<span class="keyword">dynamic</span>&gt;(resultString);</div><div class="line">            <span class="keyword">if</span> (resultValue == <span class="literal">null</span> || resultValue.access_token == <span class="literal">null</span> </div><div class="line">            || resultValue.access_token.Value == <span class="literal">null</span>)</div><div class="line">            &#123;</div><div class="line">                <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; issuccess = <span class="literal">false</span>, </div><div class="line">                error = <span class="string">"获取token失败"</span> &#125;);</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">var</span> token = resultValue.access_token.Value;</div><div class="line"></div><div class="line">            resultString = HTTPHelper.GetHTMLByURL</div><div class="line">            (<span class="string">"https://api.weixin.qq.com/cgi-bin/ticket/getticket?access_token="</span> + </div><div class="line">            token + <span class="string">"&amp;type=jsapi"</span>);</div><div class="line">            <span class="keyword">dynamic</span> ticketValue = JsonConvert.DeserializeObject&lt;<span class="keyword">dynamic</span>&gt;(resultString);</div><div class="line">            <span class="keyword">if</span> (ticketValue == <span class="literal">null</span> || ticketValue.errcode == <span class="literal">null</span></div><div class="line">            || ticketValue.errcode.Value != <span class="number">0</span> || ticketValue.ticket == <span class="literal">null</span>)</div><div class="line">                <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; issuccess = <span class="literal">false</span>,</div><div class="line">                error = <span class="string">"获取ticketValue失败"</span> &#125;);</div><div class="line">            _ticket = ticketValue.ticket.Value;</div><div class="line">            _lastTimestamp = DateTime.Now;</div><div class="line">            <span class="keyword">var</span> timestamp = GetTimeStamp();</div><div class="line">            <span class="keyword">var</span> hexString = <span class="keyword">string</span>.Format(<span class="string">"jsapi_ticket=&#123;0&#125;&amp;noncestr=&#123;3&#125;&amp;timestamp=&#123;1&#125;&amp;url=&#123;2&#125;"</span>,</div><div class="line">            _ticket, timestamp, url,noncestr);</div><div class="line"></div><div class="line">            <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123;</div><div class="line">                issuccess = <span class="literal">true</span>, </div><div class="line">                sha1value = GetSHA1Value(hexString), </div><div class="line">                timestamp = timestamp, </div><div class="line">                url = url, </div><div class="line">                appid = appid, </div><div class="line">                debug=isDedug,</div><div class="line">                tiket=_ticket</div><div class="line">            &#125;);</div><div class="line">            </div><div class="line">        &#125;</div><div class="line">        <span class="keyword">else</span></div><div class="line">        &#123;</div><div class="line">            <span class="keyword">var</span> timestamp = GetTimeStamp();</div><div class="line">            <span class="keyword">var</span> hexString = <span class="keyword">string</span>.Format(<span class="string">"jsapi_ticket=&#123;0&#125;&amp;noncestr=1234567890123456&amp;timestamp=&#123;1&#125;&amp;url=&#123;2&#125;"</span>,</div><div class="line">               _ticket, timestamp, url);</div><div class="line">            <span class="keyword">return</span> Json(<span class="keyword">new</span> &#123; </div><div class="line">                issuccess = <span class="literal">true</span>, sha1value = GetSHA1Value(hexString),</div><div class="line">                timestamp = timestamp, url = url,</div><div class="line">                appid = appid, debug = isDedug,tiket = _ticket</div><div class="line">            &#125;);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">string</span> <span class="title">GetSHA1Value</span>(<span class="params"><span class="keyword">string</span> sourceString</span>)</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">var</span> hash = SHA1.Create().ComputeHash(Encoding.UTF8.GetBytes(sourceString));</div><div class="line">        <span class="keyword">return</span> <span class="keyword">string</span>.Join(<span class="string">""</span>, </div><div class="line">        hash.Select(b =&gt; b.ToString(<span class="string">"x2"</span>)).ToArray());</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">private</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetTimeStamp</span>(<span class="params"></span>)</span></div><div class="line">    &#123;</div><div class="line"></div><div class="line">        TimeSpan ts = DateTime.Now - <span class="keyword">new</span> DateTime(<span class="number">1970</span>, <span class="number">1</span>, <span class="number">1</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>, <span class="number">0</span>);</div><div class="line"></div><div class="line">        <span class="keyword">return</span> Convert.ToInt64(ts.TotalSeconds).ToString();</div><div class="line"></div><div class="line">    &#125;</div><div class="line"></div><div class="line">&#125;</div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">HTTPHelper</span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">string</span> <span class="title">GetHTMLByURL</span>(<span class="params"><span class="keyword">string</span> url</span>)</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">string</span> htmlCode = <span class="keyword">string</span>.Empty;</div><div class="line">        <span class="keyword">try</span></div><div class="line">        &#123;</div><div class="line">            HttpWebRequest webRequest = (System.Net.HttpWebRequest)System.Net.WebRequest.Create(url);</div><div class="line">            webRequest.Timeout = <span class="number">30000</span>;</div><div class="line">            webRequest.Method = <span class="string">"GET"</span>;</div><div class="line">            webRequest.UserAgent = <span class="string">"Mozilla/4.0"</span>;</div><div class="line">            webRequest.Headers.Add(<span class="string">"Accept-Encoding"</span>, <span class="string">"gzip, deflate"</span>);</div><div class="line">            HttpWebResponse webResponse = (System.Net.HttpWebResponse)webRequest.GetResponse();</div><div class="line">            <span class="comment">//获取目标网站的编码格式</span></div><div class="line">            <span class="keyword">string</span> contentype = webResponse.Headers[<span class="string">"Content-Type"</span>];</div><div class="line">            Regex regex = <span class="keyword">new</span> Regex(<span class="string">"charset\\s*=\\s*[\\W]?\\s*([\\w-]+)"</span>, RegexOptions.IgnoreCase);</div><div class="line">            <span class="keyword">if</span> (webResponse.ContentEncoding.ToLower() == <span class="string">"gzip"</span>)<span class="comment">//如果使用了GZip则先解压</span></div><div class="line">            &#123;</div><div class="line">                <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</div><div class="line">                &#123;</div><div class="line">                    <span class="keyword">using</span> (<span class="keyword">var</span> zipStream = <span class="keyword">new</span> System.IO.Compression.GZipStream(streamReceive, System.IO.Compression.CompressionMode.Decompress))</div><div class="line">                    &#123;</div><div class="line">                        <span class="comment">//匹配编码格式</span></div><div class="line">                        <span class="keyword">if</span> (regex.IsMatch(contentype))</div><div class="line">                        &#123;</div><div class="line">                            Encoding ending = Encoding.GetEncoding</div><div class="line">                            (regex.Match(contentype).Groups[<span class="number">1</span>].Value.Trim());</div><div class="line">                            <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, ending))</div><div class="line">                            &#123;</div><div class="line">                                htmlCode = sr.ReadToEnd();</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                        <span class="keyword">else</span></div><div class="line">                        &#123;</div><div class="line">                            <span class="keyword">using</span> (StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(zipStream, Encoding.UTF8))</div><div class="line">                            &#123;</div><div class="line">                                htmlCode = sr.ReadToEnd();</div><div class="line">                            &#125;</div><div class="line">                        &#125;</div><div class="line">                    &#125;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">else</span></div><div class="line">            &#123;</div><div class="line">                <span class="keyword">using</span> (System.IO.Stream streamReceive = webResponse.GetResponseStream())</div><div class="line">                &#123;</div><div class="line">                    <span class="keyword">var</span> encoding = Encoding.Default;</div><div class="line">                    <span class="keyword">if</span> (contentype.Contains(<span class="string">"utf"</span>))</div><div class="line">                        encoding = Encoding.UTF8;</div><div class="line">                    <span class="keyword">using</span> (System.IO.StreamReader sr = <span class="keyword">new</span> System.IO.StreamReader(streamReceive, encoding))</div><div class="line">                    &#123;</div><div class="line">                        htmlCode = sr.ReadToEnd();</div><div class="line">                    &#125;</div><div class="line"></div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">            <span class="keyword">return</span> htmlCode;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">catch</span> (Exception ex)</div><div class="line">        &#123;</div><div class="line">            <span class="keyword">return</span> <span class="string">""</span>;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>PS：这里要注意缓存一下_ticket（即access_token），照微信文档说的，access_token两个小时内有效，不需要频繁调用。而且获取access_token的接口有调用次数的限制，如果超过了次数，就不允许调用了。</p>
+<p>PPS:建议noncestr和URL由前台传入比较适合，使用 var theWebUrl = window.location.href.split(‘#’)[0] 获取URL，noncestr就随意了。</p>
+<p>PPPS:遇到诡异的invalid signature的时候，首先检查url参数，然后检查noncestr，再不行重启一下程序获取一个新的token回来继续玩。</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/10/22/javascript_requirejs_rf_code/" itemprop="url">
                   使用requirejs编写模块化代码
                 </a>
@@ -1695,135 +1852,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/05/30/the_first_aspnetcore/" itemprop="url">
-                  ASP.NET core 初体验
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-05-30T00:00:00+08:00" content="2016-05-30">
-              2016-05-30
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/net-core/" itemprop="url" rel="index">
-                    <span itemprop="name">.net core</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/05/30/the_first_aspnetcore/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/05/30/the_first_aspnetcore/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>在大神的带领下体验了一下asp.net core，感觉很不错，简单写个手把手教程。</p>
-<p>环境要求：VS2015 update2，版本不限。</p>
-<p>首先到这里：<a href="https://www.microsoft.com/net/download" target="_blank" rel="external">https://www.microsoft.com/net/download</a></p>
-<p>下载.NET Core Install 和SDK Install。</p>
-<p>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/5f4576e6-6fa0-4fbb-83c9-009428480e83" alt="图一"></p>
-<p>接着无脑安装。<br><img src="http://7xread.com1.z0.glb.clouddn.com/a996d00e-5aa5-4034-96ae-548e35c2ba95" alt="图二"></p>
-<p>两个都装完之后环境已经搭好了。不过在VS中还没对应的.NET Core模板。<br>我们还需要去下载一个<br><a href="https://go.microsoft.com/fwlink/?LinkId=798481" target="_blank" rel="external">.NET Core Tooling Preview 1 for Visual Studio 2015</a></p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/07ec4ff1-64ea-486b-8cb8-99dc400c279a" alt="图三"></p>
-<p>这个安装略慢，稍等。</p>
-<p>上面的都安装好了之后，打开VS，新建项目，选中web，即可看到asp.net core.<br>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/aa3a9677-701e-45f0-90ea-b47b57dcb85e" alt="图五"><br>完事….<br>下次再来聊asp.net core项目…</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1869,7 +1897,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">24</span>
+              <span class="site-state-item-count">25</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1886,7 +1914,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">12</span>
+                <span class="site-state-item-count">13</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
