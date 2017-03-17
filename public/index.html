@@ -260,6 +260,183 @@
             
               
                 
+                <a class="post-title-link" href="/2017/03/17/visualstudiocode_for_php_debug/" itemprop="url">
+                  用Visual Studio Code Debug世界上最好的语言
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2017-03-17T00:00:00+08:00" content="2017-03-17">
+              2017-03-17
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/Visual-Studio/" itemprop="url" rel="index">
+                    <span itemprop="name">Visual Studio</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2017/03/17/visualstudiocode_for_php_debug/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/17/visualstudiocode_for_php_debug/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h4 id="前言"><a href="#前言" class="headerlink" title="前言"></a>前言</h4><p>这阵子因缘巧合接手了一个辣鸡项目，是用世界上最好的拍黄片写的，项目基本是另一个小伙伴在撸码，我就兼职打杂和发布做点运维的工作。</p>
+<p>然后昨天项目上了测试版之后，一用起来Error满天飞了。让小伙伴查了很久都没有头绪，实在尴尬，只好自己动手了…</p>
+<p>作为一个后端狗，虽然知道PHP大体原理和框架，看着项目的业务逻辑也大体知道个所以然，在此之前还是没撸过代码的。</p>
+<p>看代码基本是Visual Studio Code或者HBuilder工具，本地跑代码很白痴的在用phpStudy。</p>
+<p>Error出来了，第一反应就是debug咯…然后问了下小伙伴他以前怎么玩的，答曰：echo。</p>
+<p>一口老血都…</p>
+<p>查了下谷歌发现，Visual Studio Code + 插件是完全可以用来调试PHP的，所以就撸起了。</p>
+<h3 id="Visual-Studio-Code-php-debug插件-phpStudy-xdebug"><a href="#Visual-Studio-Code-php-debug插件-phpStudy-xdebug" class="headerlink" title="Visual Studio Code + php-debug插件 + phpStudy + xdebug"></a>Visual Studio Code + php-debug插件 + phpStudy + xdebug</h3><h4 id="安装Visual-Studio-Code"><a href="#安装Visual-Studio-Code" class="headerlink" title="安装Visual Studio Code"></a>安装Visual Studio Code</h4><p>首先肯定是先下载<a href="http://code.visualstudio.com/" target="_blank" rel="external">Visual Studio Code</a> 咯。</p>
+<p>安装好之后，随便在一个文件夹内鼠标“右键”，都能看到Open with code，打开之后如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/b1cee12e-6215-4f04-9dea-3721400e238b" alt="Open with code"></p>
+<h4 id="安装Visual-Studio-Code-php-debug插件"><a href="#安装Visual-Studio-Code-php-debug插件" class="headerlink" title="安装Visual Studio Code php-debug插件"></a>安装Visual Studio Code php-debug插件</h4><p>装好VS Code之后，接下来是安装一下PHP-Debug插件了。我们在插件商城搜索一下php，排名第二的PHP Debug就是我们要的插件了。<br>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/3f798ea9-bba9-4768-9f58-14257ddc1999" alt="PHP-Debug"></p>
+<p>装好了之后重启一下vs code即可。</p>
+<h4 id="phpStudy"><a href="#phpStudy" class="headerlink" title="phpStudy"></a>phpStudy</h4><p>对于我这种懒人来说，去配置什么PHP运行环境肯定是不愿意的，那么类似的集成环境有么？</p>
+<p>小伙伴和我说，你下个<a href="http://www.phpstudy.net/" target="_blank" rel="external">phpStudy</a>撸就算了，别去倒腾什么版本了。</p>
+<p>然后…</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/6c8ea274-9da5-4168-ba80-f6a0f6e173c3" alt="phpStudy"></p>
+<p>下载好了安装完了，打开程序如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/7d2d12e2-783f-4402-8900-0315905c6948" alt="phpStudy"></p>
+<p>看了下功能，其实这个软件就是集成了各种版本的PHP，可以方便切换PHP版本；同时自带一个Apache和MySQL，各种配置管理起来也挺方便的。<br>（感觉dalao们应该不怎么会用这么白痴的东西，233…</p>
+<p>装好之后，启动一下服务，点击一下phpMyAdmin，看看它打开的网站是否能登录到本地的MySQL数据库。</p>
+<p>如果可以，说明PHP环境应该是正常的了；如果有问题，请自行谷歌了…</p>
+<p>接着切换PHP版本到意向版本，点击一下运行模式旁边的“切换版本”就可以选择版本了。</p>
+<h4 id="xdebug设置"><a href="#xdebug设置" class="headerlink" title="xdebug设置"></a>xdebug设置</h4><p><a href="https://xdebug.org/" target="_blank" rel="external">xdebug</a>是什么呢？<br><figure class="highlight awk"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">Xdebug作为PHP调试工具，提供了丰富的调试函数，</div><div class="line">也可将Xdebug安装配置为zend studio、editplus调试PHP的第三方插件，</div><div class="line"></div><div class="line">通过开启自动跟踪(auto_trace)和分析器功能，可以直观的看到PHP源代码的性能数据，</div><div class="line">以便优化PHP代码。</div><div class="line"></div><div class="line">引用自：[PHP调试工具Xdebug安装配置教程]</div><div class="line">(http:<span class="regexp">//</span>www.cnblogs.com<span class="regexp">/qiantuwuliang/</span>archive<span class="regexp">/2011/</span><span class="number">01</span><span class="regexp">/23/</span><span class="number">1942382</span>.html)</div></pre></td></tr></table></figure></p>
+<p>我们可以在<a href="https://xdebug.org/" target="_blank" rel="external">xdebug.org</a>（自备梯子）上面下载到PHP各个版本的xdebug dll使用。</p>
+<p>不过当我打开phpStudy的php-ini打算手动开启debug的时候，非常高兴得发现已经phpStudy已自带了对应版本的xdebug，而且路径都配好了。</p>
+<p>phpStudy的php.ini在“其他选项-打开配置文件-php-ini”，如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/76b103cd-399c-4bce-a716-098adbd4d212" alt="php.ini"></p>
+<p>把文档拉到最后，看得到xdebug的配置如下：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/00285d82-f76f-4fd8-8ba6-f429de194809" alt="xdebug"></p>
+<p>phpStudy已经帮我们配置好xdebug dll的路径了，我们只需要手动在zend_extension上面添加远程调试和自动启动配置即可，代码如下：</p>
+<figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">xdebug.remote_enable = <span class="number">1</span></div><div class="line">xdebug.remote_autostart= <span class="number">1</span></div></pre></td></tr></table></figure>
+<p>完整配置如下：<br><figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[XDebug]</div><div class="line">;xdebug.profiler_output_dir="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\t</span>mp<span class="symbol">\x</span>debug"</div><div class="line">;xdebug.trace_output_dir="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\t</span>mp<span class="symbol">\x</span>debug"</div><div class="line">xdebug.remote_enable = 1</div><div class="line">xdebug.remote_autostart= 1</div><div class="line">;你的PHP版本的php_xdebug.dll，phpStudy自动设置的</div><div class="line">zend_extension="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\p</span>hp<span class="symbol">\p</span>hp-5.5.38<span class="symbol">\e</span>xt<span class="symbol">\p</span>hp_xdebug.dll"</div></pre></td></tr></table></figure></p>
+<p>保存文件，重启一下phpStudy服务。</p>
+<h4 id="Visual-Studio-Code-设置用户配置和调试配置"><a href="#Visual-Studio-Code-设置用户配置和调试配置" class="headerlink" title="Visual Studio Code 设置用户配置和调试配置"></a>Visual Studio Code 设置用户配置和调试配置</h4><p>这个时候，我们随便在PHP文件夹中打开vs code，vs code会自动提示我们：Cannot validate since no PHP executable is set. Use the setting ‘php.validate.executablePath’ to configure the PHP executable.</p>
+<p>嗯，没有设置PHP执行文件，可以通过设置php.validate.executablePath属性来配置它。</p>
+<p>这个在哪配置呢？在“文件-首选项-设置”，打开之后如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/df4428e9-9ef2-435a-a5f5-ae8bade00a39" alt="php.validate.executablePath"></p>
+<p>这个php.validate.executablePath对应就是当前phpStudy中运行的php.exe的路径，可以在phpStudy-其他选项菜单-打开文件位置-PHP中找到此路径。</p>
+<p>保存好了之后，回到Visual Studio Code界面，转到Debug，选择添加配置，之后选择PHP，生成如下图的launch.json：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/e1b74467-9142-4a2f-bf5e-89aa2c2e0127" alt="Listen for XDebug"></p>
+<p>不用改任何东西，直接开撸…</p>
+<h4 id="开启Debug"><a href="#开启Debug" class="headerlink" title="开启Debug"></a>开启Debug</h4><p>确保phpStudy启动了，网站也正常运行起来了,然后在Visual Studio Code中启动调试，打上要的断点，接着启动调试。</p>
+<p>如下图：</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/7ac86cce-edc6-49a6-abb6-44f74c55a027" alt="图片描述"></p>
+<p>接着访问你要调试的页面对应的PHP代码，打上你的断点，华丽丽的Debug出来了…</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/7f7739df-02d4-47e5-8e42-67b9bd9f75ee" alt="异常"></p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/41913030-362c-45cb-a187-08eed7728e8c" alt="命中断点"></p>
+<p>F10单步调试，F11跳入函数，F5直接运行之类的快捷键自己玩吧。</p>
+<h4 id="其他运行环境下的配置"><a href="#其他运行环境下的配置" class="headerlink" title="其他运行环境下的配置"></a>其他运行环境下的配置</h4><p>基本没什么区别，配置php.ini，下载到对应版本的xdebug.dll，php.validate.executablePath配置正确就完事。</p>
+<p>其他参考链接：</p>
+<ol>
+<li><p><a href="http://blog.csdn.net/ruihanchen/article/details/7705842" target="_blank" rel="external"> 如何使用XDebug调试php</a></p>
+</li>
+<li><p><a href="http://www.chenxuanyi.cn/xampp-phpstorm-xdebug.html" target="_blank" rel="external">XAMPP环境下用phpStorm+XDebug进行断点调试的配置</a></p>
+</li>
+<li><p><a href="http://blog.csdn.net/dc_726/article/details/9905517" target="_blank" rel="external">PHPStorm下XDebug配置</a></p>
+</li>
+</ol>
+<h4 id="PS-果然是世界上最好的语言…-逃"><a href="#PS-果然是世界上最好的语言…-逃" class="headerlink" title="PS:果然是世界上最好的语言…(逃"></a>PS:果然是世界上最好的语言…(逃</h4>
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
                 <a class="post-title-link" href="/2016/12/04/how_to_make_crawler_base_netcore/" itemprop="url">
                   手把手教你用.NET Core写爬虫
                 </a>
@@ -1725,178 +1902,6 @@
 
 
     
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
-                <a class="post-title-link" href="/2016/07/28/asp.net-core-startup/" itemprop="url">
-                  ASP.NET Core 启动方式（Hosting）
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2016-07-28T00:00:00+08:00" content="2016-07-28">
-              2016-07-28
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/net-core/" itemprop="url" rel="index">
-                    <span itemprop="name">.net core</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2016/07/28/asp.net-core-startup/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/07/28/asp.net-core-startup/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <p>之前版本的ASP.NET程序必须依赖IIS来启动，而IIS上会为挂载在其中的ASP.NET 注册一个ISAPI filter。每当http请求过来时，IIS则会启动w3wp的worker process来开始整个ASP.NET runtime程序。相信大家都这样的流程都有相应的了解。在.net core之前，ASP.NET的主要场景都是运行在Windows平台的，IIS也就是web server的首选了。虽然也有类似于jexus的linux webserver可用，但是基于mono的.NET 总体还是不够Microsoft 原生的强。</p>
-<p>不过到了现在，一切都不同了。</p>
-<p>新版ASP.NET Core有了.NET Core的支援后已经开始了它的跨平台之旅了，因此ASP.NET Core的启动方式也得开始重新设计以适应新需求了。</p>
-<h3 id="1、Kestrel-和-IIS-platform-handler"><a href="#1、Kestrel-和-IIS-platform-handler" class="headerlink" title="1、Kestrel 和 IIS platform handler"></a>1、Kestrel 和 IIS platform handler</h3><p>在 ASP.NET Core 中，整个runtime都是重写过的，所以它和IIS之间的关系也有所改变。而ASP.NET Core为了跨平台，它现在的执行方式就如一般的Console app一样。ASP.NET Core自带一个高性能的I/O组件 - Kestrel，使得它可以不依赖IIS的存在便启动了runtime。不过Kestrel 也只是一个I/O组件，并没有想IIS提供其它的功能来保护和管理ASP.NET 应用程序。ASP.NET Core同样可以通过IIS进行处理。但是如果通过IIS来进行处理的话，这个时候我们便需要一个“中间人”的角色来负责这个功能了。这个“中间人”的名字叫 Http Platform Handler，主要表现在web.config文档中的设置，其中包括启动ASP.NET Core 程序的的路径和名称，需要传入的参数以及一些其他的设置选项。Http Platform Handler的具体设置例子如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line">&lt;system.webServer&gt;</div><div class="line">    &lt;handlers&gt;</div><div class="line">      &lt;add name=<span class="string">"httpPlatformHandler"</span> path=<span class="string">"*"</span> verb=<span class="string">"*"</span></div><div class="line">      modules=<span class="string">"httpPlatformHandler"</span> resourceType=<span class="string">"Unspecified"</span>/&gt;</div><div class="line">    &lt;/handlers&gt;</div><div class="line">    &lt;httpPlatform processPath=<span class="string">"WebApp.exe"</span> arguments=<span class="string">""</span> </div><div class="line">    stdoutLogEnabled=<span class="string">"false"</span> startupTimeLimit=<span class="string">"3600"</span>/&gt;</div><div class="line">  &lt;/system.webServer&gt;</div></pre></td></tr></table></figure></p>
-<p>关于Http Platform Handler的相关资料可以看这个链接：<br><a href="http://www.iis.net/downloads/microsoft/httpplatformhandler" target="_blank" rel="external">http://www.iis.net/downloads/microsoft/httpplatformhandler</a></p>
-<p>从上面的例子可以看出来，ASP.NET Core编译之后便是一个EXE程序，使得你可以直接运行。因此，当HTTP请求进来时，IIS先接受请求，然后根据你设置的web.config的内容将请求转发给WebApp.exe（你的ASP.NET Core程序），然后WebApp.exe开始执行时便会启动Kestrel，接着这个HTTP请求便进入了ASP.NET Core runtime的世界。这样看来，IIS这时候只是一个简单的proxy/forwarder角色。</p>
-<p>PS：在我翻译整理这个文章的时候，世界已经发生了变化：下个版本的asp.net core 将会有全新的IIS module来取代Http Platform Handler。</p>
-<p>具体详细资料见：<a href="https://github.com/aspnet/IISIntegration/issues/105" target="_blank" rel="external">https://github.com/aspnet/IISIntegration/issues/105</a></p>
-<h3 id="2、Main"><a href="#2、Main" class="headerlink" title="2、Main()"></a>2、Main()</h3><p>ASP.NET Core和其他的.NET 程序一样拥有一个static void Main(),这是整个runtime的进入点。下面看一个样例：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">void</span> <span class="title">Main</span>(<span class="params"><span class="keyword">string</span>[] args</span>)</span></div><div class="line">       &#123;</div><div class="line">           <span class="keyword">var</span> host = <span class="keyword">new</span> WebHostBuilder()</div><div class="line">               .UseServer(<span class="string">"Microsoft.AspNetCore.Server.Kestrel"</span>)</div><div class="line">               .UseContentRoot(Directory.GetCurrentDirectory())</div><div class="line">               .UseDefaultConfiguration(args)</div><div class="line">               .UseIISPlatformHandlerUrl()</div><div class="line">               .UseStartup&lt;Startup&gt;()</div><div class="line">               .Build();</div><div class="line"></div><div class="line">           host.Run();</div><div class="line">       &#125;</div></pre></td></tr></table></figure></p>
-<p>ASP.NET Core host engine 的建立者是 WebHostBuilder．</p>
-<p>它实质上是一个了 IWebHostBuilder interface，其中 UseServer() 是用于指定使用什么样的 server。</p>
-<p>其中 UseServer() 有一个扩展方法UseServer(string assemblyName)。这样的话我们可以直接传入Kestrel的程序集名称:”Microsoft.AspNetCore.Server.Kestrel”。当然，这只是其中一种选项。你也可以自己实现一个自己的 server，只要你的 server 实现了 IServerFactory interface 即可。这样的设计提供了一个很大的弹性空间让我们自行选择hosting server（托管服务）。</p>
-<h3 id="UseContentRoot"><a href="#UseContentRoot" class="headerlink" title="UseContentRoot()"></a>UseContentRoot()</h3><ul>
-<li>这个扩展方法是让我们指定应用程序的工作目录（working directory），如果我们没有指定的话，则会默认为我们的应用（webapp.exe）所在目录为工作目录。</li>
-</ul>
-<h3 id="UseDefaultConfiguration"><a href="#UseDefaultConfiguration" class="headerlink" title="UseDefaultConfiguration()"></a>UseDefaultConfiguration()</h3><ul>
-<li>这个扩展方法使得我们在IWebHostBuilder 建立可以传入一些参数，比如 application key, environment name, server factory location, content root path 等等．因此，当我们在运行 WebApp.exe 的时候，同时可以带入我们需要用到的hosting参数（PS：这样的做法就像运行命令行程序时带入参数，多好玩）。这些参数也可以写在appsettings.json里面通过Configuration来读取。<br>所以，UseDefaultConfiguration() 也不一定非要存在于 Main() 之中。（？？？个人不是很理解）</li>
-</ul>
-<p>PS：原作者原话，”如果我沒记错的话，在写这个文章的时候，UseDefaultConfiguration() 已经被改为成了UseDefaultHostingConfiguration()．显然这个名称更能清楚明白．”(？？？个人还没实践)</p>
-<h3 id="UseIISPlatofmrHandleUrl"><a href="#UseIISPlatofmrHandleUrl" class="headerlink" title="UseIISPlatofmrHandleUrl()"></a>UseIISPlatofmrHandleUrl()</h3><ul>
-<li>这个 IWebHostBuilder 的 扩展方法比较特殊。如果你要把 ASP.NET Core 放在 IIS 下，这个扩展方法会读取 IIS http platform handler 的 server port 和 application path，用于作为 ASP.NET Core 的启动位置，如 <a href="http://localhost:5000/start．如果你沒用" target="_blank" rel="external">http://localhost:5000/start．如果你沒用</a> IIS，这个扩展方法对你来说基本是用不上的．</li>
-</ul>
-<h3 id="UseStartup-lt-gt"><a href="#UseStartup-lt-gt" class="headerlink" title="UseStartup&lt;&gt;()"></a>UseStartup&lt;&gt;()</h3><ul>
-<li>这是 WebHostBuilder 里相当重要的一个扩展方法。它的方法签名如下：</li>
-</ul>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> IWebHostBuilder UseStartup&lt;TStartup&gt;</div><div class="line">(<span class="keyword">this</span> IWebHostBuilder hostBuilder) <span class="keyword">where</span> TStartup : <span class="keyword">class</span></div></pre></td></tr></table></figure>
-<p>这里你可以很清楚地看到 &lt;&gt; 里面要放的就是一个 class。</p>
-<p>在我们这里的范例中，它的名字是 Startup，里面最重要的就是需要定义要使用那些服务(service)以及要使用那些中间件(middleware)。</p>
-<h3 id="3、Startup"><a href="#3、Startup" class="headerlink" title="3、Startup"></a>3、Startup</h3><p>这是一个非常非常重要的class,在ASP.NET Core范例中一般都把它命名成Startup。其实我们把它命名成其他名字也是可以的，或者设定多个Startup。上面的内容可以看到，UseStartup()指定了谁是starup class。然后在Build()便会实例化starup class，之后便执行里面两个重要的方法：ConfigureServices() 和 Configure()。</p>
-<p>我们先來看 Startup 的构造函数.</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="title">Startup</span>(<span class="params">IHostingEnvironment env</span>)</span></div><div class="line">       &#123;</div><div class="line">           <span class="comment">// Set up configuration sources.</span></div><div class="line">           <span class="keyword">var</span> builder = <span class="keyword">new</span> ConfigurationBuilder()</div><div class="line">               .AddJsonFile(<span class="string">"appsettings.json"</span>)</div><div class="line">               .AddJsonFile(<span class="string">$"appsettings.<span class="subst">&#123;env.EnvironmentName&#125;</span>.json"</span>, optional: <span class="literal">true</span>)</div><div class="line">               .AddEnvironmentVariables();</div><div class="line">           Configuration = builder.Build().ReloadOnChanged(<span class="string">"appsettings.json"</span>);</div><div class="line">       &#125;</div></pre></td></tr></table></figure>
-<p>Host engine 在被执行 Build()时已经知道 startup type 是 Startup class，所以在 Build() 的时候会先创建期示例。在我们这里的是调用Startup类带参数的构造函数。</p>
-<p>在我们这个例子中选择的是传入IHostingEnvironment示例，它为我们带来了环境变量（EnvironmentName）。</p>
-<p>我们这里主要目的是把Configuration实例化。这是一个蛮重要的基础组件，以后会有文章来说明它。</p>
-<p>在这里我们特别说明一下，上面的示例代码中，我们执行了两次 AddJsonFile()，而且第二个json file的参数和第一个的还不太一样。这样的目的是为了让开发者可以把开发环境使用的环境参数和其他环境使用的参数有所区别。比如，你使用的开发环境用的是appsettings.json，这个文件只存在于你的电脑中。另一个文档是appsettings.production.json，这是正式环境使用的参数设定文档。第二個 AddJsonFile() 第二個参数是 true，也就是可能不存在的意思。所以若遇到重复名称参数时，appsettings.production.json 会覆盖 appsettings.json 的內容。这样使得开发环境和生产环境得以区分。</p>
-<p>接下来，在 IWebHostBuilder 的 Build()里面会执行 host engine 初始化的程序，其中就会去找Startup class里面的两个方法： ConfigureServices() 和 Configure()。</p>
-<p> ConfigureSerivces() 是定义了这个 web application 要使用那些服务，然后将这些服务放在 service container (IServiceCollection) 裡面。如下面的样例：</p>
- <figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line"> </div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">ConfigureServices</span>(<span class="params">IServiceCollection services</span>)</span></div><div class="line">     &#123;</div><div class="line">         <span class="comment">// add entity framework</span></div><div class="line">         services.AddEntityFramework()</div><div class="line">                 .AddDbContext&lt;BlogsContext&gt;(o =&gt; o.UseSqlServer(Configuration[<span class="string">"Data1:DefaultConnection:ConnectionString"</span>]))</div><div class="line">          </div><div class="line">         <span class="comment">// Add framework services.</span></div><div class="line">         services.AddMvc();</div><div class="line">     &#125;</div></pre></td></tr></table></figure>
-<p>它定义了entity framework和mvc两个服务。这里所谓的服务（services）的意思也就是通过它们带入更庞大的程序代码。这听起来好像有点搞笑，但也真的如此。像Entity framework 里面有这么多的代码，一定都需要带入许多定义好的物件或者参数，而不只是一个程序的进去点而已，所以services 的目的就是在这里。</p>
-<p>Configure() 主要是定义了中间件（middleware）以及它们的顺序．</p>
-<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, ILoggerFactory loggerFactory</span>)</span></div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseStaticFiles();</div><div class="line"></div><div class="line">    app.UseMvcWithDefaultRoute();</div><div class="line">&#125;</div></pre></td></tr></table></figure>
-<h3 id="4、Build-和-Run"><a href="#4、Build-和-Run" class="headerlink" title="4、Build 和 Run"></a>4、Build 和 Run</h3><p>最后，在IHostWebBuilder里最后的两个动作便是：Build and Run. </p>
-<h3 id="Build"><a href="#Build" class="headerlink" title="Build()"></a>Build()</h3><ul>
-<li>这个方法做的工作便是建立 hosting service，把 Startup 中定义的的 services 和 middleware 接收过来，然后确定content root path 和 application name，接着一句前面这些资料再加上Configuration过来的数据来初始化host engine (WebHost.cs)．</li>
-</ul>
-<h3 id="Run"><a href="#Run" class="headerlink" title="Run()"></a>Run()</h3><ul>
-<li>这个是启动 host engine 的 扩展方法，它在启动之前加入了一个 CancelKeyPress 的事件．因为在 Run() 方法 中传入入了 CancellationTokenSource() ，让我们有一个方法可以随时中断host engine的执行。</li>
-</ul>
-<p>目前的做法就用是 CancelKeyPress 事件，所以你可以按下 Ctrl+C  來中止 host engine 的执行．</p>
-<p>比较特別的是，这一段中止的文字说明居然是用 hard code，參考如下:</p>
-<p>host.Run(cts.Token, “Application started. Press Ctrl+C to shut down.”);</p>
-<p>不过这样的话，这里你也不能写中文…</p>
-<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/28/20160327</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
   </section>
 
   
@@ -1942,7 +1947,7 @@
         <nav class="site-state motion-element">
           <div class="site-state-item site-state-posts">
             <a href="/archives">
-              <span class="site-state-item-count">26</span>
+              <span class="site-state-item-count">27</span>
               <span class="site-state-item-name">日志</span>
             </a>
           </div>
@@ -1959,7 +1964,7 @@
           
             <div class="site-state-item site-state-tags">
               <a href="/tags">
-                <span class="site-state-item-count">14</span>
+                <span class="site-state-item-count">17</span>
                 <span class="site-state-item-name">标签</span>
               </a>
             </div>
@@ -2041,7 +2046,7 @@
         <div class="copyright" >
   
   &copy; 
-  <span itemprop="copyrightYear">2016</span>
+  <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-heart"></i>
   </span>
