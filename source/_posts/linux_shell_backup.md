@@ -2,7 +2,7 @@
 layout: post
 title: ubuntu相关软件配置备忘录
 category: ubuntu
-date: 2017-03-25 00:00:00
+date: 2016-01-01 00:00:00
 tags:
 - linux
 - memorandum

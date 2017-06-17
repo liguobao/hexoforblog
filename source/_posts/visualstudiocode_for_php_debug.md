@@ -33,12 +33,12 @@ Error出来了，第一反应就是debug咯...然后问了下小伙伴他以前�
 
 安装好之后，随便在一个文件夹内鼠标“右键”，都能看到Open with code，打开之后如下图：
 
-![Open with code](http://7xread.com1.z0.glb.clouddn.com/b1cee12e-6215-4f04-9dea-3721400e238b)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/77bd5dbc-b738-4445-8598-2783ff876aca)
 
 #### 安装Visual Studio Code php-debug插件
 装好VS Code之后，接下来是安装一下PHP-Debug插件了。我们在插件商城搜索一下php，排名第二的PHP Debug就是我们要的插件了。
 如下图：
-![PHP-Debug](http://7xread.com1.z0.glb.clouddn.com/3f798ea9-bba9-4768-9f58-14257ddc1999)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/02f2cba5-5872-4e8f-8d83-89d0e82c6540)
 
 装好了之后重启一下vs code即可。
 
@@ -49,11 +49,11 @@ Error出来了，第一反应就是debug咯...然后问了下小伙伴他以前�
 
 然后...
 
-![phpStudy](http://7xread.com1.z0.glb.clouddn.com/6c8ea274-9da5-4168-ba80-f6a0f6e173c3)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/23baf3f9-0fa7-446e-8f58-4d63c0306700)
 
 下载好了安装完了，打开程序如下图：
 
-![phpStudy](http://7xread.com1.z0.glb.clouddn.com/7d2d12e2-783f-4402-8900-0315905c6948)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/b3836805-41f0-4d4d-8bbc-4a14e9557052)
 
 看了下功能，其实这个软件就是集成了各种版本的PHP，可以方便切换PHP版本；同时自带一个Apache和MySQL，各种配置管理起来也挺方便的。
 （感觉dalao们应该不怎么会用这么白痴的东西，233...
@@ -83,11 +83,11 @@ Xdebug作为PHP调试工具，提供了丰富的调试函数，
 
 phpStudy的php.ini在“其他选项-打开配置文件-php-ini”，如下图：
 
-![php.ini](http://7xread.com1.z0.glb.clouddn.com/76b103cd-399c-4bce-a716-098adbd4d212)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/d53fd113-e81b-4de2-bab5-00e7d168c5cb)
 
 把文档拉到最后，看得到xdebug的配置如下：
 
-![xdebug](http://7xread.com1.z0.glb.clouddn.com/00285d82-f76f-4fd8-8ba6-f429de194809)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/51f5f593-81cc-4c7c-b9ee-aa2c464e445b)
 
 phpStudy已经帮我们配置好xdebug dll的路径了，我们只需要手动在zend_extension上面添加远程调试和自动启动配置即可，代码如下：
 
@@ -123,13 +123,15 @@ zend_extension="C:\phpStudy\php\php-5.5.38\ext\php_xdebug.dll"
 这个在哪配置呢？在“文件-首选项-设置”，打开之后如下图：
 
 
-![php.validate.executablePath](http://7xread.com1.z0.glb.clouddn.com/df4428e9-9ef2-435a-a5f5-ae8bade00a39)
+![php.validate.executablePath](http://7xrayk.com1.z0.glb.clouddn.com/d4dddab0-334c-45da-b89b-2ee3ed1517a4)
 
 这个php.validate.executablePath对应就是当前phpStudy中运行的php.exe的路径，可以在phpStudy-其他选项菜单-打开文件位置-PHP中找到此路径。
 
 保存好了之后，回到Visual Studio Code界面，转到Debug，选择添加配置，之后选择PHP，生成如下图的launch.json：
 
-![Listen for XDebug](http://7xread.com1.z0.glb.clouddn.com/e1b74467-9142-4a2f-bf5e-89aa2c2e0127)
+
+![Listen for XDebug](http://7xrayk.com1.z0.glb.clouddn.com/4a6d2f63-33eb-440f-97ec-e13d30ae6027)
+
 
 
 不用改任何东西，直接开撸...
@@ -140,14 +142,11 @@ zend_extension="C:\phpStudy\php\php-5.5.38\ext\php_xdebug.dll"
 
 如下图：
 
-![图片描述](http://7xread.com1.z0.glb.clouddn.com/7ac86cce-edc6-49a6-abb6-44f74c55a027)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/f327e135-9ec6-41a1-878c-0cdca4ca9c36)
 
 接着访问你要调试的页面对应的PHP代码，打上你的断点，华丽丽的Debug出来了...
 
-![异常](http://7xread.com1.z0.glb.clouddn.com/7f7739df-02d4-47e5-8e42-67b9bd9f75ee)
-
-
-![命中断点](http://7xread.com1.z0.glb.clouddn.com/41913030-362c-45cb-a187-08eed7728e8c)
+![图片描述](http://7xrayk.com1.z0.glb.clouddn.com/dba6c24d-dda4-4cc9-9682-a3e68f13d5a7)
 
 
 F10单步调试，F11跳入函数，F5直接运行之类的快捷键自己玩吧。

@@ -260,134 +260,6 @@
             
               
                 
-                <a class="post-title-link" href="/2017/03/25/linux_shell_backup/" itemprop="url">
-                  ubuntu相关软件配置备忘录
-                </a>
-              
-            
-          </h1>
-        
-
-        <div class="post-meta">
-          <span class="post-time">
-            <span class="post-meta-item-icon">
-              <i class="fa fa-calendar-o"></i>
-            </span>
-            <span class="post-meta-item-text">发表于</span>
-            <time itemprop="dateCreated" datetime="2017-03-25T00:00:00+08:00" content="2017-03-25">
-              2017-03-25
-            </time>
-          </span>
-
-          
-            <span class="post-category" >
-              &nbsp; | &nbsp;
-              <span class="post-meta-item-icon">
-                <i class="fa fa-folder-o"></i>
-              </span>
-              <span class="post-meta-item-text">分类于</span>
-              
-                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
-                  <a href="/categories/ubuntu/" itemprop="url" rel="index">
-                    <span itemprop="name">ubuntu</span>
-                  </a>
-                </span>
-
-                
-                
-
-              
-            </span>
-          
-
-          
-            
-              <span class="post-comments-count">
-                &nbsp; | &nbsp;
-                <a href="/2017/03/25/linux_shell_backup/#comments" itemprop="discussionUrl">
-                  <span class="post-comments-count ds-thread-count" data-thread-key="2017/03/25/linux_shell_backup/" itemprop="commentsCount"></span>
-                </a>
-              </span>
-            
-          
-
-          
-
-          
-          
-
-          
-        </div>
-      </header>
-    
-
-
-    <div class="post-body" itemprop="articleBody">
-
-      
-      
-
-      
-        
-          
-            <h4 id="端口占用相关"><a href="#端口占用相关" class="headerlink" title="端口占用相关"></a>端口占用相关</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//查找端口占用情况</span></div><div class="line"><span class="symbol">$</span> netstat -anp | grep <span class="string">"5000"</span></div><div class="line"> </div><div class="line"><span class="comment">//干掉某个进程</span></div><div class="line"><span class="symbol">$</span> kill <span class="number">-9</span> <span class="number">2553</span></div><div class="line"> </div><div class="line"><span class="comment">//后台运行 </span></div><div class="line"><span class="symbol">$</span> nohup command &amp;</div></pre></td></tr></table></figure>
-<h4 id="安装SS"><a href="#安装SS" class="headerlink" title="安装SS"></a>安装SS</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line"><span class="symbol">$</span> apt-get update</div><div class="line"><span class="comment">//安装ss</span></div><div class="line"><span class="symbol">$</span> apt-get install python-pip </div><div class="line"><span class="symbol">$</span> pip install shadowsocks</div><div class="line"><span class="comment">//运行ss服务端</span></div><div class="line"><span class="symbol">$</span> nohup ssserver -s ip地址 -k 密码 &amp;</div></pre></td></tr></table></figure>
-<h4 id="安装MySQL5-7"><a href="#安装MySQL5-7" class="headerlink" title="安装MySQL5.7"></a>安装MySQL5.7</h4><figure class="highlight smali"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">http://tecadmin.net/install-mysql-5-on-ubuntu/</div><div class="line"></div><div class="line">$ sudo apt-get install software-properties-common</div><div class="line">$ sudo<span class="built_in"> add-apt-repository </span>-y ppa:ondrej/mysql-5.7</div><div class="line">$ sudo apt-get update</div><div class="line">$ sudo apt-get install mysql-server</div><div class="line"></div><div class="line">//编辑此处，允许远程登录</div><div class="line">/etc/mysql/my.cnf</div><div class="line"></div><div class="line">bind-address		= 0.0.0.0</div><div class="line"></div><div class="line">//重启MySQL</div><div class="line">$ /etc/init.d/mysql restart</div></pre></td></tr></table></figure>
-<h4 id="MySQL添加用户"><a href="#MySQL添加用户" class="headerlink" title="MySQL添加用户"></a>MySQL添加用户</h4><figure class="highlight sql"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">//新增用户</div><div class="line"><span class="keyword">grant</span> all <span class="keyword">privileges</span>  <span class="keyword">on</span> *.* <span class="keyword">to</span> root@<span class="string">'%'</span> <span class="keyword">identified</span> <span class="keyword">by</span> <span class="string">"root"</span>;</div><div class="line">//立即生效</div><div class="line"><span class="keyword">flush</span> <span class="keyword">privileges</span>;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">grant</span> <span class="keyword">select</span>,<span class="keyword">insert</span>,<span class="keyword">update</span>,<span class="keyword">delete</span>,<span class="keyword">create</span>,<span class="keyword">drop</span> <span class="keyword">on</span>  <span class="keyword">to</span> joe@<span class="number">10.163</span><span class="number">.225</span><span class="number">.87</span> <span class="keyword">identified</span> <span class="keyword">by</span> ‘<span class="number">123</span>′;</div><div class="line"></div><div class="line"></div><div class="line"><span class="keyword">grant</span> all  <span class="keyword">on</span> xxxDB.* <span class="keyword">to</span> xxx@<span class="string">'%'</span>;</div></pre></td></tr></table></figure>
-<h4 id="MySQL提示“Checking-for-tables-which-need-an-upgrade-are-corrupt-or-were-not-closed-cleanly”"><a href="#MySQL提示“Checking-for-tables-which-need-an-upgrade-are-corrupt-or-were-not-closed-cleanly”" class="headerlink" title="MySQL提示“Checking for tables which need an upgrade, are corrupt or were not closed cleanly”"></a>MySQL提示“Checking for tables which need an upgrade, are corrupt or were not closed cleanly”</h4><p>操作步骤：</p>
-<figure class="highlight livecodeserver"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">$ sudo service mysql <span class="built_in">stop</span> </div><div class="line">$ sudo /etc/init.d/apparmor reload</div><div class="line">$ sudo service mysql <span class="built_in">start</span></div><div class="line"></div><div class="line"></div><div class="line">或者：</div><div class="line"></div><div class="line">down vote</div><div class="line">This error occurs due <span class="built_in">to</span> multiple installations <span class="keyword">of</span> mysql. Run <span class="keyword">the</span> <span class="keyword">command</span>:</div><div class="line"></div><div class="line">$ ps -A|grep mysql</div><div class="line">Kill <span class="keyword">the</span> <span class="built_in">process</span> <span class="keyword">by</span> <span class="keyword">using</span>:</div><div class="line"></div><div class="line">$ sudo pkill mysql</div><div class="line"><span class="keyword">and</span> <span class="keyword">then</span> run <span class="keyword">command</span>:</div><div class="line"></div><div class="line">$ ps -A|grep mysqld</div><div class="line">Also Kill this <span class="built_in">process</span> <span class="keyword">by</span> running:</div><div class="line"></div><div class="line">$ sudo pkill mysqld</div><div class="line">Now you are fully <span class="built_in">set</span> just run <span class="keyword">the</span> following commands:</div><div class="line"></div><div class="line">$ service mysql restart</div><div class="line">mysql -u root -p</div></pre></td></tr></table></figure>
-<h4 id="7z相关操作"><a href="#7z相关操作" class="headerlink" title="7z相关操作"></a>7z相关操作</h4><figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//压缩</span></div><div class="line">$ <span class="number">7</span>z a -t7z -r manager<span class="number">.7</span>z /home/manager<span class="comment">/*</span></div><div class="line">//解压</div><div class="line">$ 7z X xx.zip</div></pre></td></tr></table></figure>
-<h4 id="腾讯云修改密码-允许root登录"><a href="#腾讯云修改密码-允许root登录" class="headerlink" title="腾讯云修改密码,允许root登录"></a>腾讯云修改密码,允许root登录</h4><figure class="highlight elixir"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="variable">$ </span>sudo passwd root</div><div class="line"></div><div class="line"><span class="variable">$ </span>sudo vi /etc/ssh/sshd_config</div><div class="line"></div><div class="line"><span class="variable">$ </span>sudo service ssh  restart</div></pre></td></tr></table></figure>
-<h4 id="开机启动相关"><a href="#开机启动相关" class="headerlink" title="开机启动相关"></a>开机启动相关</h4><figure class="highlight gams"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div></pre></td><td class="code"><pre><div class="line"><span class="comment">//查看开机启动相关程序</span></div><div class="line"><span class="symbol">$</span> ls /etc/rc*</div><div class="line"><span class="comment">//安装sysv-rc-conf</span></div><div class="line"><span class="symbol">$</span> sudo apt-get install sysv-rc-conf</div><div class="line"><span class="symbol">$</span> sudo sysv-rc-conf</div></pre></td></tr></table></figure>
-
-          
-        
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <div>
-      
-    </div>
-
-    <footer class="post-footer">
-      
-
-      
-
-      
-      
-        <div class="post-eof"></div>
-      
-    </footer>
-  </article>
-
-
-    
-      
-
-  
-  
-
-  
-  
-  
-
-  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
-
-    
-      <header class="post-header">
-
-        
-        
-          <h1 class="post-title" itemprop="name headline">
-            
-            
-              
-                
                 <a class="post-title-link" href="/2017/03/17/visualstudiocode_for_php_debug/" itemprop="url">
                   用Visual Studio Code Debug世界上最好的语言
                 </a>
@@ -467,15 +339,15 @@
 <p>查了下谷歌发现，Visual Studio Code + 插件是完全可以用来调试PHP的，所以就撸起了。</p>
 <h4 id="Visual-Studio-Code-php-debug插件-phpStudy-xdebug"><a href="#Visual-Studio-Code-php-debug插件-phpStudy-xdebug" class="headerlink" title="Visual Studio Code + php-debug插件 + phpStudy + xdebug"></a>Visual Studio Code + php-debug插件 + phpStudy + xdebug</h4><h4 id="安装Visual-Studio-Code"><a href="#安装Visual-Studio-Code" class="headerlink" title="安装Visual Studio Code"></a>安装Visual Studio Code</h4><p>首先肯定是先下载<a href="http://code.visualstudio.com/" target="_blank" rel="external">Visual Studio Code</a> 咯。</p>
 <p>安装好之后，随便在一个文件夹内鼠标“右键”，都能看到Open with code，打开之后如下图：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/b1cee12e-6215-4f04-9dea-3721400e238b" alt="Open with code"></p>
-<h4 id="安装Visual-Studio-Code-php-debug插件"><a href="#安装Visual-Studio-Code-php-debug插件" class="headerlink" title="安装Visual Studio Code php-debug插件"></a>安装Visual Studio Code php-debug插件</h4><p>装好VS Code之后，接下来是安装一下PHP-Debug插件了。我们在插件商城搜索一下php，排名第二的PHP Debug就是我们要的插件了。<br>如下图：<br><img src="http://7xread.com1.z0.glb.clouddn.com/3f798ea9-bba9-4768-9f58-14257ddc1999" alt="PHP-Debug"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/77bd5dbc-b738-4445-8598-2783ff876aca" alt="图片描述"></p>
+<h4 id="安装Visual-Studio-Code-php-debug插件"><a href="#安装Visual-Studio-Code-php-debug插件" class="headerlink" title="安装Visual Studio Code php-debug插件"></a>安装Visual Studio Code php-debug插件</h4><p>装好VS Code之后，接下来是安装一下PHP-Debug插件了。我们在插件商城搜索一下php，排名第二的PHP Debug就是我们要的插件了。<br>如下图：<br><img src="http://7xrayk.com1.z0.glb.clouddn.com/02f2cba5-5872-4e8f-8d83-89d0e82c6540" alt="图片描述"></p>
 <p>装好了之后重启一下vs code即可。</p>
 <h4 id="phpStudy"><a href="#phpStudy" class="headerlink" title="phpStudy"></a>phpStudy</h4><p>对于我这种懒人来说，去配置什么PHP运行环境肯定是不愿意的，那么类似的集成环境有么？</p>
 <p>小伙伴和我说，你下个<a href="http://www.phpstudy.net/" target="_blank" rel="external">phpStudy</a>撸就算了，别去倒腾什么版本了。</p>
 <p>然后…</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/6c8ea274-9da5-4168-ba80-f6a0f6e173c3" alt="phpStudy"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/23baf3f9-0fa7-446e-8f58-4d63c0306700" alt="图片描述"></p>
 <p>下载好了安装完了，打开程序如下图：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7d2d12e2-783f-4402-8900-0315905c6948" alt="phpStudy"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/b3836805-41f0-4d4d-8bbc-4a14e9557052" alt="图片描述"></p>
 <p>看了下功能，其实这个软件就是集成了各种版本的PHP，可以方便切换PHP版本；同时自带一个Apache和MySQL，各种配置管理起来也挺方便的。<br>（感觉dalao们应该不怎么会用这么白痴的东西，233…</p>
 <p>装好之后，启动一下服务，点击一下phpMyAdmin，看看它打开的网站是否能登录到本地的MySQL数据库。</p>
 <p>如果可以，说明PHP环境应该是正常的了；如果有问题，请自行谷歌了…</p>
@@ -484,9 +356,9 @@
 <p>我们可以在<a href="https://xdebug.org/" target="_blank" rel="external">xdebug.org</a>（自备梯子）上面下载到PHP各个版本的xdebug dll使用。</p>
 <p>不过当我打开phpStudy的php-ini打算手动开启debug的时候，非常高兴得发现已经phpStudy已自带了对应版本的xdebug，而且路径都配好了。</p>
 <p>phpStudy的php.ini在“其他选项-打开配置文件-php-ini”，如下图：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/76b103cd-399c-4bce-a716-098adbd4d212" alt="php.ini"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/d53fd113-e81b-4de2-bab5-00e7d168c5cb" alt="图片描述"></p>
 <p>把文档拉到最后，看得到xdebug的配置如下：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/00285d82-f76f-4fd8-8ba6-f429de194809" alt="xdebug"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/51f5f593-81cc-4c7c-b9ee-aa2c464e445b" alt="图片描述"></p>
 <p>phpStudy已经帮我们配置好xdebug dll的路径了，我们只需要手动在zend_extension上面添加远程调试和自动启动配置即可，代码如下：</p>
 <figure class="highlight lsl"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line"></div><div class="line">xdebug.remote_enable = <span class="number">1</span></div><div class="line">xdebug.remote_autostart= <span class="number">1</span></div></pre></td></tr></table></figure>
 <p>完整配置如下：<br><figure class="highlight taggerscript"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">[XDebug]</div><div class="line">;xdebug.profiler_output_dir="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\t</span>mp<span class="symbol">\x</span>debug"</div><div class="line">;xdebug.trace_output_dir="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\t</span>mp<span class="symbol">\x</span>debug"</div><div class="line">xdebug.remote_enable = 1</div><div class="line">xdebug.remote_autostart= 1</div><div class="line">;你的PHP版本的php_xdebug.dll，phpStudy自动设置的</div><div class="line">zend_extension="C:<span class="symbol">\p</span>hpStudy<span class="symbol">\p</span>hp<span class="symbol">\p</span>hp-5.5.38<span class="symbol">\e</span>xt<span class="symbol">\p</span>hp_xdebug.dll"</div></pre></td></tr></table></figure></p>
@@ -494,17 +366,16 @@
 <h4 id="Visual-Studio-Code-设置用户配置和调试配置"><a href="#Visual-Studio-Code-设置用户配置和调试配置" class="headerlink" title="Visual Studio Code 设置用户配置和调试配置"></a>Visual Studio Code 设置用户配置和调试配置</h4><p>这个时候，我们随便在PHP文件夹中打开vs code，vs code会自动提示我们：Cannot validate since no PHP executable is set. Use the setting ‘php.validate.executablePath’ to configure the PHP executable.</p>
 <p>嗯，没有设置PHP执行文件，可以通过设置php.validate.executablePath属性来配置它。</p>
 <p>这个在哪配置呢？在“文件-首选项-设置”，打开之后如下图：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/df4428e9-9ef2-435a-a5f5-ae8bade00a39" alt="php.validate.executablePath"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/d4dddab0-334c-45da-b89b-2ee3ed1517a4" alt="php.validate.executablePath"></p>
 <p>这个php.validate.executablePath对应就是当前phpStudy中运行的php.exe的路径，可以在phpStudy-其他选项菜单-打开文件位置-PHP中找到此路径。</p>
 <p>保存好了之后，回到Visual Studio Code界面，转到Debug，选择添加配置，之后选择PHP，生成如下图的launch.json：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/e1b74467-9142-4a2f-bf5e-89aa2c2e0127" alt="Listen for XDebug"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/4a6d2f63-33eb-440f-97ec-e13d30ae6027" alt="Listen for XDebug"></p>
 <p>不用改任何东西，直接开撸…</p>
 <h4 id="开启Debug"><a href="#开启Debug" class="headerlink" title="开启Debug"></a>开启Debug</h4><p>确保phpStudy启动了，网站也正常运行起来了,然后在Visual Studio Code中启动调试，打上要的断点，接着启动调试。</p>
 <p>如下图：</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7ac86cce-edc6-49a6-abb6-44f74c55a027" alt="图片描述"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/f327e135-9ec6-41a1-878c-0cdca4ca9c36" alt="图片描述"></p>
 <p>接着访问你要调试的页面对应的PHP代码，打上你的断点，华丽丽的Debug出来了…</p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/7f7739df-02d4-47e5-8e42-67b9bd9f75ee" alt="异常"></p>
-<p><img src="http://7xread.com1.z0.glb.clouddn.com/41913030-362c-45cb-a187-08eed7728e8c" alt="命中断点"></p>
+<p><img src="http://7xrayk.com1.z0.glb.clouddn.com/dba6c24d-dda4-4cc9-9682-a3e68f13d5a7" alt="图片描述"></p>
 <p>F10单步调试，F11跳入函数，F5直接运行之类的快捷键自己玩吧。</p>
 <h4 id="其他运行环境下的配置"><a href="#其他运行环境下的配置" class="headerlink" title="其他运行环境下的配置"></a>其他运行环境下的配置</h4><p>基本没什么区别，配置php.ini，下载到对应版本的xdebug.dll，php.validate.executablePath配置正确就完事。</p>
 <p>其他参考链接：</p>
@@ -1843,6 +1714,165 @@
 <p>后端来说，基本就这些内容了。</p>
 <p>还有一些前端高德地图接口调用下次再讲吧，要陪女票玩游戏去了…</p>
 <p>^-^</p>
+
+          
+        
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <div>
+      
+    </div>
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </article>
+
+
+    
+      
+
+  
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal " itemscope itemtype="http://schema.org/Article">
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+            
+            
+              
+                
+                <a class="post-title-link" href="/2016/08/01/ASP.NET-Core-Middleware/" itemprop="url">
+                  ASP.NET Core Middleware
+                </a>
+              
+            
+          </h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            <span class="post-meta-item-icon">
+              <i class="fa fa-calendar-o"></i>
+            </span>
+            <span class="post-meta-item-text">发表于</span>
+            <time itemprop="dateCreated" datetime="2016-08-01T00:00:00+08:00" content="2016-08-01">
+              2016-08-01
+            </time>
+          </span>
+
+          
+            <span class="post-category" >
+              &nbsp; | &nbsp;
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              <span class="post-meta-item-text">分类于</span>
+              
+                <span itemprop="about" itemscope itemtype="https://schema.org/Thing">
+                  <a href="/categories/net-core/" itemprop="url" rel="index">
+                    <span itemprop="name">.net core</span>
+                  </a>
+                </span>
+
+                
+                
+
+              
+            </span>
+          
+
+          
+            
+              <span class="post-comments-count">
+                &nbsp; | &nbsp;
+                <a href="/2016/08/01/ASP.NET-Core-Middleware/#comments" itemprop="discussionUrl">
+                  <span class="post-comments-count ds-thread-count" data-thread-key="2016/08/01/ASP.NET-Core-Middleware/" itemprop="commentsCount"></span>
+                </a>
+              </span>
+            
+          
+
+          
+
+          
+          
+
+          
+        </div>
+      </header>
+    
+
+
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <p>在ASP.NET 时代，一般来说我们很少会用到HttpModule/HttpHandler，然而有些场景我们使用HttpModule/HttpHandler倒方便快捷完成我们的需求。有兴趣了解HttpModule/HttpHandler以及使用场景的话，可以看下面这个链接的内容。</p>
+<p><a href="http://www.cnblogs.com/fish-li/archive/2013/01/04/2844908.html" target="_blank" rel="external">选择HttpHandler还是HttpModule？</a></p>
+<p>来到ASP.NET Core时代，类似功能的内容可能我们看得就要多得多了。因为在ASP.NET Core时代，微软将HttpModule“变更”之后，并为它授予了更灵活应用场景。</p>
+<p>这就是这个文章要介绍的主角：Middleware（中间件）。</p>
+<h2 id="Middleware"><a href="#Middleware" class="headerlink" title="Middleware"></a>Middleware</h2><p>为了使用跨平台，ASP.NET Core整个架构和代码都重写了一遍，所以 HttpModule 自然也就不存在了。但是相似的功能还是有的，它的名字叫： Middleware。和以前不同，在ASP.NET Core中我们将会经常看到 Middleware的存在，因为现在的每一个服务都是用Middleware的方式呈现在ASP.NET Core 管道中。不仅如此，meddleware比起之前的HttpModule也更弹性易用了。</p>
+<p>首先先来看看什么是middleware。</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env, </span></span></div><div class="line">                      ILoggerFactory loggerFactory)</div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseStaticFiles();</div><div class="line"></div><div class="line">    app.UseMvc(routes =&gt;</div><div class="line">    &#123;</div><div class="line">        routes.MapRoute(<span class="string">"default"</span>,</div><div class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>看过ASP.NET Core项目的话，相信大家对Satarup.cs并不会陌生。在Starup.cs里面便有一个Configure()函数用于定义项目需要使用哪些middleware。</p>
+<p>上面的例子使用了两个middleware，一个是 UseStaticFiles，另一个是 UseMvc。这两个都是core自带的middleware，所以我们可以直接使用。UseStaticFiles 是为HTTP Request提供存取网站的文件，简单理解就是使得网站上的静态文件可访问，而UseMvc就是启用MVC routing机制。有了这两个middleware，我们的的网站就有了MVC routing和读取静态文件的功能。</p>
+<p>如果我们把UseMvc去掉，那么MVC routing也就不存在了，我们输入 <a href="http://website/[Controller]/[Action" target="_blank" rel="external">http://website/[Controller]/[Action</a>] 类似的地址也就无效了。</p>
+<h3 id="和HttpModule的不同之处"><a href="#和HttpModule的不同之处" class="headerlink" title="和HttpModule的不同之处"></a>和HttpModule的不同之处</h3><p>在使用HttpModule的时候，我们是在实现/重写接口，这个时候就要求我们在适当的地方做适当的事情。例如，要做 authorization 的话就最好在 HttpModule 定义好的 Authorization 事件 (AuthorizatRequest) 中完成这个功能。在 ASP.NET life cycle 的文件里我们可以查到 HttpModule  定义了那些事件，每一個事件都有哪些特別的功能。因此我们需要全面了解之后再来选择实现/重写我们需要的事件。而在Middleware中，完全没有这样的限制，也不存在这样的事件，我们可以自行设计实现我们的机制。</p>
+<h2 id="Middleware-流程"><a href="#Middleware-流程" class="headerlink" title="Middleware 流程"></a>Middleware 流程</h2><p><a href="https://docs.asp.net/en/latest/fundamentals/middleware.html" target="_blank" rel="external">https://docs.asp.net/en/latest/fundamentals/middleware.html</a> 这个文章中说明了基本的middleware概念。目前asp.net docs里面有不少的内容都是开源社区开发者贡献的</p>
+<p>在这个文章里面有一个简单的流程图说明了ASP.NET runtime中middleware的执行过程。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/0b6d43ad-7d95-48ea-bbf3-ea7a93c4a366" alt="middleware执行过程"></p>
+<p>在 middleware 里面一定要定义 Invoke()函数，因为这是让 engine 默认调用 middleware 的Incoke函数。Middleware 里面所需要做什么事情就放在 Invoke() 里面，同时 Invoke() 里面还需要调用下一个 middleware。因此执行内容就如上图所示。Middleware 之间除了必须传送 HttpContext之外，也可以自定义传入其他的参数，这比以前的HttpModule方便多了。</p>
+<p>所以当 HTTP request 进来之后，engine 便会呼叫第一个 middleware 的 Invoke()，同时把传入HttpContext，然后第一个 middleware 可以再接着呼叫第二个 middleware 的 Invoke()，同时再把 HttpContext 继续传入，一直到最后一个middleware 的 Invoke() 结束之后，整个 HttpContext 的內容可能在 middleware 里面新增或被改变了，最后再按照整個原先的 call stack 从最后一个 middleware 回到第一个 middleware，再通过  engine 回传到client 端，完成request.</p>
+<p>下来通过一个例子我们一起来了解一下Middleware。</p>
+<h2 id="编写简单的-Middleware"><a href="#编写简单的-Middleware" class="headerlink" title="编写简单的 Middleware"></a>编写简单的 Middleware</h2><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line"><span class="keyword">public</span> <span class="keyword">class</span> <span class="title">SampleMiddleware</span></div><div class="line">&#123;</div><div class="line">    <span class="keyword">private</span> <span class="keyword">readonly</span> RequestDelegate _next;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="title">SampleMiddleware</span>(<span class="params">RequestDelegate next</span>)</span></div><div class="line">    &#123;</div><div class="line">        _next = next;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">async</span> Task <span class="title">Invoke</span>(<span class="params">HttpContext context</span>)</span></div><div class="line">    &#123;</div><div class="line">        <span class="keyword">if</span> (<span class="keyword">string</span>.IsNullOrEmpty(context.User.Identity.Name))</div><div class="line">        &#123;</div><div class="line">            context.Response.Redirect(<span class="string">"/NoName.html"</span>);</div><div class="line">            <span class="keyword">return</span>;</div><div class="line">        &#125;</div><div class="line">        <span class="keyword">await</span> _next.Invoke(context);</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这一个middleware的名字叫SampleMiddleware。它有一个构造函数以及Invoke函数，而Invoke()只接收一个参数HttpContext。</p>
+<p>_next是一个叫 RequestDelegate类型，换言之这就是一个delegate，用于代表下一个middleware是谁。所以在构造函数中要把下一个middleware delegate传入。看到这里或许会觉得奇怪，我们的middleware在执行过程中怎么会知道下一个middleware是谁？这一部分稍后解释。</p>
+<p>在 Invoke() 里面，在 await _next.Invoke() 之前都是当前middleware的逻辑代码，从上面流程图来看的话就是由左自右的方向． await _next.Invoke() 之后的代码是就是流程图上由右至右的方向，因此，透過这样简单的设计，开发者就能很明确地控制什么样逻辑要先做或后做了。</p>
+<p>在 SampleMiddleware 之中，这里只做了一個很简单的动作，如果 username 是空白的话，就将该连接重定向到到 NoName.html 然后中断 middleware 的执行。</p>
+<p>为了能让这个middleware作为 ApplicationBuilder来使用，我们另外需要写一个扩展方法。代码如下：</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="keyword">public</span> <span class="keyword">static</span> <span class="keyword">partial</span> <span class="keyword">class</span> <span class="title">MiddlewareExtensions</span></div><div class="line">&#123;</div><div class="line">    <span class="function"><span class="keyword">public</span> <span class="keyword">static</span> IApplicationBuilder <span class="title">UseSampleMiddleware</span>(<span class="params"></span></span></div><div class="line">    <span class="keyword">this</span> IApplicationBuilder builder)</div><div class="line">    &#123;</div><div class="line">        <span class="keyword">return</span> builder.UseMiddleware&lt;SampleMiddleware&gt;();</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>这给扩展方法建立了UseSampleMiddleware()，使得我们可以让ApplicationBuilder 去读 SampleMiddleware。</p>
+<p>这是回到Startup.cs中，在 Configure() 里面我们就可以把 SampleMiddleware 加入到我们的 pipeline中了。具体代码如下：<br><figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app,IHostingEnvironment env, </span></span></div><div class="line">                      ILoggerFactory loggerFactory)</div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseStaticFiles();</div><div class="line"></div><div class="line">    app.UseSampleMiddleware();   <span class="comment">// &lt;-- SampleMiddleware</span></div><div class="line"></div><div class="line">    app.UseMvc(routes =&gt;</div><div class="line">    &#123;</div><div class="line">        routes.MapRoute(<span class="string">"default"</span>,</div><div class="line">        <span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>把 SampleMiddleware 放在 UseStaticFiles 和 UseMvc 之间，也就是说在 http request 还沒进入到 MVC routing 之前，就会先检查 HttpContext 里面是不是有空白的 username。很显然username肯定是空白的，因为我并沒有加入任何使用者验证代码这里面，所以利用 dotnet run 來运行这个项目的时候，你就会看到 Http code 302 出現，它的意思就是 http redirect，也就是 SampleMiddleware 里面面所做的 redirect 发生作用了。</p>
+<p><img src="http://7xread.com1.z0.glb.clouddn.com/1d7e4c87-9fff-4401-8933-36dcbf857199" alt="http redirect"></p>
+<h2 id="Middleware-的执行顺序很重要"><a href="#Middleware-的执行顺序很重要" class="headerlink" title="Middleware 的执行顺序很重要"></a>Middleware 的执行顺序很重要</h2><p>前面解释了 middleware 执行过程是一个接着一个的．不同的 middleware 对 HttpContext 的內容都可能有不同的处理或更改，因此执行舒服便格外重要。举个例子，如果将上面 Configure() 的代码变更如下:</p>
+<figure class="highlight csharp"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line"></div><div class="line"><span class="function"><span class="keyword">public</span> <span class="keyword">void</span> <span class="title">Configure</span>(<span class="params">IApplicationBuilder app, IHostingEnvironment env,</span></span></div><div class="line">                       ILoggerFactory loggerFactory)</div><div class="line">&#123;</div><div class="line">    loggerFactory.AddConsole(Configuration.GetSection(<span class="string">"Logging"</span>));</div><div class="line">    loggerFactory.AddDebug();</div><div class="line"></div><div class="line">    app.UseSampleMiddleware();   <span class="comment">// SampleMiddleware</span></div><div class="line"></div><div class="line">    app.UseStaticFiles();        <span class="comment">// StaticFiles</span></div><div class="line"></div><div class="line">    app.UseMvc(routes =&gt;</div><div class="line">    &#123;</div><div class="line">        routes.MapRoute(<span class="string">"default"</span>,<span class="string">"&#123;controller=Home&#125;/&#123;action=Index&#125;/&#123;id?&#125;"</span>);</div><div class="line">    &#125;);</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>我们把SampleMiddleware 放到StaticFiles 之前。这就导致在 SampleMiddleware 里重定向到 NoName.html会失败。</p>
+<p>为什么会失败呢? 因为我们的 ApplicationBuilder 执行到行到 SampleMiddleware 时候重定向到NoName.html，也就是做读取静态页面，而这个功能服务方是在下一个 middleware (StaticFiles) 才会提供的，因此 ApplicationBuilder 无法找到 NoName.html，所以在浏览器上也就看不到 NoName.html 的內容。</p>
+<h4 id="Middleware-这样的设计带来了很大的方便和弹性，同時我们自己也要小心-middleware-前后相依性的问题。"><a href="#Middleware-这样的设计带来了很大的方便和弹性，同時我们自己也要小心-middleware-前后相依性的问题。" class="headerlink" title="Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。"></a>Middleware 这样的设计带来了很大的方便和弹性，同時我们自己也要小心 middleware 前后相依性的问题。</h4><h2 id="Middleware-背后原理"><a href="#Middleware-背后原理" class="headerlink" title="Middleware 背后原理"></a>Middleware 背后原理</h2><p>现在 ASP.NET Core 已是开源项目了，所以最后说明一下 middleware 原理的基本概念．整個 ASP.NET fundamental 的部份用了许多的 function delegate , task, denepdency injection 的编写方法，所以要看 source code 之前，建议先对这三个东西先行了解，这样对理解 ASP.NET Core源码很有帮助．</p>
+<p>在前面的代码中，我们看到 RequestDelegate,  顾名思义就知道这是一个delegate（委托），它是用来代表 middleware 的 delegate. 它的 source code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/RequestDelegate.cs" target="_blank" rel="external">RequestDelegate.cs</a></p>
+<p>IApplicationBuilder interface 是一個相当重要的接口，它定义了整個APP要用哪些服务和參數，当然也包含要使用那些 middleware，它的 souce code 在 <a href="https://github.com/aspnet/httpabstractions/blob/master/src/Microsoft.AspNet.Http.Abstractions/IApplicationBuilder.cs" target="_blank" rel="external">IApplicationBuilder.cs</a>。</p>
+<p>其中你可以看到 Use()，通过 Use() 的实例就可以把 middleware delegate 注册到 host engine 上。</p>
+<p>另外一个就是 UseMiddlewareExtensions ，前面的代码曾用了 builder.UseMiddleware<samplemiddleware>(); 它会检查你写的 middleware 是不是合法的，比如有沒有 Invoke()，是不是只有一个Invoke()，Invoke() 的参数有沒有一个是 HttpContext type，所有的检查都通过之后便建立出该middleware instance 的 delegate。</samplemiddleware></p>
+<p>因此，当你的 ASP.NET Core APP刚启动的时候，在 Startup.cs 的 Configure() 就会把所有的 middleware delegate 建立起來，然后依序地放到內部的 stack 结构中。以上面的范例来说， stack 结构第一个元素是 StaticFiles,  然后是 SampleMiddleware 最后是 Mvc。接着每個 middleware 要被建立时是做 stack pop 的操作，所以 Mvc 的 _next 是 engine 里一些內部的 middleware 处理器，然後 pop 出 SampleMiddleware 时，就把 SampleMiddleware 的 _next 指向前面一個 pop 出來的 Mvc。依照着这样的逻辑一直到最前面的 middleware。所以在 host engine 在 Build() 之前这些动作都会完成，然后 host engine 才能执行Run()。有关 host engine 可參考<br><a href="https://github.com/aspnet/hosting/blob/master/src/Microsoft.AspNet.Hosting/WebHostBuilder.cs" target="_blank" rel="external">WebHostBuilder.cs</a></p>
+<p>全文完。</p>
+<p>本文整理于<a href="https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191" target="_blank" rel="external">https://dotblogs.com.tw/aspnetshare/2016/03/20/201603191</a>并已征得作者同意。<br>感谢Bruce的分享。</p>
 
           
         
